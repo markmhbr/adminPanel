@@ -227,13 +227,15 @@ class RolePermissionController extends Controller
         try {
             $school = School::findOrFail($schoolId);
 
-            // Fetch the "Pool" of visible permissions to ensure we don't touch hidden ones
-            $allPermissions = collect(\App\Services\SchoolApiService::getTableData($school, 'permissions'));
+            // Fetch the "Pool" of visible permissions to ensure we don't touch hidden ones (Full list via Raw Query)
+            $allPermissionsRaw = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT id FROM permissions");
+            $allPermissions = collect($allPermissionsRaw['data'] ?? []);
             $visiblePoolIds = $allPermissions->pluck('id')->toArray();
 
             // 1. Update Role Permissions (Non-Destructive Sync)
-            $currentAssigned = collect(\App\Services\SchoolApiService::getTableData($school, 'role_has_permissions'))
-                ->where('role_id', $roleId)
+            // Use raw query for role_has_permissions to ensure we get ALL of them (bypass 100-item limit)
+            $rolePermsRaw = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT permission_id FROM role_has_permissions WHERE role_id = {$roleId}");
+            $currentAssigned = collect($rolePermsRaw['data'] ?? [])
                 ->pluck('permission_id')
                 ->unique()
                 ->toArray();
