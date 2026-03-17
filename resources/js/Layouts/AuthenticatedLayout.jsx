@@ -51,6 +51,13 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Permissions
                                 </NavLink>
+                                <NavLink
+                                    href={route('admin.tokens.index')}
+                                    active={route().current('admin.tokens.index')}
+                                    className="px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200"
+                                >
+                                    Access Tokens
+                                </NavLink>
                             </div>
                         </div>
 
@@ -112,8 +119,8 @@ export default function AuthenticatedLayout({ header, children }) {
                 {/* Mobile Navigation */}
                 <div className={`sm:hidden bg-white/95 backdrop-blur-xl border-t border-gray-100 overflow-hidden transition-all duration-300 ${showingNavigationDropdown ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
                     <div className="p-4 space-y-1">
-                        <ResponsiveNavLink href={route('admin.dashboard')} active={route().current('admin.dashboard')} className="rounded-xl font-bold">Dashboard</ResponsiveNavLink>
                         <ResponsiveNavLink href={route('admin.permissions.index')} active={route().current('admin.permissions.index')} className="rounded-xl font-bold">Permissions</ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('admin.tokens.index')} active={route().current('admin.tokens.index')} className="rounded-xl font-bold">Access Tokens</ResponsiveNavLink>
                     </div>
                 </div>
             </nav>

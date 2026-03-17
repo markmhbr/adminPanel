@@ -36,6 +36,13 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::post('/permissions/{school}/sync', [RolePermissionController::class, 'sync'])->name('permissions.sync');
     Route::post('/permissions/save', [RolePermissionController::class, 'save']);
 
+    // Access Tokens
+    Route::get('/tokens', [\App\Http\Controllers\Admin\AccessTokenController::class, 'index'])->name('tokens.index');
+    Route::post('/tokens', [\App\Http\Controllers\Admin\AccessTokenController::class, 'store'])->name('tokens.store');
+    Route::delete('/tokens/{id}', [\App\Http\Controllers\Admin\AccessTokenController::class, 'destroy'])->name('tokens.destroy');
+    Route::get('/tokens/generate', [\App\Http\Controllers\Admin\AccessTokenController::class, 'generate'])->name('tokens.generate');
+    Route::post('/tokens/{id}/toggle', [\App\Http\Controllers\Admin\AccessTokenController::class, 'toggle'])->name('tokens.toggle');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
