@@ -101,6 +101,7 @@ class RolePermissionController extends Controller
             $activeRolePermissions = DB::connection('tenant')
                 ->table('role_has_permissions')
                 ->where('role_id', $activeRole->id)
+                ->distinct()
                 ->pluck('permission_id')
                 ->toArray();
         }
@@ -282,13 +283,21 @@ class RolePermissionController extends Controller
             ->where('role_id', $roleId)
             ->delete();
             
-        foreach ($request->data as $item) {
-            DB::connection('tenant')
-                ->table('role_has_permissions')
-                ->insert([
+        // Ensure unique permission IDs before saving
+        $permissionData = collect($request->data)
+            ->unique('permission_id')
+            ->map(function ($item) use ($roleId) {
+                return [
                     'permission_id' => $item['permission_id'],
                     'role_id' => $roleId
-                ]);
+                ];
+            })
+            ->toArray();
+
+        foreach ($permissionData as $item) {
+            DB::connection('tenant')
+                ->table('role_has_permissions')
+                ->insert($item);
         }
 
         // Update Restricted Permissions (Global for Tenant)

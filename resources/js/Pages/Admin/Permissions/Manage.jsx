@@ -12,7 +12,7 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
     
     // Sync when props change or initial load
     useEffect(() => {
-        setSelectedPermissions(activeRolePermissions);
+        setSelectedPermissions([...new Set(activeRolePermissions)]);
         
         // Extract restricted permissions from groupedPermissions
         const restrictedIds = [];
@@ -47,9 +47,10 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
     }, [groupedPermissions, searchPermission]);
 
     const togglePermission = (id) => {
-        setSelectedPermissions(prev => 
-            prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
-        );
+        setSelectedPermissions(prev => {
+            const next = prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id];
+            return [...new Set(next)];
+        });
     };
 
     const toggleGroup = (groupPermissions, checked) => {
@@ -64,7 +65,7 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
     const toggleAll = (checked) => {
         if (checked) {
             const allIds = Object.values(groupedPermissions).flat().map(p => p.id);
-            setSelectedPermissions(allIds);
+            setSelectedPermissions([...new Set(allIds)]);
         } else {
             setSelectedPermissions([]);
         }
