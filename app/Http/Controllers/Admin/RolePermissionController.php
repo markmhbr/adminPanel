@@ -238,26 +238,31 @@ class RolePermissionController extends Controller
             'db_database' => 'required|string',
             'db_username' => 'required|string',
             'db_password' => 'nullable|string',
+            'skip_connection_test' => 'nullable|boolean',
         ]);
 
-        // Attempt a test connection before saving to ensure "premium" reliability
-        config([
-            'database.connections.tenant_test' => [
-                'driver' => 'mysql',
-                'host' => $validated['db_host'],
-                'database' => $validated['db_database'],
-                'username' => $validated['db_username'],
-                'password' => $validated['db_password'] ?? '',
-            ]
-        ]);
+        if (!($validated['skip_connection_test'] ?? false)) {
+            // Attempt a test connection before saving to ensure "premium" reliability
+            config([
+                'database.connections.tenant_test' => [
+                    'driver' => 'mysql',
+                    'host' => $validated['db_host'],
+                    'database' => $validated['db_database'],
+                    'username' => $validated['db_username'],
+                    'password' => $validated['db_password'] ?? '',
+                ]
+            ]);
 
-        try {
-            DB::connection('tenant_test')->getPdo();
-        } catch (\Exception $e) {
-            return back()->withErrors(['connection' => 'Gagal menghubungkan ke database: ' . $e->getMessage()]);
+            try {
+                DB::connection('tenant_test')->getPdo();
+            } catch (\Exception $e) {
+                return back()->withErrors(['connection' => 'Gagal menghubungkan ke database: ' . $e->getMessage()]);
+            }
         }
 
-        School::create($validated);
+        // Remove skip_connection_test before creating the model
+        $schoolData = collect($validated)->except('skip_connection_test')->toArray();
+        School::create($schoolData);
 
         return back()->with('success', 'Konfigurasi database sekolah baru berhasil ditambahkan.');
     }

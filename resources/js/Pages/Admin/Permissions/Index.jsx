@@ -19,6 +19,7 @@ export default function Index({ schools }) {
         db_database: '',
         db_username: '',
         db_password: '',
+        skip_connection_test: false,
     });
 
     // Get unique Kabupaten list
@@ -184,6 +185,19 @@ export default function Index({ schools }) {
                                                 <InputError message={errors.db_password} />
                                             </div>
                                         </div>
+
+                                        <div className="flex items-center gap-3 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50">
+                                            <input
+                                                type="checkbox"
+                                                id="skip_connection_test"
+                                                checked={data.skip_connection_test}
+                                                onChange={(e) => setData('skip_connection_test', e.target.checked)}
+                                                className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 transition-all cursor-pointer"
+                                            />
+                                            <label htmlFor="skip_connection_test" className="text-sm font-bold text-gray-700 cursor-pointer select-none">
+                                                Abaikan pengecekan koneksi <span className="text-gray-400 font-medium">(Gunakan jika host belum bisa diakses saat ini)</span>
+                                            </label>
+                                         </div>
 
                                         <div className="flex items-center justify-end gap-4 mt-10 pt-6 border-t border-gray-50">
                                             <SecondaryButton 
