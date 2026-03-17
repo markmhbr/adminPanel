@@ -12,12 +12,16 @@ class RoleController extends Controller
     {
         $schoolId = $request->school_id;
 
-        SwitchSchoolDatabase::connect($schoolId);
+        try {
+            SwitchSchoolDatabase::connect($schoolId);
 
-        $roles = DB::connection('school')
-            ->table('roles')
-            ->get();
+            $roles = DB::connection('school')
+                ->table('roles')
+                ->get();
 
-        return response()->json($roles);
+            return response()->json($roles);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Koneksi database sekolah gagal: ' . $e->getMessage()], 500);
+        }
     }
 }

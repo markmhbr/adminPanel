@@ -15,10 +15,8 @@ export default function Index({ schools }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
-        db_host: '127.0.0.1',
-        db_database: '',
-        db_username: '',
-        db_password: '',
+        api: '',
+        access: '',
         skip_connection_test: false,
     });
 
@@ -126,7 +124,7 @@ export default function Index({ schools }) {
                                             <Dialog.Title as="h3" className="text-2xl font-black text-gray-900 leading-tight">
                                                 Konfigurasi Database Baru
                                             </Dialog.Title>
-                                            <p className="text-gray-400 font-medium mt-1">Masukkan detail kredensial database sekolah.</p>
+                                            <p className="text-gray-400 font-medium mt-1">Masukkan endpoint API dan kode akses sekolah.</p>
                                         </div>
                                         <button 
                                             onClick={() => setIsModalOpen(false)}
@@ -139,50 +137,29 @@ export default function Index({ schools }) {
                                     </div>
 
                                     <form onSubmit={submit} className="space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="grid grid-cols-1 gap-6">
                                             <div className="space-y-2">
-                                                <InputLabel htmlFor="db_host" value="DB Host" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
+                                                <InputLabel htmlFor="api" value="API Endpoint" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
                                                 <TextInput
-                                                    id="db_host"
-                                                    value={data.db_host}
-                                                    onChange={(e) => setData('db_host', e.target.value)}
+                                                    id="api"
+                                                    value={data.api}
+                                                    onChange={(e) => setData('api', e.target.value)}
                                                     className="w-full !rounded-2xl"
+                                                    placeholder="Contoh: http://127.0.0.1:8000/api/admin-panel/table/sekolahs"
                                                 />
-                                                <InputError message={errors.db_host} />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <InputLabel htmlFor="db_database" value="DB Name" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
-                                                <TextInput
-                                                    id="db_database"
-                                                    value={data.db_database}
-                                                    onChange={(e) => setData('db_database', e.target.value)}
-                                                    className="w-full !rounded-2xl"
-                                                    placeholder="Contoh: db_sekolah_a"
-                                                />
-                                                <InputError message={errors.db_database} />
+                                                <InputError message={errors.api} />
                                             </div>
 
                                             <div className="space-y-2">
-                                                <InputLabel htmlFor="db_username" value="Username" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
+                                                <InputLabel htmlFor="access" value="Access Key" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
                                                 <TextInput
-                                                    id="db_username"
-                                                    value={data.db_username}
-                                                    onChange={(e) => setData('db_username', e.target.value)}
+                                                    id="access"
+                                                    value={data.access}
+                                                    onChange={(e) => setData('access', e.target.value)}
                                                     className="w-full !rounded-2xl"
+                                                    placeholder="Masukkan access key sekolah"
                                                 />
-                                                <InputError message={errors.db_username} />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <InputLabel htmlFor="db_password" value="Password" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
-                                                <TextInput
-                                                    id="db_password"
-                                                    type="password"
-                                                    value={data.db_password}
-                                                    onChange={(e) => setData('db_password', e.target.value)}
-                                                    className="w-full !rounded-2xl"
-                                                />
-                                                <InputError message={errors.db_password} />
+                                                <InputError message={errors.access} />
                                             </div>
                                         </div>
 
@@ -194,8 +171,9 @@ export default function Index({ schools }) {
                                                 onChange={(e) => setData('skip_connection_test', e.target.checked)}
                                                 className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 transition-all cursor-pointer"
                                             />
-                                            <label htmlFor="skip_connection_test" className="text-sm font-bold text-gray-700 cursor-pointer select-none">
-                                                Abaikan pengecekan koneksi <span className="text-gray-400 font-medium">(Gunakan jika host belum bisa diakses saat ini)</span>
+                                            <label htmlFor="skip_connection_test" className="text-sm font-bold text-gray-700 cursor-pointer select-none leading-tight">
+                                                Abaikan pengecekan koneksi saat ini <br/>
+                                                <span className="text-gray-400 font-medium text-xs">Centang ini jika host belum bisa dijangkau oleh server (Data akan tetap disimpan).</span>
                                             </label>
                                          </div>
 
