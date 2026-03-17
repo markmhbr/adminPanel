@@ -137,9 +137,11 @@ class RolePermissionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'api' => 'required|string',
+            'api' => 'required|string|unique:schools,api',
             'access' => 'nullable|string',
             'skip_connection_test' => 'nullable|boolean',
+        ], [
+            'api.unique' => 'Domain/API ini sudah terdaftar dalam sistem.'
         ]);
 
         $api = $validated['api'];
@@ -163,9 +165,11 @@ class RolePermissionController extends Controller
     public function update(Request $request, School $school)
     {
         $validated = $request->validate([
-            'api' => 'required|string',
+            'api' => 'required|string|unique:schools,api,' . $school->id,
             'access' => 'nullable|string',
             'skip_connection_test' => 'nullable|boolean',
+        ], [
+            'api.unique' => 'Domain/API ini sudah digunakan oleh unit sekolah lain.'
         ]);
 
         $api = $validated['api'];

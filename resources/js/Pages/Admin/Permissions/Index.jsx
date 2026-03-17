@@ -192,7 +192,7 @@ export default function Index({ schools, tokens }) {
                                     </div>
 
                                     <form onSubmit={submit} className="space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className={`grid grid-cols-1 ${isEditing ? 'md:grid-cols-2' : ''} gap-6`}>
                                             <div className="space-y-2">
                                                 <InputLabel htmlFor="api" value="Domain Sekolah" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
                                                 <TextInput
@@ -205,18 +205,20 @@ export default function Index({ schools, tokens }) {
                                                 <InputError message={errors.api} />
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <InputLabel htmlFor="access" value="Access Key (Opsional)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
-                                                <TextInput
-                                                    id="access"
-                                                    type="password"
-                                                    value={data.access}
-                                                    onChange={(e) => setData('access', e.target.value)}
-                                                    className="w-full !rounded-2xl font-mono"
-                                                    placeholder="Kosongkan untuk gunakan token global"
-                                                />
-                                                <InputError message={errors.access} />
-                                            </div>
+                                            {isEditing && (
+                                                <div className="space-y-2">
+                                                    <InputLabel htmlFor="access" value="Access Key (Opsional)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
+                                                    <TextInput
+                                                        id="access"
+                                                        type="password"
+                                                        value={data.access}
+                                                        onChange={(e) => setData('access', e.target.value)}
+                                                        className="w-full !rounded-2xl font-mono"
+                                                        placeholder="Kosongkan untuk gunakan token global"
+                                                    />
+                                                    <InputError message={errors.access} />
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="flex items-center gap-3 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50">
