@@ -47,6 +47,7 @@ class SchoolApiService
             $allData = [];
             $page = 1;
             $previousPageHash = null;
+            $maxPages = 100; // Safety limit to prevent infinite loops
 
             do {
                 $params['page'] = $page;
