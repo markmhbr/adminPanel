@@ -73,7 +73,12 @@ class RolePermissionController extends Controller
         $permissions = DB::connection('tenant')
             ->table('permissions')
             ->select('id', 'name', 'is_restricted')
-            ->get();
+            ->get()
+            ->map(function ($p) {
+                // Ensure is_restricted is boolean even if DB driver returns string "0"/"1"
+                $p->is_restricted = (bool) $p->is_restricted;
+                return $p;
+            });
 
         // Grouping logic: split by '.' or '-' and take first part as group name
         $groupedPermissions = $permissions->groupBy(function ($permission) {

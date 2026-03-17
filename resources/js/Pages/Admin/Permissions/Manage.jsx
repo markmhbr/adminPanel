@@ -18,7 +18,10 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
         const restrictedIds = [];
         Object.values(groupedPermissions).forEach(group => {
             group.forEach(p => {
-                if (p.is_restricted) restrictedIds.push(p.id);
+                // Robust check for truthy value or string "1"
+                if (p.is_restricted === true || p.is_restricted === 1 || p.is_restricted === "1") {
+                    restrictedIds.push(p.id);
+                }
             });
         });
         setRestrictedPermissions(restrictedIds);
