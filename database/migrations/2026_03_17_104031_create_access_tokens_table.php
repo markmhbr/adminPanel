@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('access_tokens', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->string('token')->unique();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

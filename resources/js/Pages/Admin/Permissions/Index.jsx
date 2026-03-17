@@ -1,4 +1,4 @@
-import { useState, useMemo, Fragment } from "react";
+import { useState, useMemo, Fragment, useEffect } from "react";
 import { Head, router, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Dialog, Transition } from "@headlessui/react";
@@ -19,6 +19,13 @@ export default function Index({ schools, tokens }) {
         access: '',
         skip_connection_test: false,
     });
+
+    // Auto-select jika hanya ada 1 token
+    useEffect(() => {
+        if (tokens.length === 1 && !data.access) {
+            setData('access', tokens[0].token);
+        }
+    }, [tokens, isModalOpen]);
 
     // Get unique Kabupaten list
     const kabupatenList = useMemo(() => {
@@ -148,31 +155,6 @@ export default function Index({ schools, tokens }) {
                                                     placeholder="Contoh: smakniscjr.sch.id"
                                                 />
                                                 <InputError message={errors.api} />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <InputLabel htmlFor="access" value="Access Key / Token" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
-                                                <div className="relative group/select">
-                                                    <select 
-                                                        id="access"
-                                                        className="w-full h-14 pl-6 pr-12 rounded-2xl border-gray-100 bg-gray-50/50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 appearance-none !bg-none transition-all duration-300 text-gray-900 font-bold shadow-sm"
-                                                        value={data.access}
-                                                        onChange={(e) => setData('access', e.target.value)}
-                                                    >
-                                                        <option value="">Pilih Access Token...</option>
-                                                        {tokens.map(token => (
-                                                            <option key={token.id} value={token.token}>
-                                                                {token.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover/select:text-indigo-600 transition-colors">
-                                                        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                                <InputError message={errors.access} />
                                             </div>
                                         </div>
 

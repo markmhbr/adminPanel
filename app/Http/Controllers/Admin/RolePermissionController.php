@@ -117,16 +117,27 @@ class RolePermissionController extends Controller
     {
         $validated = $request->validate([
             'api' => 'required|string',
-            'access' => 'required|string',
+            'access' => 'nullable|string',
             'skip_connection_test' => 'nullable|boolean',
         ]);
 
+        $api = $validated['api'];
+        $access = $validated['access'];
+
+        // Jika access kosong, cari token global yang aktif
+        if (empty($access)) {
+            $globalToken = \App\Models\AccessToken::where('is_active', true)->first();
+            if (!$globalToken) {
+                return back()->withErrors(['api' => 'Tidak ada token aktif di sistem. Silakan buat token dulu di menu Access Tokens.']);
+            }
+            $access = $globalToken->token;
+        }
+
         if (!($validated['skip_connection_test'] ?? false)) {
             try {
-                // Test connection using the generic getInfo or by fetching 'sekolahs'
                 $school = new School([
-                    'api' => $validated['api'],
-                    'access' => $validated['access']
+                    'api' => $api,
+                    'access' => $access
                 ]);
                 
                 \App\Services\SchoolApiService::getTableData($school, 'sekolahs');
@@ -135,9 +146,10 @@ class RolePermissionController extends Controller
             }
         }
 
-        // Remove skip_connection_test before creating the model
-        $schoolData = collect($validated)->except('skip_connection_test')->toArray();
-        School::create($schoolData);
+        School::create([
+            'api' => $api,
+            'access' => $access,
+        ]);
 
         return back()->with('success', 'Konfigurasi API sekolah baru berhasil ditambahkan.');
     }
