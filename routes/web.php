@@ -31,6 +31,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
     Route::get('/permissions', [RolePermissionController::class, 'index'])->name('permissions.index');
     Route::post('/permissions', [RolePermissionController::class, 'store'])->name('permissions.store');
+    Route::patch('/permissions/{school}', [RolePermissionController::class, 'update'])->name('permissions.update');
+    Route::delete('/permissions/{school}', [RolePermissionController::class, 'destroy'])->name('permissions.destroy');
 
     Route::get('/permissions/{school}/{role?}', [RolePermissionController::class, 'show'])->name('permissions.show');
     Route::post('/permissions/{school}/sync', [RolePermissionController::class, 'sync'])->name('permissions.sync');

@@ -143,27 +143,12 @@ class RolePermissionController extends Controller
         ]);
 
         $api = $validated['api'];
-        $access = $validated['access'];
-
-        // Jika access kosong, cari token global yang aktif
-        if (empty($access)) {
-            $globalToken = \App\Models\AccessToken::where('is_active', true)->first();
-            if (!$globalToken) {
-                return back()->withErrors(['api' => 'Tidak ada token aktif di sistem. Silakan buat token dulu di menu Access Tokens.']);
-            }
-            $access = $globalToken->token;
-        }
+        $access = $validated['access'] ?? '';
 
         if (!($validated['skip_connection_test'] ?? false)) {
-            try {
-                $school = new School([
-                    'api' => $api,
-                    'access' => $access
-                ]);
-                
-                \App\Services\SchoolApiService::getTableData($school, 'sekolahs');
-            } catch (\Exception $e) {
-                return back()->withErrors(['connection' => 'Gagal menghubungkan ke domain via API: ' . $e->getMessage()]);
+            $error = $this->testConnection($api, $access);
+            if ($error) {
+                return back()->withErrors(['connection' => $error]);
             }
         }
 
@@ -173,6 +158,61 @@ class RolePermissionController extends Controller
         ]);
 
         return back()->with('success', 'Konfigurasi API sekolah baru berhasil ditambahkan.');
+    }
+
+    public function update(Request $request, School $school)
+    {
+        $validated = $request->validate([
+            'api' => 'required|string',
+            'access' => 'nullable|string',
+            'skip_connection_test' => 'nullable|boolean',
+        ]);
+
+        $api = $validated['api'];
+        $access = $validated['access'] ?? '';
+
+        if (!($validated['skip_connection_test'] ?? false)) {
+            $error = $this->testConnection($api, $access);
+            if ($error) {
+                return back()->withErrors(['connection' => $error]);
+            }
+        }
+
+        $school->update([
+            'api' => $api,
+            'access' => $access,
+        ]);
+
+        return back()->with('success', 'Konfigurasi API sekolah berhasil diperbarui.');
+    }
+
+    public function destroy(School $school)
+    {
+        $school->delete();
+        return back()->with('success', 'Konfigurasi sekolah berhasil dihapus.');
+    }
+
+    protected function testConnection($api, $access)
+    {
+        if (empty($access)) {
+            $globalToken = \App\Models\AccessToken::where('is_active', true)->first();
+            if (!$globalToken) {
+                return 'Tidak ada token aktif di sistem. Silakan buat token dulu atau masukkan Access Key.';
+            }
+            $access = $globalToken->token;
+        }
+
+        try {
+            $tempSchool = new School([
+                'api' => $api,
+                'access' => $access
+            ]);
+            
+            \App\Services\SchoolApiService::getTableData($tempSchool, 'sekolahs');
+            return null;
+        } catch (\Exception $e) {
+            return 'Gagal menghubungkan ke domain via API: ' . $e->getMessage();
+        }
     }
 
     public function save(Request $request)

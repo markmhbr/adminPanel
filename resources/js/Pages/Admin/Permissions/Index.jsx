@@ -13,8 +13,10 @@ export default function Index({ schools, tokens }) {
     const [selectedKabupaten, setSelectedKabupaten] = useState("");
     const [selectedKecamatan, setSelectedKecamatan] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingSchool, setEditingSchool] = useState(null);
 
-    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
+    const { data, setData, post, patch, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         api: '',
         access: '',
         skip_connection_test: false,
@@ -22,10 +24,10 @@ export default function Index({ schools, tokens }) {
 
     // Auto-select jika hanya ada 1 token
     useEffect(() => {
-        if (tokens.length === 1 && !data.access) {
+        if (tokens.length === 1 && !data.access && !isEditing) {
             setData('access', tokens[0].token);
         }
-    }, [tokens, isModalOpen]);
+    }, [tokens, isModalOpen, isEditing]);
 
     // Get unique Kabupaten list
     const kabupatenList = useMemo(() => {
@@ -55,20 +57,63 @@ export default function Index({ schools, tokens }) {
         router.get(`/admin/permissions/${schoolId}`);
     };
 
+    const handleEdit = (school) => {
+        setIsEditing(true);
+        setEditingSchool(school);
+        setData({
+            api: school.api,
+            access: school.access || '',
+            skip_connection_test: false,
+        });
+        clearErrors();
+        setIsModalOpen(true);
+    };
+
+    const handleDelete = async (school) => {
+        const result = await PremiumAlert.confirm(
+            'Hapus Konfigurasi?',
+            `Apakah Anda yakin ingin menghapus konfigurasi untuk ${school.nama_sekolah}? Data ini tidak dapat dikembalikan.`
+        );
+
+        if (result.isConfirmed) {
+            destroy(route('admin.permissions.destroy', [school.id]), {
+                onSuccess: () => PremiumAlert.success('Terhapus', 'Konfigurasi sekolah telah berhasil dihapus.'),
+            });
+        }
+    };
+
     const submit = (e) => {
         e.preventDefault();
-        post(route('admin.permissions.store'), {
-            onSuccess: () => {
-                setIsModalOpen(false);
-                reset();
-                PremiumAlert.success('Tersimpan', 'Konfigurasi database sekolah baru telah berhasil ditambahkan.');
-            },
-            onError: (err) => {
-                if (err.connection) {
-                    PremiumAlert.error('Koneksi Gagal', err.connection);
+        
+        if (isEditing) {
+            patch(route('admin.permissions.update', [editingSchool.id]), {
+                onSuccess: () => {
+                    setIsModalOpen(false);
+                    reset();
+                    setIsEditing(false);
+                    setEditingSchool(null);
+                    PremiumAlert.success('Tersimpan', 'Konfigurasi database sekolah telah berhasil diperbarui.');
+                },
+                onError: (err) => {
+                    if (err.connection) {
+                        PremiumAlert.error('Koneksi Gagal', err.connection);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            post(route('admin.permissions.store'), {
+                onSuccess: () => {
+                    setIsModalOpen(false);
+                    reset();
+                    PremiumAlert.success('Tersimpan', 'Konfigurasi database sekolah baru telah berhasil ditambahkan.');
+                },
+                onError: (err) => {
+                    if (err.connection) {
+                        PremiumAlert.error('Koneksi Gagal', err.connection);
+                    }
+                }
+            });
+        }
     };
 
     return (
@@ -84,6 +129,9 @@ export default function Index({ schools, tokens }) {
                     <button
                         onClick={() => {
                             clearErrors();
+                            setIsEditing(false);
+                            setEditingSchool(null);
+                            reset();
                             setIsModalOpen(true);
                         }}
                         className="group relative flex items-center justify-center gap-3 px-8 h-14 bg-gray-900 hover:bg-indigo-600 text-white rounded-2xl font-black tracking-widest text-xs uppercase transition-all duration-500 shadow-xl shadow-indigo-100 hover:-translate-y-1 overflow-hidden"
@@ -99,7 +147,7 @@ export default function Index({ schools, tokens }) {
         >
             <Head title="Pilih Sekolah - Permissions" />
 
-            {/* Premium Add Modal */}
+            {/* Premium Modal */}
             <Transition appear show={isModalOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-[100]" onClose={() => setIsModalOpen(false)}>
                     <Transition.Child
@@ -129,7 +177,7 @@ export default function Index({ schools, tokens }) {
                                     <div className="flex justify-between items-start mb-8">
                                         <div>
                                             <Dialog.Title as="h3" className="text-2xl font-black text-gray-900 leading-tight">
-                                                Konfigurasi Database Baru
+                                                {isEditing ? 'Edit Konfigurasi' : 'Konfigurasi Database Baru'}
                                             </Dialog.Title>
                                             <p className="text-gray-400 font-medium mt-1">Masukkan endpoint API dan kode akses sekolah.</p>
                                         </div>
@@ -144,7 +192,7 @@ export default function Index({ schools, tokens }) {
                                     </div>
 
                                     <form onSubmit={submit} className="space-y-6">
-                                        <div className="grid grid-cols-1 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
                                                 <InputLabel htmlFor="api" value="Domain Sekolah" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
                                                 <TextInput
@@ -155,6 +203,19 @@ export default function Index({ schools, tokens }) {
                                                     placeholder="Contoh: smakniscjr.sch.id"
                                                 />
                                                 <InputError message={errors.api} />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <InputLabel htmlFor="access" value="Access Key (Opsional)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" />
+                                                <TextInput
+                                                    id="access"
+                                                    type="password"
+                                                    value={data.access}
+                                                    onChange={(e) => setData('access', e.target.value)}
+                                                    className="w-full !rounded-2xl font-mono"
+                                                    placeholder="Kosongkan untuk gunakan token global"
+                                                />
+                                                <InputError message={errors.access} />
                                             </div>
                                         </div>
 
@@ -307,6 +368,27 @@ export default function Index({ schools, tokens }) {
                                                 </svg>
                                                 {school.kecamatan}
                                             </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <button 
+                                                onClick={() => handleEdit(school)}
+                                                className="flex-grow h-11 bg-indigo-50 text-indigo-600 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-2"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                Edit Config
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(school)}
+                                                className="w-11 h-11 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300 flex items-center justify-center shadow-sm"
+                                                title="Hapus Konfigurasi"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
                                         </div>
 
                                         <button 
