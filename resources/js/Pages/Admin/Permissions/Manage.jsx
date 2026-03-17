@@ -5,13 +5,24 @@ import { PremiumAlert } from "@/Utils/alert";
 
 export default function Manage({ school, roles, activeRole, groupedPermissions, activeRolePermissions }) {
     const [selectedPermissions, setSelectedPermissions] = useState(activeRolePermissions);
+    const [restrictedPermissions, setRestrictedPermissions] = useState([]);
     const [searchRole, setSearchRole] = useState("");
     const [searchPermission, setSearchPermission] = useState("");
-
-    // Sync selected permissions when activeRole change
+    const [processing, setProcessing] = useState(false);
+    
+    // Sync when props change or initial load
     useEffect(() => {
         setSelectedPermissions(activeRolePermissions);
-    }, [activeRolePermissions]);
+        
+        // Extract restricted permissions from groupedPermissions
+        const restrictedIds = [];
+        Object.values(groupedPermissions).forEach(group => {
+            group.forEach(p => {
+                if (p.is_restricted) restrictedIds.push(p.id);
+            });
+        });
+        setRestrictedPermissions(restrictedIds);
+    }, [activeRolePermissions, groupedPermissions]);
 
     const filteredRoles = useMemo(() => {
         return roles.filter(role => 
@@ -56,13 +67,51 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
         }
     };
 
+    const toggleRestriction = (e, id) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        setRestrictedPermissions(prev => 
+            prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+        );
+    };
+
+    const toggleRestrictionGroup = (groupPermissions, checked) => {
+        const ids = groupPermissions.map(p => p.id);
+        if (checked) {
+            setRestrictedPermissions(prev => [...new Set([...prev, ...ids])]);
+        } else {
+            setRestrictedPermissions(prev => prev.filter(p => !ids.includes(p)));
+        }
+    };
+
+    const toggleRestrictionAll = (checked) => {
+        if (checked) {
+            const allIds = Object.values(groupedPermissions).flat().map(p => p.id);
+            setRestrictedPermissions(allIds);
+        } else {
+            setRestrictedPermissions([]);
+        }
+    };
+
     const save = () => {
+        setProcessing(true);
         router.post('/admin/permissions/save', {
             school_id: school.id,
             role_id: activeRole.id,
-            data: selectedPermissions.map(id => ({ permission_id: id, role_id: activeRole.id }))
+            data: selectedPermissions.map(id => ({ permission_id: id, role_id: activeRole.id })),
+            restricted_permissions: restrictedPermissions
         }, {
-            onSuccess: () => PremiumAlert.success('Berhasil!', 'Izin akses telah berhasil disimpan.')
+            onSuccess: () => {
+                setProcessing(false);
+                PremiumAlert.success('Berhasil!', 'Izin akses dan status pembatasan telah berhasil disimpan.');
+            },
+            onError: () => {
+                setProcessing(false);
+                PremiumAlert.error('Gagal', 'Terjadi kesalahan saat menyimpan perubahan.');
+            },
+            onFinish: () => setProcessing(false)
         });
     };
 
@@ -83,10 +132,19 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
         return groupPermissions.every(p => selectedPermissions.includes(p.id));
     };
 
+    const isGroupRestrictionAllChecked = (groupPermissions) => {
+        return groupPermissions.every(p => restrictedPermissions.includes(p.id));
+    };
+
     const isAllChecked = useMemo(() => {
         const allPermissions = Object.values(groupedPermissions).flat();
         return allPermissions.length > 0 && allPermissions.every(p => selectedPermissions.includes(p.id));
     }, [groupedPermissions, selectedPermissions]);
+
+    const isRestrictionAllChecked = useMemo(() => {
+        const allPermissions = Object.values(groupedPermissions).flat();
+        return allPermissions.length > 0 && allPermissions.every(p => restrictedPermissions.includes(p.id));
+    }, [groupedPermissions, restrictedPermissions]);
 
     return (
         <AuthenticatedLayout
@@ -111,12 +169,24 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
                     {activeRole && (
                         <button
                             onClick={save}
-                            className="bg-indigo-600 hover:bg-black text-white px-8 py-4 rounded-2xl text-sm font-black uppercase tracking-widest shadow-xl shadow-indigo-100 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 flex items-center"
+                            disabled={processing}
+                            className={`flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-xl shadow-indigo-100 transition-all duration-300 relative overflow-hidden group ${processing ? 'opacity-90 cursor-not-allowed px-10' : 'hover:scale-105 active:scale-95 hover:bg-indigo-700'}`}
                         >
-                            <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                            </svg>
-                            SIMPAN PERUBAHAN
+                            {processing ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                    <span className="relative z-10">Memproses...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="h-5 w-5 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="relative z-10">Simpan Perubahan</span>
+                                </>
+                            )}
+                            
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
                         </button>
                     )}
                 </div>
@@ -217,30 +287,43 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
                                                 <p className="text-sm text-gray-400 font-medium">Konfigurasi izin akses detail untuk role ini.</p>
                                             </div>
                                             
-                                            <div className="flex items-center gap-4 w-full md:w-auto">
-                                                <div className="relative flex-grow">
+                                            <div className="flex items-center gap-3 w-full xl:w-auto">
+                                                <div className="relative flex-grow sm:flex-grow-0 sm:w-64">
                                                     <input
                                                         type="text"
                                                         placeholder="Filter hak akses..."
-                                                        className="w-full pl-11 pr-4 h-12 rounded-2xl border-gray-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all duration-200 text-sm"
+                                                        className="w-full pl-10 pr-4 h-11 rounded-xl border-gray-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all duration-200 text-sm shadow-sm"
                                                         value={searchPermission}
                                                         onChange={(e) => setSearchPermission(e.target.value)}
                                                     />
-                                                    <div className="absolute left-4 top-3.5 text-gray-300">
-                                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <div className="absolute left-3.5 top-3 text-gray-300">
+                                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-6.414-6.414A1 1 0 013 6.586V4z" />
                                                         </svg>
                                                     </div>
                                                 </div>
-                                                <label className="flex items-center cursor-pointer bg-white h-12 px-6 rounded-2xl border border-gray-100 hover:border-indigo-600 transition-all duration-300 group shadow-sm">
-                                                    <input
-                                                        type="checkbox"
-                                                        className="w-5 h-5 rounded-lg border-gray-200 text-indigo-600 focus:ring-indigo-600 transition-all cursor-pointer"
-                                                        checked={isAllChecked}
-                                                        onChange={(e) => toggleAll(e.target.checked)}
-                                                    />
-                                                    <span className="ml-3 text-xs font-black text-gray-900 uppercase tracking-widest group-hover:text-indigo-600">Select All</span>
-                                                </label>
+                                                
+                                                <div className="flex items-center gap-3 bg-white/50 backdrop-blur-sm h-11 px-4 rounded-xl border border-gray-100 shadow-sm flex-shrink-0">
+                                                    <label className="flex items-center cursor-pointer group whitespace-nowrap">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="w-4 h-4 rounded border-gray-200 text-indigo-600 focus:ring-indigo-600 transition-all cursor-pointer"
+                                                            checked={isAllChecked}
+                                                            onChange={(e) => toggleAll(e.target.checked)}
+                                                        />
+                                                        <span className="ml-2 text-[10px] font-black text-gray-900 uppercase tracking-widest group-hover:text-indigo-600">Select All</span>
+                                                    </label>
+                                                    <div className="w-[1px] h-4 bg-gray-200 flex-shrink-0"></div>
+                                                    <label className="flex items-center cursor-pointer group whitespace-nowrap">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="w-4 h-4 rounded border-gray-200 text-red-600 focus:ring-red-600 transition-all cursor-pointer"
+                                                            checked={isRestrictionAllChecked}
+                                                            onChange={(e) => toggleRestrictionAll(e.target.checked)}
+                                                        />
+                                                        <span className="ml-2 text-[10px] font-black text-gray-900 uppercase tracking-widest group-hover:text-red-600">Restrict</span>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -260,53 +343,84 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
                                                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-0.5">Section Settings</p>
                                                                 </div>
                                                             </div>
-                                                            <label className="flex items-center cursor-pointer bg-gray-50/50 hover:bg-white px-4 py-2 rounded-xl transition-all border border-transparent hover:border-gray-100">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer"
-                                                                    checked={isGroupAllChecked(permissions)}
-                                                                    onChange={(e) => toggleGroup(permissions, e.target.checked)}
-                                                                />
-                                                                <span className="ml-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Pilih Semua {group}</span>
-                                                            </label>
+                                                            <div className="flex items-center gap-4">
+                                                                <label className="flex items-center cursor-pointer bg-gray-50/50 hover:bg-white px-3 py-1.5 rounded-xl transition-all border border-transparent hover:border-gray-100 group">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer"
+                                                                        checked={isGroupAllChecked(permissions)}
+                                                                        onChange={(e) => toggleGroup(permissions, e.target.checked)}
+                                                                    />
+                                                                    <span className="ml-2 text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover:text-indigo-600">Pilih Semua</span>
+                                                                </label>
+                                                                <label className="flex items-center cursor-pointer bg-gray-50/50 hover:bg-white px-3 py-1.5 rounded-xl transition-all border border-transparent hover:border-gray-100 group">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-600 cursor-pointer"
+                                                                        checked={isGroupRestrictionAllChecked(permissions)}
+                                                                        onChange={(e) => toggleRestrictionGroup(permissions, e.target.checked)}
+                                                                    />
+                                                                    <span className="ml-2 text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover:text-red-600">Batasi Semua</span>
+                                                                </label>
+                                                            </div>
                                                         </div>
 
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                                                             {permissions.map(permission => (
                                                                 <div 
                                                                     key={permission.id}
                                                                     onClick={() => togglePermission(permission.id)}
-                                                                    className={`flex items-start p-5 rounded-3xl border transition-all duration-300 cursor-pointer group hover:-translate-y-1 ${
+                                                                    className={`flex items-start p-3.5 rounded-2xl border transition-all duration-300 cursor-pointer group hover:-translate-y-0.5 ${
                                                                         selectedPermissions.includes(permission.id)
-                                                                        ? 'bg-indigo-600 border-indigo-600 shadow-xl shadow-indigo-100 text-white'
+                                                                        ? 'bg-indigo-600 border-indigo-600 shadow-lg shadow-indigo-100 text-white'
                                                                         : 'bg-white border-gray-100 hover:border-indigo-100 hover:bg-indigo-50'
                                                                     }`}
                                                                 >
-                                                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0 transition-colors duration-300 ${
-                                                                        selectedPermissions.includes(permission.id) ? 'bg-white/20 text-white' : 'bg-gray-50 text-gray-400 group-hover:bg-white group-hover:text-indigo-600 shadow-sm'
+                                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center mr-3 flex-shrink-0 transition-colors duration-300 ${
+                                                                        selectedPermissions.includes(permission.id) ? 'bg-white/20 text-white' : 'bg-gray-50 text-gray-400 group-hover:bg-white group-hover:text-indigo-600 shadow-sm border border-gray-50'
                                                                     }`}>
-                                                                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                                                         </svg>
                                                                     </div>
-                                                                    <div className="flex-grow min-w-0">
-                                                                        <div className="flex justify-between items-start">
-                                                                            <p className={`text-sm font-black leading-tight ${selectedPermissions.includes(permission.id) ? 'text-white' : 'text-gray-900 group-hover:text-indigo-900'}`}>
-                                                                                {permission.name}
-                                                                            </p>
-                                                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                                                                                selectedPermissions.includes(permission.id) ? 'bg-white border-white' : 'border-gray-200 group-hover:border-indigo-500'
-                                                                            }`}>
-                                                                                {selectedPermissions.includes(permission.id) && (
-                                                                                    <svg className="w-3 h-3 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-                                                                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                                                    </svg>
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                        <p className={`text-[9px] font-black uppercase tracking-widest mt-1.5 ${selectedPermissions.includes(permission.id) ? 'text-indigo-100' : 'text-gray-400'}`}>
+                                                                    <div className="flex-grow min-w-0 pr-1">
+                                                                        <p className={`text-[13px] font-bold leading-tight ${selectedPermissions.includes(permission.id) ? 'text-white' : 'text-gray-900 group-hover:text-indigo-900'}`}>
+                                                                            {permission.name}
+                                                                        </p>
+                                                                        <p className={`text-[8px] font-black uppercase tracking-widest mt-1 ${selectedPermissions.includes(permission.id) ? 'text-indigo-100' : 'text-gray-400'}`}>
                                                                             {group} / Module
                                                                         </p>
+                                                                    </div>
+                                                                    
+                                                                    <div className="flex items-center gap-1.5 relative z-30" onClick={(e) => e.stopPropagation()}>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={(e) => toggleRestriction(e, permission.id)}
+                                                                            className={`w-8 h-8 rounded-lg transition-all duration-300 flex items-center justify-center border ${
+                                                                                restrictedPermissions.includes(permission.id) 
+                                                                                ? 'text-red-600 border-red-200 bg-red-50 animate-pulse' 
+                                                                                : 'text-gray-200 border-transparent hover:text-red-400 hover:border-red-100'
+                                                                            }`}
+                                                                            title={restrictedPermissions.includes(permission.id) ? "Akses Dibatasi" : "Batasi Akses"}
+                                                                        >
+                                                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            </svg>
+                                                                        </button>
+                                                                        <div 
+                                                                            onClick={() => togglePermission(permission.id)}
+                                                                            className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                                                                                selectedPermissions.includes(permission.id) 
+                                                                                ? 'bg-white border-white shadow-sm' 
+                                                                                : 'border-gray-200 group-hover:border-indigo-500'
+                                                                            }`}
+                                                                        >
+                                                                            {selectedPermissions.includes(permission.id) && (
+                                                                                <svg className="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                                                </svg>
+                                                                            )}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             ))}

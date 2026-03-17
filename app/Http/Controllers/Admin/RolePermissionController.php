@@ -72,7 +72,7 @@ class RolePermissionController extends Controller
 
         $permissions = DB::connection('tenant')
             ->table('permissions')
-            ->select('id', 'name')
+            ->select('id', 'name', 'is_restricted')
             ->get();
 
         // Grouping logic: split by '.' or '-' and take first part as group name
@@ -271,12 +271,12 @@ class RolePermissionController extends Controller
             ]
         ]);
 
-        // Only remove permissions for this specific role
+        // Update Role Permissions
         DB::connection('tenant')
             ->table('role_has_permissions')
             ->where('role_id', $roleId)
             ->delete();
-
+            
         foreach ($request->data as $item) {
             DB::connection('tenant')
                 ->table('role_has_permissions')
@@ -284,6 +284,21 @@ class RolePermissionController extends Controller
                     'permission_id' => $item['permission_id'],
                     'role_id' => $roleId
                 ]);
+        }
+
+        // Update Restricted Permissions (Global for Tenant)
+        if ($request->has('restricted_permissions')) {
+            $restrictedIds = $request->input('restricted_permissions', []);
+            
+            // Set all to false first then update to true for specified IDs 
+            // OR we can just update all permissions' is_restricted status
+            // We get all permissions for this tenant
+            $allPermissionIds = DB::connection('tenant')->table('permissions')->pluck('id')->toArray();
+            
+            DB::connection('tenant')->table('permissions')->whereIn('id', $allPermissionIds)->update(['is_restricted' => false]);
+            if (!empty($restrictedIds)) {
+                DB::connection('tenant')->table('permissions')->whereIn('id', $restrictedIds)->update(['is_restricted' => true]);
+            }
         }
 
         return back()->with('success', 'Permission berhasil disimpan');

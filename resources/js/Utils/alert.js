@@ -38,5 +38,37 @@ export const PremiumAlert = {
             },
             buttonsStyling: false
         });
+    },
+    error: (title, text) => {
+        return MySwal.fire({
+            title: title,
+            text: text,
+            icon: 'error',
+            background: '#ffffff',
+            confirmButtonText: 'MENGERTI',
+            customClass: {
+                popup: 'rounded-[2rem] border-none shadow-2xl p-10',
+                title: 'text-3xl font-black text-gray-900 mb-2',
+                htmlContainer: 'text-gray-500 font-medium',
+                confirmButton: 'rounded-2xl px-10 py-4 font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform duration-200 shadow-lg shadow-red-100 bg-red-600 text-white font-sans'
+            },
+            buttonsStyling: false
+        });
+    },
+    info: (title, text) => {
+        return MySwal.fire({
+            title: title,
+            text: text,
+            icon: 'info',
+            background: '#ffffff',
+            confirmButtonText: 'MENGERTI',
+            customClass: {
+                popup: 'rounded-[2rem] border-none shadow-2xl p-10',
+                title: 'text-3xl font-black text-gray-900 mb-2',
+                htmlContainer: 'text-gray-500 font-medium',
+                confirmButton: 'rounded-2xl px-10 py-4 font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform duration-200 shadow-lg shadow-blue-100 bg-blue-600 text-white font-sans'
+            },
+            buttonsStyling: false
+        });
     }
 };
