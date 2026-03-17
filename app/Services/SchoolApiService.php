@@ -36,19 +36,75 @@ class SchoolApiService
         $baseUrl = self::normalizeUrl($school->api);
         $url = "{$baseUrl}/table/{$table}";
 
+        // Maximize results per request
+        if (!isset($params['per_page'])) {
+            $params['per_page'] = 100; // Use a known stable limit
+        }
+
         $cacheKey = "school_{$school->id}_table_{$table}_" . md5(json_encode($params));
 
         return Cache::remember($cacheKey, 300, function () use ($url, $school, $params) {
-            $response = Http::withHeaders([
-                'X-Admin-Access-Key' => $school->access,
-                'Accept' => 'application/json'
-            ])->get($url, $params);
+            $allData = [];
+            $page = 1;
+            $previousPageHash = null;
 
-            if ($response->failed()) {
-                throw new \Exception("Gagal mengambil data dari API {$url}: " . ($response->json('message') ?? $response->body()));
-            }
+            do {
+                $params['page'] = $page;
+                $response = Http::withHeaders([
+                    'X-Admin-Access-Key' => $school->access,
+                    'Accept' => 'application/json'
+                ])->get($url, $params);
 
-            return $response->json('data') ?? [];
+                if ($response->failed()) {
+                    throw new \Exception("Gagal mengambil data dari API {$url} (Halaman {$page}): " . ($response->json('message') ?? $response->body()));
+                }
+
+                $json = $response->json() ?? [];
+                
+                // Handle cases where the data might be nested inside 'data' key (standard Laravel pagination)
+                $responseData = $json['data'] ?? [];
+                
+                // If it's standard Laravel Paginator, the actual items are in $responseData['data']
+                $currentPageData = isset($responseData['data']) && is_array($responseData['data'])
+                    ? $responseData['data']
+                    : $responseData;
+
+                // Sometimes the API returns the raw array directly in 'data' or the root
+                if (empty($currentPageData) && is_array($responseData) && !isset($responseData['data'])) {
+                    $currentPageData = $responseData;
+                }
+
+                if (empty($currentPageData)) {
+                    break;
+                }
+
+                // Detect infinite loops if the API keeps returning the same data
+                $currentPageHash = md5(json_encode($currentPageData));
+                if ($currentPageHash === $previousPageHash) {
+                    break;
+                }
+                $previousPageHash = $currentPageHash;
+
+                $allData = array_merge($allData, $currentPageData);
+                
+                // Determine if there are more pages
+                $hasMore = false;
+                if (isset($responseData['next_page_url']) && !empty($responseData['next_page_url'])) {
+                    $hasMore = true;
+                } elseif (count($currentPageData) >= ($params['per_page'] ?? 100)) {
+                    // Fallback if Paginator info is missing but we got a full page
+                    // We only continue if it's NOT the same data we just got (checked above)
+                    $hasMore = true;
+                }
+
+                if (!$hasMore) {
+                    break;
+                }
+
+                $page++;
+            } while ($page <= $maxPages);
+
+            return $allData;
         });
     }
 
@@ -117,5 +173,25 @@ class SchoolApiService
 
             return $response->json('data') ?? [];
         });
+    }
+
+    /**
+     * Execute a raw SQL query via API
+     */
+    public static function executeRawQuery(School $school, string $sql)
+    {
+        $baseUrl = self::normalizeUrl($school->api);
+        $url = "{$baseUrl}/query";
+
+        $response = Http::withHeaders([
+            'X-Admin-Access-Key' => $school->access,
+            'Accept' => 'application/json'
+        ])->post($url, ['sql' => $sql]);
+
+        if ($response->failed()) {
+            throw new \Exception("Gagal eksekusi query ke API {$url}: " . ($response->json('message') ?? $response->body()));
+        }
+
+        return $response->json();
     }
 }

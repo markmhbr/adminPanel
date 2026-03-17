@@ -111,9 +111,21 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
                 setProcessing(false);
                 PremiumAlert.success('Berhasil!', 'Izin akses dan status pembatasan telah berhasil disimpan.');
             },
-            onError: () => {
+            onError: (errors) => {
                 setProcessing(false);
-                PremiumAlert.error('Gagal', 'Terjadi kesalahan saat menyimpan perubahan.');
+                const message = errors.connection || 'Terjadi kesalahan saat menyimpan perubahan.';
+                PremiumAlert.error('Gagal', message);
+            },
+            onFinish: () => setProcessing(false)
+        });
+    };
+
+    const refreshData = () => {
+        setProcessing(true);
+        router.get(window.location.pathname, { refresh: 1 }, {
+            onSuccess: () => {
+                setProcessing(false);
+                PremiumAlert.success('Data Diperbarui', 'Data hak akses telah disinkronkan ulang dengan API sekolah.');
             },
             onFinish: () => setProcessing(false)
         });
@@ -170,29 +182,43 @@ export default function Manage({ school, roles, activeRole, groupedPermissions, 
                             </p>
                         </div>
                     </div>
-                    {activeRole && (
+                    <div className="flex items-center gap-3">
                         <button
-                            onClick={save}
+                            onClick={refreshData}
                             disabled={processing}
-                            className={`flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-xl shadow-indigo-100 transition-all duration-300 relative overflow-hidden group ${processing ? 'opacity-90 cursor-not-allowed px-10' : 'hover:scale-105 active:scale-95 hover:bg-indigo-700'}`}
+                            className={`flex items-center gap-2 px-6 py-4 bg-white text-indigo-600 border-2 border-indigo-50 rounded-[2rem] font-black uppercase tracking-widest text-xs shadow-lg shadow-gray-100 transition-all duration-300 group opacity-100 ${processing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-indigo-50 hover:border-indigo-100 hover:scale-105 active:scale-95'}`}
+                            title="Bersihkan Cache & Refresh Data API"
                         >
-                            {processing ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                                    <span className="relative z-10">Memproses...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <svg className="h-5 w-5 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <span className="relative z-10">Simpan Perubahan</span>
-                                </>
-                            )}
-                            
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                             <svg className={`h-4 w-4 ${processing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-700'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <span className="hidden sm:inline">Refresh Data</span>
                         </button>
-                    )}
+
+                        {activeRole && (
+                            <button
+                                onClick={save}
+                                disabled={processing}
+                                className={`flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-xl shadow-indigo-100 transition-all duration-300 relative overflow-hidden group ${processing ? 'opacity-90 cursor-not-allowed px-10' : 'hover:scale-105 active:scale-95 hover:bg-indigo-700'}`}
+                            >
+                                {processing ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                        <span className="relative z-10">Memproses...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="h-5 w-5 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span className="relative z-10">Simpan Perubahan</span>
+                                    </>
+                                )}
+                                
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                            </button>
+                        )}
+                    </div>
                 </div>
             }
         >

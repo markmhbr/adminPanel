@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\School;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class RolePermissionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->has('refresh')) {
+            Cache::flush();
+        }
+
         $schools = School::all()->map(function ($school) {
             try {
                 // Fetch info from school API instead of DB
@@ -37,9 +42,13 @@ class RolePermissionController extends Controller
         ]);
     }
 
-    public function show($schoolId, $roleId = null)
+    public function show(Request $request, $schoolId, $roleId = null)
     {
         try {
+            if ($request->has('refresh')) {
+                Cache::flush();
+            }
+
             $school = School::findOrFail($schoolId);
             
             // Get Roles and Permissions via API
@@ -56,7 +65,9 @@ class RolePermissionController extends Controller
                 $activeRole = $roles->first();
             }
 
-            $permissions = collect(\App\Services\SchoolApiService::getTableData($school, 'permissions'))
+            // Use raw query for permissions to ensure we get ALL of them (more than 100)
+            $permissionsRaw = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT * FROM permissions ORDER BY name ASC");
+            $permissions = collect($permissionsRaw['data'] ?? [])
                 ->map(function ($p) {
                     $p = (object)$p;
                     $p->is_restricted = (bool) ($p->is_restricted ?? false);
@@ -64,15 +75,25 @@ class RolePermissionController extends Controller
                 });
 
             $groupedPermissions = $permissions->groupBy(function ($permission) {
-                $parts = preg_split('/[.-]/', $permission->name);
-                $groupName = $parts[0];
+                // Split by common separators: dot, dash, colon, or underscore
+                $name = strtolower($permission->name);
+                $parts = preg_split('/[.\-:_]/', $name);
+                $groupName = $parts[0] ?? 'LAINNYA';
 
                 $customNames = [
                     'ppdb' => 'Penerimaan Siswa Baru (SPMB)',
+                    'tagihan' => 'Keuangan / Tagihan',
+                    'pembayaran' => 'Keuangan / Pembayaran',
+                    'tabungan' => 'Keuangan / Tabungan',
+                    'walas' => 'Wali Kelas',
+                    'bk' => 'Bimbingan Konseling',
+                    'rapor' => 'Penilaian / Rapor',
+                    'kurikulum' => 'Akademik / Kurikulum',
+                    'master' => 'Data Master',
                 ];
 
-                if (array_key_exists(strtolower($groupName), $customNames)) {
-                    return $customNames[strtolower($groupName)];
+                if (array_key_exists($groupName, $customNames)) {
+                    return $customNames[$groupName];
                 }
 
                 return strtoupper($groupName);
@@ -80,9 +101,9 @@ class RolePermissionController extends Controller
 
             $activeRolePermissions = [];
             if ($activeRole) {
-                // Fetch from role_has_permissions table via API
-                $activeRolePermissions = collect(\App\Services\SchoolApiService::getTableData($school, 'role_has_permissions'))
-                    ->where('role_id', $activeRole->id)
+                // Use raw query for role_has_permissions to ensure we get ALL of them (more than 100)
+                $rolePermsRaw = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT permission_id FROM role_has_permissions WHERE role_id = {$activeRole->id}");
+                $activeRolePermissions = collect($rolePermsRaw['data'] ?? [])
                     ->pluck('permission_id')
                     ->unique()
                     ->toArray();
@@ -158,37 +179,67 @@ class RolePermissionController extends Controller
     {
         $roleId = $request->role_id;
         $schoolId = $request->school_id;
+        
         try {
             $school = School::findOrFail($schoolId);
 
-            // 1. Update Role Permissions
-            // Delete existing via API (this assumes the API supports DELETE on a table with filters)
-            // If API doesn't support bulk delete, it needs to be defined.
-            // Assuming the school API has a specific logic for this or we do it one by one.
-            
-            // For simplicity in this dummy environment, we'll try to use the POST table data
-            // But usually, updating many-to-many via API requires a dedicated endpoint.
-            // We'll use the 'save' pattern requested.
-            
-            \App\Services\SchoolApiService::postTableData($school, 'role_has_permissions', [
-                'action' => 'sync',
-                'role_id' => $roleId,
-                'permission_ids' => collect($request->data)->pluck('permission_id')->unique()->toArray()
-            ]);
+            // Fetch the "Pool" of visible permissions to ensure we don't touch hidden ones
+            $allPermissions = collect(\App\Services\SchoolApiService::getTableData($school, 'permissions'));
+            $visiblePoolIds = $allPermissions->pluck('id')->toArray();
 
-            // 2. Update Restricted Permissions
-            if ($request->has('restricted_permissions')) {
-                $restrictedIds = $request->input('restricted_permissions', []);
-                
-                \App\Services\SchoolApiService::postTableData($school, 'permissions', [
-                    'action' => 'update_restricted',
-                    'restricted_ids' => $restrictedIds
-                ]);
+            // 1. Update Role Permissions (Non-Destructive Sync)
+            $currentAssigned = collect(\App\Services\SchoolApiService::getTableData($school, 'role_has_permissions'))
+                ->where('role_id', $roleId)
+                ->pluck('permission_id')
+                ->unique()
+                ->toArray();
+
+            $wantsAssigned = collect($request->data)->pluck('permission_id')->unique()->toArray();
+
+            // Identify what to add: wants but not current
+            $toAdd = array_diff($wantsAssigned, $currentAssigned);
+            
+            // Identify what to remove: current AND in pool (visible) but not wants
+            $toRemove = array_diff(array_intersect($currentAssigned, $visiblePoolIds), $wantsAssigned);
+
+            // Add new permissions
+            if (!empty($toAdd)) {
+                $values = [];
+                foreach ($toAdd as $pId) {
+                    $values[] = "({$roleId}, {$pId})";
+                }
+                $sqlInsert = "INSERT INTO role_has_permissions (role_id, permission_id) VALUES " . implode(', ', $values);
+                \App\Services\SchoolApiService::executeRawQuery($school, $sqlInsert);
             }
 
-            return back()->with('success', 'Permission berhasil disimpan via API');
+            // Remove unchecked permissions (that were visible)
+            if (!empty($toRemove)) {
+                $idsToRemove = implode(',', $toRemove);
+                \App\Services\SchoolApiService::executeRawQuery($school, "DELETE FROM role_has_permissions WHERE role_id = {$roleId} AND permission_id IN ({$idsToRemove})");
+            }
+
+            // 2. Update Restricted Permissions (Non-Destructive)
+            if ($request->has('restricted_permissions')) {
+                $wantsRestricted = $request->input('restricted_permissions', []);
+                
+                if (!empty($visiblePoolIds)) {
+                    $poolStr = implode(',', $visiblePoolIds);
+                    
+                    // Reset is_restricted ONLY for items in the visible pool
+                    \App\Services\SchoolApiService::executeRawQuery($school, "UPDATE permissions SET is_restricted = 0 WHERE id IN ({$poolStr})");
+                    
+                    // Set is_restricted = 1 for wants that are in the pool
+                    $toRestrict = array_intersect($wantsRestricted, $visiblePoolIds);
+                    if (!empty($toRestrict)) {
+                        $restrictStr = implode(',', $toRestrict);
+                        \App\Services\SchoolApiService::executeRawQuery($school, "UPDATE permissions SET is_restricted = 1 WHERE id IN ({$restrictStr})");
+                    }
+                }
+            }
+
+            return back()->with('success', 'Perubahan berhasil disimpan (Mode Non-Destruktif)');
         } catch (\Exception $e) {
-            return back()->withErrors(['connection' => 'Gagal menyimpan via API: ' . $e->getMessage()]);
+            return back()->withErrors(['connection' => 'Gagal menyimpan: ' . $e->getMessage()]);
         }
     }
 }
