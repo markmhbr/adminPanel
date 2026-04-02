@@ -32,8 +32,12 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? $request->user()->only('id', 'name', 'email', 'role', 'school_name', 'npsn', 'phone_number') : null,
             ],
+            'ziggy' => array_merge((new \Tighten\Ziggy\Ziggy)->toArray(), [
+                'location' => $request->url(),
+            ]),
+            'storeProfile' => \App\Models\StoreProfile::first(),
         ];
     }
 }

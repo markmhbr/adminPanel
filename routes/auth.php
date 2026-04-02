@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -7,20 +8,28 @@ use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
+    Route::get('register', [UserAuthController::class, 'showRegister'])
         ->name('register');
 
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    Route::post('register', [UserAuthController::class, 'register']);
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
+    Route::get('login', [UserAuthController::class, 'showLogin'])
         ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('login', [UserAuthController::class, 'login']);
+
+    Route::get('verify-otp', [UserAuthController::class, 'showVerify'])
+        ->name('user.verify.show');
+
+    Route::post('verify-otp', [UserAuthController::class, 'verify'])
+        ->name('user.verify');
+
+    Route::post('resend-otp', [UserAuthController::class, 'resendOtp'])
+        ->name('user.resend_otp');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
@@ -33,6 +42,9 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    // Ajax Auth
+    Route::post('/ajax/login', [UserAuthController::class , 'ajaxLogin'])->name('ajax.login');
 });
 
 Route::middleware('auth')->group(function () {
@@ -54,6 +66,6 @@ Route::middleware('auth')->group(function () {
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+    Route::post('logout', [UserAuthController::class, 'logout'])
         ->name('logout');
 });

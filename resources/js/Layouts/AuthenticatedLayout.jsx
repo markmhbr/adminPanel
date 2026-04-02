@@ -37,27 +37,23 @@ export default function AuthenticatedLayout({ header, children }) {
                             </div>
 
                             <div className="hidden space-x-2 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                    href={route('admin.dashboard')}
-                                    active={route().current('admin.dashboard')}
-                                    className="px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200"
-                                >
-                                    Dashboard
-                                </NavLink>
-                                <NavLink
-                                    href={route('admin.permissions.index')}
-                                    active={route().current('admin.permissions.index')}
-                                    className="px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200"
-                                >
-                                    Permissions
-                                </NavLink>
-                                <NavLink
-                                    href={route('admin.tokens.index')}
-                                    active={route().current('admin.tokens.index')}
-                                    className="px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200"
-                                >
-                                    Access Tokens
-                                </NavLink>
+                                {user?.role === 'admin' ? (
+                                    <>
+                                        <NavLink href={route('admin.dashboard')} active={route().current('admin.dashboard')}>Dashboard</NavLink>
+                                        <NavLink href={route('admin.products.index')} active={route().current('admin.products.*')}>Produk</NavLink>
+                                        <NavLink href={route('admin.orders.index')} active={route().current('admin.orders.*')}>Pesanan</NavLink>
+                                        <NavLink href={route('admin.schools')} active={route().current('admin.schools')}>Pelanggan</NavLink>
+                                        <NavLink href={route('admin.permissions.index')} active={route().current('admin.permissions.*')}>Hak Akses</NavLink>
+                                        <NavLink href={route('admin.tokens.index')} active={route().current('admin.tokens.*')}>API Tokens</NavLink>
+                                        <NavLink href={route('admin.hero.index')} active={route().current('admin.hero.*')}>Banners</NavLink>
+                                    </>
+                                ) : (
+                                    <>
+                                        <NavLink href={route('user.dashboard')} active={route().current('user.dashboard')}>Dashboard</NavLink>
+                                        <NavLink href={route('user.orders')} active={route().current('user.orders')}>Pesanan Saya</NavLink>
+                                        <NavLink href={route('chat.index')} active={route().current('chat.index')}>Bantuan (Live Chat)</NavLink>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -67,11 +63,11 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <Dropdown.Trigger>
                                         <button className="flex items-center gap-3 px-3 py-1.5 rounded-2xl hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-100">
                                             <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-black shadow-md shadow-indigo-100">
-                                                {user.name.charAt(0).toUpperCase()}
+                                                {user?.name?.charAt(0).toUpperCase()}
                                             </div>
                                             <div className="text-left hidden md:block">
-                                                <p className="text-sm font-black text-gray-900 leading-none">{user.name}</p>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-1">Administrator</p>
+                                                <p className="text-sm font-black text-gray-900 leading-none">{user?.role === 'admin' ? 'Administrator' : user?.school_name}</p>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-1">{user?.name}</p>
                                             </div>
                                             <svg className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -80,22 +76,17 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content className="rounded-2xl border-none shadow-2xl p-2 min-w-[200px]">
+                                        {user?.role === 'admin' && (
+                                            <Dropdown.Link href={route('admin.profile.store')} className="rounded-xl font-bold text-sm py-3">
+                                                Profil Toko
+                                            </Dropdown.Link>
+                                        )}
                                         <Dropdown.Link href={route('admin.profile.edit')} className="rounded-xl font-bold text-sm py-3">
-                                            <div className="flex items-center">
-                                                <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                </svg>
-                                                My Profile
-                                            </div>
+                                            Edit Profil
                                         </Dropdown.Link>
                                         <hr className="my-1 border-gray-100" />
                                         <Dropdown.Link href={route('logout')} method="post" as="button" className="rounded-xl font-bold text-sm py-3 text-red-600 hover:bg-red-50">
-                                            <div className="flex items-center">
-                                                <svg className="w-4 h-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                                </svg>
-                                                Log Out
-                                            </div>
+                                            Log Out
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -119,9 +110,21 @@ export default function AuthenticatedLayout({ header, children }) {
                 {/* Mobile Navigation */}
                 <div className={`sm:hidden bg-white/95 backdrop-blur-xl border-t border-gray-100 overflow-hidden transition-all duration-300 ${showingNavigationDropdown ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
                     <div className="p-4 space-y-1">
-                        <ResponsiveNavLink href={route('admin.dashboard')} active={route().current('admin.dashboard')} className="rounded-xl font-bold">Dashboard</ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('admin.permissions.index')} active={route().current('admin.permissions.index')} className="rounded-xl font-bold">Permissions</ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('admin.tokens.index')} active={route().current('admin.tokens.index')} className="rounded-xl font-bold">Access Tokens</ResponsiveNavLink>
+                        {user?.role === 'admin' ? (
+                            <>
+                                <ResponsiveNavLink href={route('admin.dashboard')} active={route().current('admin.dashboard')}>Dashboard</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.products.index')} active={route().current('admin.products.*')}>Produk</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.orders.index')} active={route().current('admin.orders.*')}>Pesanan</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.schools')} active={route().current('admin.schools')}>Pelanggan</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.permissions.index')} active={route().current('admin.permissions.*')}>Hak Akses</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.tokens.index')} active={route().current('admin.tokens.*')}>API Tokens</ResponsiveNavLink>
+                            </>
+                        ) : (
+                            <>
+                                <ResponsiveNavLink href={route('user.dashboard')} active={route().current('user.dashboard')}>Dashboard</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('user.orders')} active={route().current('user.orders')}>Pesanan Saya</ResponsiveNavLink>
+                            </>
+                        )}
                     </div>
                 </div>
             </nav>

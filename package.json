@@ -24,6 +24,7 @@
     },
     "dependencies": {
         "sweetalert2": "^11.26.23",
-        "sweetalert2-react-content": "^5.1.2"
+        "sweetalert2-react-content": "^5.1.2",
+        "ziggy-js": "^2.6.2"
     }
 }

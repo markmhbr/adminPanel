@@ -1,94 +1,118 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
-export default function Dashboard() {
+export default function Dashboard({ totalOrders, processingOrders, completedOrders, orders, featuredProducts }) {
+    const { auth } = usePage().props;
     return (
         <AuthenticatedLayout
-            header={
-                <div className="w-full">
-                    <h2 className="text-3xl font-black leading-tight text-gray-900">
-                        Admin Command Center
-                    </h2>
-                    <p className="text-gray-400 font-medium mt-1">Status sistem dan ringkasan aktivitas saat ini.</p>
-                </div>
-            }
+            user={auth?.user}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Dashboard Sekolah</h2>}
         >
-            <Head title="Admin Dashboard" />
+            <Head title="Dashboard | Simak Buy" />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
-                    
-                    {/* Welcome Hero */}
-                    <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-indigo-100 transform transition-transform hover:scale-[1.01] duration-500">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-[60px] -ml-24 -mb-24"></div>
-                        
-                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                            <div className="text-center md:text-left">
-                                <span className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 inline-block border border-white/20">System Status: Online</span>
-                                <h1 className="text-4xl font-black mb-2">Selamat Datang Kembali, Admin!</h1>
-                                <p className="text-indigo-100 text-lg font-medium opacity-90 max-w-xl">
-                                    Kontrol akses, kelola izin sekolah, dan monitor aktivitas sistem secara real-time dari satu tempat yang elegan.
-                                </p>
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="mb-10">
+                        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight italic uppercase">Selamat Datang, {auth?.user?.school_name || auth?.user?.name}!</h2>
+                        <p className="text-slate-500 font-medium mt-2 italic">Pantau status pengerjaan website Anda dan jelajahi layanan terbaru kami.</p>
+                    </div>
+
+                    {/* Stats User */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/40">
+                            <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-4">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                             </div>
-                            <div className="flex-shrink-0">
-                                <div className="w-40 h-40 bg-white/20 backdrop-blur-xl rounded-4xl flex items-center justify-center border border-white/30 rotate-3">
-                                    <svg className="w-20 h-20 text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                    </svg>
-                                </div>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 italic">Total Pesanan</p>
+                            <h3 className="text-3xl font-black text-slate-900 italic">{totalOrders}</h3>
+                        </div>
+
+                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/40">
+                            <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-4">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 italic">Sedang Diproses</p>
+                            <h3 className="text-3xl font-black text-slate-900 italic">{processingOrders}</h3>
+                        </div>
+
+                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/40">
+                            <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-4">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 italic">Website Selesai</p>
+                            <h3 className="text-3xl font-black text-slate-900 italic">{completedOrders}</h3>
                         </div>
                     </div>
 
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {[
-                            { label: 'Total Sekolah', value: '12', color: 'indigo', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
-                            { label: 'Role Aktif', value: '24', color: 'fuchsia', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
-                            { label: 'Database Sync', value: 'OK', color: 'emerald', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' },
-                        ].map((stat, i) => (
-                            <div key={i} className="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-100 border border-gray-100 group hover:-translate-y-2 transition-all duration-300">
-                                <div className={`w-14 h-14 bg-${stat.color}-50 rounded-2xl flex items-center justify-center text-${stat.color}-600 mb-6 group-hover:bg-${stat.color}-600 group-hover:text-white transition-all duration-500`}>
-                                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={stat.icon} />
-                                    </svg>
+                    <div className="grid lg:grid-cols-3 gap-8">
+                        {/* Recent Orders */}
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden">
+                                <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between">
+                                    <h3 className="font-bold text-slate-900 italic">Riwayat Pesanan Terakhir</h3>
+                                    <Link href="#" className="text-xs font-bold text-indigo-600 hover:underline italic">Lihat Semua</Link>
                                 </div>
-                                <p className="text-gray-400 text-xs font-black uppercase tracking-widest">{stat.label}</p>
-                                <h3 className="text-4xl font-black text-gray-900 mt-1">{stat.value}</h3>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="bg-slate-50/50">
+                                                <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">Produk</th>
+                                                <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">Status</th>
+                                                <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-50">
+                                            {orders.length > 0 ? orders.map((order) => (
+                                                <tr key={order.id}>
+                                                    <td className="px-8 py-5">
+                                                        <p className="text-sm font-bold text-slate-900 italic">{order.product.name}</p>
+                                                        <p className="text-[10px] font-bold text-slate-400 mt-1 italic">Inv: #{order.order_number}</p>
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-bold uppercase tracking-wider italic">
+                                                            {order.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <Link href={route('user.order.show', order.id)} className="text-xs font-bold text-indigo-600 hover:text-indigo-800 italic">Lihat Detail &rarr;</Link>
+                                                    </td>
+                                                </tr>
+                                            )) : (
+                                                <tr>
+                                                    <td colSpan="3" className="px-8 py-10 text-center text-slate-400 font-bold text-sm italic">Belum ada pesanan website.</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        ))}
-                    </div>
-
-                    {/* Quick Access Section */}
-                    <div className="bg-white rounded-[2.5rem] p-10 shadow-xl shadow-indigo-50 border border-indigo-50">
-                        <div className="flex items-center justify-between mb-8">
-                            <h4 className="text-2xl font-black text-gray-900 tracking-tight">Akses Cepat</h4>
-                            <div className="h-px bg-gray-100 flex-grow mx-8 hidden md:block"></div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <a href={route('admin.permissions.index')} className="group flex items-center p-6 bg-gray-50 rounded-3xl border border-transparent hover:border-indigo-100 hover:bg-indigo-50 transition-all duration-300">
-                                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-gray-100 group-hover:shadow-indigo-100 transition-all">
-                                     <svg className="w-8 h-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
+
+                        {/* Promo/Featured Sidebar */}
+                        <div className="space-y-6">
+                            <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl shadow-indigo-100">
+                                <div className="relative z-10">
+                                    <h4 className="text-xl font-bold mb-4 italic uppercase">Butuh Website Custom?</h4>
+                                    <p className="text-indigo-100 text-sm leading-relaxed mb-6 italic">Konsultasikan kebutuhan fitur khusus sekolah Anda dengan tim ahli kami secara gratis melalui Live Chat.</p>
+                                    <button className="block w-full py-4 bg-white text-indigo-600 rounded-2xl text-[10px] font-extrabold text-center shadow-lg hover:bg-indigo-50 transition-all uppercase tracking-widest italic">Hubungi Tim Ahli</button>
                                 </div>
-                                <div className="ml-6">
-                                    <h5 className="text-lg font-black text-gray-900 group-hover:text-indigo-700">Manajemen Izin</h5>
-                                    <p className="text-sm text-gray-400 font-medium">Atur role dan hak akses untuk semua sekolah.</p>
+                                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-500 rounded-full blur-2xl opacity-50 group-hover:scale-150 transition-all"></div>
+                            </div>
+
+                            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/40 p-8">
+                                <h4 className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-widest italic">Produk Rekomendasi</h4>
+                                <div className="space-y-6">
+                                    {featuredProducts?.map((fp) => (
+                                        <div key={fp.id} className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-slate-100 rounded-xl flex-shrink-0"></div>
+                                            <div>
+                                                <p className="text-xs font-bold text-slate-900 italic">{fp.name}</p>
+                                                <p className="text-[10px] font-bold text-indigo-600 mt-1 italic">Rp {new Intl.NumberFormat('id-ID').format(fp.price)}</p>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            </a>
-                            <a href={route('admin.profile.edit')} className="group flex items-center p-6 bg-gray-50 rounded-3xl border border-transparent hover:border-violet-100 hover:bg-violet-50 transition-all duration-300">
-                                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-gray-100 group-hover:shadow-violet-100 transition-all">
-                                     <svg className="w-8 h-8 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </div>
-                                <div className="ml-6">
-                                    <h5 className="text-lg font-black text-gray-900 group-hover:text-violet-700">Pengaturan Profil</h5>
-                                    <p className="text-sm text-gray-400 font-medium">Perbarui informasi akun dan keamanan Anda.</p>
-                                </div>
-                            </a>
+                            </div>
                         </div>
                     </div>
                 </div>
