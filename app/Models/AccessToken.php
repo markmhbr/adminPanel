@@ -8,6 +8,7 @@ class AccessToken extends Model
 {
     protected $fillable = [
         'token',
+        'type',
         'is_active'
     ];
 }

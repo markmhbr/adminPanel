@@ -21,9 +21,21 @@ class AccessTokenController extends Controller
     {
         $validated = $request->validate([
             'token' => 'required|string|max:255|unique:access_tokens,token',
+            'type' => 'nullable|string|in:admin-panel,external-api',
         ]);
 
-        AccessToken::create($validated);
+        $type = $request->type ?? 'admin-panel';
+
+        // Check if token already exists for this type
+        if (AccessToken::where('type', $type)->exists()) {
+            return back()->withErrors(['error' => 'Token untuk kategori ini sudah ada. Silakan hapus yang lama terlebih dahulu.']);
+        }
+
+        AccessToken::create([
+            'token' => $validated['token'],
+            'type' => $type,
+            'is_active' => true,
+        ]);
 
         return back()->with('success', 'Access token berhasil disimpan.');
     }
