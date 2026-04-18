@@ -89,7 +89,7 @@ class LandingPageController extends Controller
         $orderItemsData = [];
 
         foreach ($productItems as $item) {
-            $isMandatory = !$item->pivot->is_optional;
+            $isMandatory = (int)$item->pivot->is_optional === 0;
             $isSelected = in_array($item->id, $selectedItemIds);
 
             if ($isMandatory || $isSelected) {

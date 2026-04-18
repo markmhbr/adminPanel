@@ -44,7 +44,7 @@ class ProductController extends Controller
             $syncData = [];
             foreach ($request->items as $item) {
                 $syncData[$item['id']] = [
-                    'is_optional' => $item['is_optional'],
+                    'is_optional' => (int)$item['is_optional'],
                     'allowed_tiers' => isset($item['allowed_tiers']) ? json_encode($item['allowed_tiers']) : null,
                 ];
             }
@@ -82,7 +82,7 @@ class ProductController extends Controller
             $syncData = [];
             foreach ($request->items as $item) {
                 $syncData[$item['id']] = [
-                    'is_optional' => $item['is_optional'],
+                    'is_optional' => (int)$item['is_optional'],
                     'allowed_tiers' => isset($item['allowed_tiers']) ? json_encode($item['allowed_tiers']) : null,
                 ];
             }
