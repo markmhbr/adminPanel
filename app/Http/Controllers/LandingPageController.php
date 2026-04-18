@@ -93,7 +93,23 @@ class LandingPageController extends Controller
             $isSelected = in_array($item->id, $selectedItemIds);
 
             if ($isMandatory || $isSelected) {
-                $itemPrice = $item->getPriceForStudents($studentCount);
+                $itemPrice = $item->price; // Default price
+                
+                // Jika ada level yang di-fix oleh admin
+                $fixedTiers = $item->pivot->allowed_tiers;
+                if (!empty($fixedTiers)) {
+                    $fixedTierIds = is_string($fixedTiers) ? json_decode($fixedTiers, true) : $fixedTiers;
+                    if (!empty($fixedTierIds)) {
+                        $tier = $item->tiers->firstWhere('id', $fixedTierIds[0]);
+                        if ($tier) {
+                            $itemPrice = $tier->price;
+                        }
+                    }
+                } else {
+                    // Jika tidak fix, hitung berdasarkan jumlah siswa
+                    $itemPrice = $item->getPriceForStudents($studentCount);
+                }
+
                 $totalPrice += $itemPrice;
                 $orderItemsData[] = [
                     'item_id' => $item->id,

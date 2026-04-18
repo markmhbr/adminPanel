@@ -35,6 +35,7 @@ class ProductController extends Controller
             'items' => 'nullable|array',
             'items.*.id' => 'required|exists:items,id',
             'items.*.is_optional' => 'required|boolean',
+            'items.*.allowed_tiers' => 'nullable|array',
         ]);
 
         $product = Product::create($request->only(['name', 'description', 'demo_url', 'status']));
@@ -44,6 +45,7 @@ class ProductController extends Controller
             foreach ($request->items as $item) {
                 $syncData[$item['id']] = [
                     'is_optional' => $item['is_optional'],
+                    'allowed_tiers' => isset($item['allowed_tiers']) ? json_encode($item['allowed_tiers']) : null,
                 ];
             }
             $product->items()->sync($syncData);
@@ -71,6 +73,7 @@ class ProductController extends Controller
             'items' => 'nullable|array',
             'items.*.id' => 'required|exists:items,id',
             'items.*.is_optional' => 'required|boolean',
+            'items.*.allowed_tiers' => 'nullable|array',
         ]);
 
         $product->update($request->only(['name', 'description', 'demo_url', 'status']));
@@ -80,6 +83,7 @@ class ProductController extends Controller
             foreach ($request->items as $item) {
                 $syncData[$item['id']] = [
                     'is_optional' => $item['is_optional'],
+                    'allowed_tiers' => isset($item['allowed_tiers']) ? json_encode($item['allowed_tiers']) : null,
                 ];
             }
             $product->items()->sync($syncData);

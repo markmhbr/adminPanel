@@ -8,7 +8,7 @@ export default function Create({ auth, items }) {
         description: '',
         demo_url: '',
         status: 'published',
-        items: [], // [{ id: 1, is_optional: false }]
+        items: [], // [{ id: 1, is_optional: false, allowed_tiers: [] }]
     });
 
 
@@ -29,6 +29,10 @@ export default function Create({ auth, items }) {
 
     const setOptional = (itemId, isOptional) => {
         setData('items', data.items.map(i => i.id === itemId ? { ...i, is_optional: isOptional } : i));
+    };
+    
+    const setAllowedTiers = (itemId, tierId) => {
+        setData('items', data.items.map(i => i.id === itemId ? { ...i, allowed_tiers: tierId ? [parseInt(tierId)] : [] } : i));
     };
 
 
@@ -119,8 +123,24 @@ export default function Create({ auth, items }) {
                                                             </button>
                                                         </div>
                                                     </div>
-
-
+                                                    
+                                                    {item.tiers && item.tiers.length > 0 && (
+                                                        <div className="flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm">
+                                                            <span className="text-[10px] font-black text-slate-400 uppercase italic">Level Fixed:</span>
+                                                            <select 
+                                                                value={selectedItem.allowed_tiers?.[0] || ''} 
+                                                                onChange={(e) => setAllowedTiers(item.id, e.target.value)}
+                                                                className="flex-1 py-1 text-[10px] font-black uppercase rounded-lg border-none bg-slate-50 focus:ring-0 italic"
+                                                            >
+                                                                <option value="">Otomatis (Sesuai Jumlah Siswa)</option>
+                                                                {item.tiers.map(tier => (
+                                                                    <option key={tier.id} value={tier.id}>
+                                                                        {tier.level_name} - Rp {new Intl.NumberFormat('id-ID').format(tier.price)}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>

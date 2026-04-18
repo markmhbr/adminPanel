@@ -11,6 +11,16 @@ export default function Checkout({ product, selectedItemIds = [], studentCount =
         if (item.billing_type === 'free') {
             return 0;
         }
+
+        // Jika admin sudah menentukan level (Tier) khusus untuk produk ini
+        if (item.pivot?.allowed_tiers?.length > 0) {
+            const fixedTierId = item.pivot.allowed_tiers[0];
+            const fixedTier = item.tiers?.find(t => t.id === fixedTierId);
+            if (fixedTier) {
+                return parseFloat(fixedTier.price);
+            }
+        }
+
         if (!item.tiers || item.tiers.length === 0) {
             return parseFloat(item.price);
         }
