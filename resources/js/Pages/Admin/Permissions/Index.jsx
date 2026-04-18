@@ -22,10 +22,13 @@ export default function Index({ schools, tokens }) {
         skip_connection_test: false,
     });
 
-    // Auto-select jika hanya ada 1 token
+    // Auto-select token tipe 'admin-panel' untuk config baru
     useEffect(() => {
-        if (tokens.length === 1 && !data.access && !isEditing) {
-            setData('access', tokens[0].token);
+        if (!data.access && !isEditing && tokens.length > 0) {
+            const adminToken = tokens.find(t => t.type === 'admin-panel');
+            if (adminToken) {
+                setData('access', adminToken.token);
+            }
         }
     }, [tokens, isModalOpen, isEditing]);
 
