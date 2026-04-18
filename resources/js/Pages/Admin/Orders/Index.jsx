@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import Pagination from '@/Components/Pagination';
 
 export default function Index({ auth, orders }) {
     const statusClasses = {
@@ -12,7 +13,14 @@ export default function Index({ auth, orders }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Pesanan Masuk</h2>}
+            header={
+                <div className="flex flex-col md:flex-row justify-between items-center w-full gap-6">
+                    <div className="text-center md:text-left">
+                        <h2 className="text-3xl font-black leading-tight text-slate-900 italic uppercase tracking-tight">Pesanan Masuk</h2>
+                        <p className="text-slate-400 font-bold text-xs mt-1 italic uppercase tracking-widest">Pantau dan kelola transaksi pemesanan layanan.</p>
+                    </div>
+                </div>
+            }
         >
             <Head title="Pesanan Masuk | Admin" />
 
@@ -69,6 +77,7 @@ export default function Index({ auth, orders }) {
                             </table>
                         </div>
                     </div>
+                    <Pagination links={orders.links} />
                 </div>
             </div>
         </AuthenticatedLayout>

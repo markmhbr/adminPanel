@@ -119,12 +119,10 @@ export default function Index({ schools, tokens }) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div>
-                        <h2 className="text-3xl font-black leading-tight text-gray-900">
-                            Pilih Unit Sekolah
-                        </h2>
-                        <p className="text-gray-400 font-medium mt-1">Kelola hak akses dan konfigurasi role untuk setiap sekolah.</p>
+                <div className="flex flex-col md:flex-row justify-between items-center w-full gap-6">
+                    <div className="text-center md:text-left">
+                        <h2 className="text-3xl font-black leading-tight text-slate-900 italic uppercase tracking-tight">Pilih Unit Sekolah</h2>
+                        <p className="text-slate-400 font-bold text-xs mt-1 italic uppercase tracking-widest">Kelola hak akses dan konfigurasi role untuk setiap sekolah.</p>
                     </div>
                     <button
                         onClick={() => {
@@ -134,7 +132,7 @@ export default function Index({ schools, tokens }) {
                             reset();
                             setIsModalOpen(true);
                         }}
-                        className="group relative flex items-center justify-center gap-3 px-8 h-14 bg-gray-900 hover:bg-indigo-600 text-white rounded-2xl font-black tracking-widest text-xs uppercase transition-all duration-500 shadow-xl shadow-indigo-100 hover:-translate-y-1 overflow-hidden"
+                        className="group relative flex items-center justify-center gap-3 px-8 h-14 bg-slate-900 hover:bg-indigo-600 text-white rounded-2xl font-black tracking-widest text-[10px] uppercase transition-all duration-500 shadow-xl shadow-indigo-100 hover:-translate-y-1 overflow-hidden italic"
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         <svg className="w-5 h-5 relative z-10 transition-transform duration-500 group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">

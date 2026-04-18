@@ -87,9 +87,62 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        foreach ($products as $product) {
-            $product['slug'] = \Illuminate\Support\Str::slug($product['name']);
-            \App\Models\Product::create($product);
+        // Sample Items
+        $items = [
+            [
+                'name' => 'SIMAK (Sistem Informasi Sekolah)',
+                'price' => 1500000,
+                'description' => 'Sistem manajemen data sekolah terpadu.',
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Web Profile Premium',
+                'price' => 1000000,
+                'description' => 'Desain website profile dengan fitur lengkap.',
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Support Maintenance (6 Bulan)',
+                'price' => 500000,
+                'description' => 'Pendampingan dan perbaikan bug selama 6 bulan.',
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Custom Domain .sch.id',
+                'price' => 250000,
+                'description' => 'Pendaftaran domain resmi sekolah.',
+                'status' => 'active'
+            ],
+            [
+                'name' => 'Hosting Super Cepat (1 Tahun)',
+                'price' => 750000,
+                'description' => 'Layanan hosting dengan performa tinggi.',
+                'status' => 'active'
+            ]
+        ];
+
+        $createdItems = [];
+        foreach ($items as $itemData) {
+            $createdItems[] = \App\Models\Item::create($itemData);
+        }
+
+        foreach ($products as $productData) {
+            $productData['slug'] = \Illuminate\Support\Str::slug($productData['name']);
+            $product = \App\Models\Product::create($productData);
+
+            // Link items to product
+            if ($product->name === 'Sistem Informasi Sekolah (SIM)') {
+                // Mandatory items
+                $product->items()->attach($createdItems[0]->id, ['is_optional' => false]);
+                $product->items()->attach($createdItems[4]->id, ['is_optional' => false]);
+                // Optional items
+                $product->items()->attach($createdItems[2]->id, ['is_optional' => true]);
+                $product->items()->attach($createdItems[3]->id, ['is_optional' => true]);
+            } else {
+                // For other products, just add some items
+                $product->items()->attach($createdItems[1]->id, ['is_optional' => false]);
+                $product->items()->attach($createdItems[2]->id, ['is_optional' => true]);
+            }
         }
 
         $this->call([

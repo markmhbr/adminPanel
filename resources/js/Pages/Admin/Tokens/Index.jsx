@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PremiumAlert } from '@/Utils/alert';
+import Pagination from '@/Components/Pagination';
 
 export default function Index({ auth, tokens }) {
     const [copying, setCopying] = useState(null);
@@ -10,8 +11,8 @@ export default function Index({ auth, tokens }) {
     
     // Filter tokens based on active tab
     const filteredTokens = useMemo(() => {
-        return tokens.filter(t => (t.type || 'admin-panel') === activeTab);
-    }, [tokens, activeTab]);
+        return tokens.data.filter(t => (t.type || 'admin-panel') === activeTab);
+    }, [tokens.data, activeTab]);
 
     const activeToken = useMemo(() => {
         return filteredTokens.filter(t => t.is_active).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
@@ -70,12 +71,10 @@ export default function Index({ auth, tokens }) {
     return (
         <AuthenticatedLayout
             header={
-                <div className='w-full flex flex-col md:flex-row justify-between items-center gap-6'>
-                    <div>
-                        <h2 className='text-3xl font-black leading-tight text-gray-900'>
-                            Access Tokens
-                        </h2>
-                        <p className='text-gray-400 font-medium mt-1'>
+                <div className="flex flex-col md:flex-row justify-between items-center w-full gap-6">
+                    <div className="text-center md:text-left">
+                        <h2 className="text-3xl font-black leading-tight text-slate-900 italic uppercase tracking-tight">Access Tokens</h2>
+                        <p className="text-slate-400 font-bold text-xs mt-1 italic uppercase tracking-widest">
                             {activeTab === 'admin-panel' 
                                 ? 'Kelola kunci akses API untuk project sekolah.' 
                                 : 'Kelola kunci akses untuk integrasi data eksternal.'}
@@ -246,6 +245,8 @@ export default function Index({ auth, tokens }) {
                             </div>
                         </div>
                     )}
+
+                    <Pagination links={tokens.links} />
                 </div>
             </div>
         </AuthenticatedLayout>

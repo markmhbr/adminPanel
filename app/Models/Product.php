@@ -37,4 +37,11 @@ class Product extends Model
             }
         });
     }
+
+    public function items()
+    {
+        return $this->belongsToMany(Item::class, 'product_item')
+            ->withPivot('is_optional', 'allowed_tiers')
+            ->withTimestamps();
+    }
 }

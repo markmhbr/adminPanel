@@ -147,14 +147,27 @@ export default function Welcome({ products, heroBanners, storeProfile }) {
                                     </div>
                                     <Link href={route('product.detail', product.slug)} className="flex-1 block">
                                         <h4 className="text-2xl font-black text-slate-900 mb-3 group-hover:text-blue-600 transition-colors italic uppercase tracking-tight">{product.name}</h4>
-                                        <p className="text-sm text-slate-500 font-medium leading-relaxed mb-8 italic">
-                                            {product.description?.substring(0, 120)}...
+                                        <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6 italic">
+                                            {product.description?.substring(0, 100)}...
                                         </p>
+                                        
+                                        {/* Item List */}
+                                        <div className="space-y-3 mb-8">
+                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic mb-4">Fitur Utama:</p>
+                                            {product.items?.map((item) => (
+                                                <div key={item.id} className="flex items-center gap-3 group/item">
+                                                    <div className="w-5 h-5 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors">
+                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
+                                                    </div>
+                                                    <span className="text-[11px] font-bold text-slate-600 italic uppercase tracking-wide group-hover/item:text-slate-900">{item.name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </Link>
-                                    <div className="pt-8 border-t border-slate-100 mt-auto flex items-end justify-between">
+                                    <div className="pt-8 border-t border-slate-100 mt-auto flex items-center justify-between">
                                         <div>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic mb-1">Investasi</p>
-                                            <p className="text-2xl font-black text-slate-900 italic">Rp {new Intl.NumberFormat('id-ID').format(product.price)}</p>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic mb-1">Status</p>
+                                            <p className="text-sm font-black text-blue-600 italic uppercase">Konfigurasi Siap</p>
                                         </div>
                                         <Link href={route('product.detail', product.slug)} className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                                             <svg className="w-5 h-5 -rotate-45 group-hover:rotate-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>

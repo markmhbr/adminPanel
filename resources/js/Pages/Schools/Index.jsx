@@ -1,7 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
+import Pagination from "@/Components/Pagination";
 
 export default function Index({ schools }) {
     const [roles, setRoles] = useState([]);
@@ -19,33 +20,55 @@ export default function Index({ schools }) {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Manajemen Permissions
-                </h2>
+                <div className="flex flex-col md:flex-row justify-between items-center w-full gap-6">
+                    <div className="text-center md:text-left">
+                        <h2 className="text-3xl font-black leading-tight text-slate-900 italic uppercase tracking-tight">Project Schools</h2>
+                        <p className="text-slate-400 font-bold text-xs mt-1 italic uppercase tracking-widest">Daftar instansi sekolah yang terintegrasi dengan sistem.</p>
+                    </div>
+                </div>
             }
         >
-            <Head title="Manajemen Permissions" />
-            <div className="p-10">
-                <h1 className="text-2xl font-bold mb-6">Schools</h1>
-
-                <div className="grid gap-4">
-                    {schools.map((school) => (
-                        <div
-                            key={school.id}
-                            className="border p-4 flex justify-between"
-                        >
-                            <span>{school.name}</span>
-
-                            <button
-                                className="bg-blue-500 text-white px-3 py-1"
-                                onClick={() =>
-                                    router.visit(`/schools/${school.id}/roles`)
-                                }
+            <Head title="Project Schools | Admin" />
+            
+            <div className="py-12">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {schools.data.map((school) => (
+                            <div
+                                key={school.id}
+                                className="group relative bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white shadow-xl shadow-slate-200/40 hover:-translate-y-2 transition-all duration-500 overflow-hidden"
                             >
-                                Manage Roles
-                            </button>
-                        </div>
-                    ))}
+                                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-indigo-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+                                
+                                <div className="relative z-10 flex flex-col h-full">
+                                    <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl font-black italic shadow-lg shadow-indigo-200 mb-6 group-hover:rotate-6 transition-transform">
+                                        {school.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    
+                                    <h3 className="text-xl font-black text-slate-900 italic uppercase tracking-tight mb-2">
+                                        {school.name}
+                                    </h3>
+                                    <p className="text-xs font-bold text-slate-400 uppercase italic tracking-widest mb-8">
+                                        ID: #{school.id}
+                                    </p>
+
+                                    <div className="mt-auto">
+                                        <Link
+                                            href={route('admin.permissions.show', school.id)}
+                                            className="inline-flex items-center justify-center w-full h-12 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all duration-300 gap-2"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor font-black">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                            </svg>
+                                            Manage Access
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <Pagination links={schools.links} />
                 </div>
             </div>
         </AuthenticatedLayout>

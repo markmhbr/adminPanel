@@ -10,7 +10,7 @@ class HeroBannerController extends Controller
 {
     public function index()
     {
-        $banners = HeroBanner::orderBy('order_index')->get();
+        $banners = HeroBanner::orderBy('order_index')->paginate(10);
         return Inertia::render('Admin/Hero/Index', [
             'banners' => $banners
         ]);

@@ -1,11 +1,44 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { useMemo } from 'react';
 import Navbar from '@/Components/Landing/Navbar';
 import Footer from '@/Components/Landing/Footer';
 
-export default function Checkout({ product }) {
+export default function Checkout({ product, selectedItemIds = [], studentCount = 250 }) {
     const { auth } = usePage().props;
+    
+    const getItemPrice = (item, count) => {
+        if (item.billing_type === 'free') {
+            return 0;
+        }
+        if (!item.tiers || item.tiers.length === 0) {
+            return parseFloat(item.price);
+        }
+        const matchedTier = [...item.tiers]
+            .sort((a, b) => a.max_students - b.max_students)
+            .find(tier => tier.max_students >= count);
+            
+        if (matchedTier) {
+            return parseFloat(matchedTier.price);
+        }
+        const highestTier = [...item.tiers].sort((a, b) => b.max_students - a.max_students)[0];
+        return parseFloat(highestTier.price);
+    };
+
+    // Logic to calculate total price
+    const mandatoryItems = product.items?.filter(item => !item.pivot.is_optional) || [];
+    const optionalItems = product.items?.filter(item => item.pivot.is_optional && selectedItemIds.includes(item.id)) || [];
+    
+    const totalPrice = useMemo(() => {
+        let total = parseFloat(product.price);
+        mandatoryItems.forEach(item => total += getItemPrice(item, studentCount));
+        optionalItems.forEach(item => total += getItemPrice(item, studentCount));
+        return total;
+    }, [product.price, mandatoryItems, optionalItems, studentCount]);
+
     const { data, setData, post, processing } = useForm({
         notes: '',
+        selected_items: selectedItemIds,
+        student_count: studentCount,
     });
 
     const submit = (e) => {
@@ -40,20 +73,71 @@ export default function Checkout({ product }) {
                     </div>
 
                     <div className="grid lg:grid-cols-12 gap-10">
-                        {/* Kiri: Produk Detail */}
+                        {/* Kiri: Produk Detail & Summary */}
                         <div className="lg:col-span-4">
                             <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-xl shadow-slate-200/40 sticky top-32">
-                                <div className="h-48 bg-slate-100 flex items-center justify-center">
-                                    <svg className="w-20 h-20 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                </div>
-                                <div className="p-8">
-                                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-extrabold uppercase tracking-widest italic">Paket Website</span>
+                                <div className="p-8 pb-4">
+                                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-extrabold uppercase tracking-widest italic">Ringkasan Pesanan</span>
                                     <h3 className="text-xl font-black text-slate-900 mt-4 mb-2 italic uppercase">{product.name}</h3>
-                                    <p className="text-xs text-slate-500 leading-relaxed italic line-clamp-3 mb-6">{product.description}</p>
-                                    
-                                    <div className="pt-6 border-t border-slate-50 flex justify-between items-center">
-                                        <span className="text-xs font-bold text-slate-400 italic">Harga Paket:</span>
-                                        <span className="text-xl font-black text-blue-600 italic">Rp {new Intl.NumberFormat('id-ID').format(product.price)}</span>
+                                    <p className="text-xs text-slate-500 italic line-clamp-1 mb-6">{product.description}</p>
+                                </div>
+                                
+                                <div className="px-8 pb-8 space-y-4">
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase italic">
+                                            <span>Base Package</span>
+                                            <span>Rp {new Intl.NumberFormat('id-ID').format(product.price)}</span>
+                                        </div>
+                                        
+                                        <div className="flex justify-between items-center text-[10px] font-bold text-indigo-600 italic border-y border-slate-50 py-2">
+                                            <span>Level Sekolah</span>
+                                            <span>{studentCount} Siswa</span>
+                                        </div>
+                                        
+                                        {/* Mandatory Items Sumary */}
+                                        {mandatoryItems.map(item => {
+                                            const itemPrice = getItemPrice(item, studentCount);
+                                            return (
+                                                <div key={item.id} className="flex justify-between items-start text-[10px] font-bold text-slate-900 italic">
+                                                    <span>✓ {item.name}</span>
+                                                    <div className="text-right">
+                                                        {item.billing_type === 'free' ? (
+                                                            <p className="text-green-600">GRATIS</p>
+                                                        ) : (
+                                                            <>
+                                                                <p>Rp {new Intl.NumberFormat('id-ID').format(itemPrice)}</p>
+                                                                <p className="text-[8px] opacity-50 font-black">{item.billing_type === 'annual' ? 'PER TAHUN' : 'SEKALI BELI'}</p>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+
+                                        {/* Selected Optional Items Summary */}
+                                        {optionalItems.map(item => {
+                                            const itemPrice = getItemPrice(item, studentCount);
+                                            return (
+                                                <div key={item.id} className="flex justify-between items-start text-[10px] font-bold text-indigo-600 italic">
+                                                    <span>+ {item.name} (Opt)</span>
+                                                    <div className="text-right">
+                                                        {item.billing_type === 'free' ? (
+                                                            <p className="text-green-600">GRATIS</p>
+                                                        ) : (
+                                                            <>
+                                                                <p>Rp {new Intl.NumberFormat('id-ID').format(itemPrice)}</p>
+                                                                <p className="text-[8px] opacity-50 font-black uppercase">{item.billing_type === 'annual' ? 'PER TAHUN' : 'SEKALI BELI'}</p>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <div className="pt-6 border-t border-slate-100 flex justify-between items-center">
+                                        <span className="text-xs font-black text-slate-900 uppercase italic">Total Investasi:</span>
+                                        <span className="text-2xl font-black text-blue-600 italic">Rp {new Intl.NumberFormat('id-ID').format(totalPrice)}</span>
                                     </div>
                                 </div>
                             </div>

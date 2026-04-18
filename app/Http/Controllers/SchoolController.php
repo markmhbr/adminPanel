@@ -11,7 +11,7 @@ class SchoolController extends Controller
 {
     public function index()
     {
-        $schools = School::all();
+        $schools = School::latest()->paginate(10);
 
         return Inertia::render('Schools/Index', [
             'schools' => $schools

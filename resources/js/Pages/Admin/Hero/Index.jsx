@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import Pagination from '@/Components/Pagination';
 
 export default function Index({ auth, banners }) {
     const deleteBanner = (id) => {
@@ -12,13 +13,20 @@ export default function Index({ auth, banners }) {
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex justify-between items-center w-full">
-                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">Hero Banners</h2>
+                <div className="flex flex-col md:flex-row justify-between items-center w-full gap-6">
+                    <div className="text-center md:text-left">
+                        <h2 className="text-3xl font-black leading-tight text-slate-900 italic uppercase tracking-tight">Hero Banners</h2>
+                        <p className="text-slate-400 font-bold text-xs mt-1 italic uppercase tracking-widest">Kelola gambar promosi di halaman Landing Page.</p>
+                    </div>
                     <Link
                         href={route('admin.hero.create')}
-                        className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all font-black italic"
+                        className="group relative flex items-center justify-center gap-3 px-8 h-14 bg-slate-900 hover:bg-indigo-600 text-white rounded-2xl font-black tracking-widest text-[10px] uppercase transition-all duration-500 shadow-xl shadow-indigo-100 hover:-translate-y-1 overflow-hidden italic"
                     >
-                        Tambah Banner
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <svg className="w-5 h-5 relative z-10 transition-transform duration-500 group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span className="relative z-10">Tambah Banner</span>
                     </Link>
                 </div>
             }
@@ -28,7 +36,7 @@ export default function Index({ auth, banners }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {banners.map((banner) => (
+                        {banners.data.map((banner) => (
                             <div key={banner.id} className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden group">
                                 <div className="h-48 relative overflow-hidden">
                                     <img src={banner.image_url} alt={banner.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -53,6 +61,7 @@ export default function Index({ auth, banners }) {
                             </div>
                         ))}
                     </div>
+                    <Pagination links={banners.links} />
                 </div>
             </div>
         </AuthenticatedLayout>

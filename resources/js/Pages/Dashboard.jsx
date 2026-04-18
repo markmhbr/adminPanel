@@ -107,7 +107,7 @@ export default function Dashboard({ totalOrders, processingOrders, completedOrde
                                             <div className="w-12 h-12 bg-slate-100 rounded-xl flex-shrink-0"></div>
                                             <div>
                                                 <p className="text-xs font-bold text-slate-900 italic">{fp.name}</p>
-                                                <p className="text-[10px] font-bold text-indigo-600 mt-1 italic">Rp {new Intl.NumberFormat('id-ID').format(fp.price)}</p>
+                                                <p className="text-[10px] font-bold text-indigo-600 mt-1 italic uppercase tracking-widest">Detail &rarr;</p>
                                             </div>
                                         </div>
                                     ))}

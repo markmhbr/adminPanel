@@ -23,6 +23,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "framer-motion": "^12.38.0",
         "sweetalert2": "^11.26.23",
         "sweetalert2-react-content": "^5.1.2",
         "ziggy-js": "^2.6.2"

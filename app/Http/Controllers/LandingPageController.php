@@ -16,7 +16,13 @@ class LandingPageController extends Controller
 {
     public function index()
     {
-        $products = Product::where('status', 'published')->latest()->take(6)->get();
+        $products = Product::where('status', 'published')
+            ->with(['items' => function($query) {
+                $query->where('status', 'active')->take(5);
+            }])
+            ->latest()
+            ->take(6)
+            ->get();
         $heroBanners = HeroBanner::where('status', 'active')->orderBy('order_index')->get();
         return Inertia::render('Welcome', [
             'products' => $products,
@@ -28,35 +34,89 @@ class LandingPageController extends Controller
 
     public function show(Product $product)
     {
+        $product->load(['items' => function($query) {
+            $query->where('status', 'active')->with('tiers');
+        }]);
+
+        // Decode JSON pivot data
+        $product->items->each(function($item) {
+            if ($item->pivot->allowed_tiers) {
+                $item->pivot->allowed_tiers = json_decode($item->pivot->allowed_tiers);
+            }
+        });
+
         return Inertia::render('Product/Detail', [
             'product' => $product
         ]);
     }
 
-    public function checkout(Product $product)
+    public function checkout(Request $request, Product $product)
     {
         if (!Auth::check()) {
             session(['buying_product_id' => $product->id]);
         }
 
+        $product->load(['items' => function($query) {
+            $query->where('status', 'active')->with('tiers');
+        }]);
+
+        // Decode JSON pivot data
+        $product->items->each(function($item) {
+            if ($item->pivot->allowed_tiers) {
+                $item->pivot->allowed_tiers = json_decode($item->pivot->allowed_tiers);
+            }
+        });
+
         return Inertia::render('Checkout/Index', [
-            'product' => $product
+            'product' => $product,
+            'selectedItemIds' => $request->input('selected_items', []),
+            'studentCount' => (int) $request->input('student_count', 250)
         ]);
     }
 
     public function processCheckout(Request $request, Product $product)
     {
         $user = Auth::user();
+        $selectedItemIds = $request->input('selected_items', []);
+        $studentCount = (int) $request->input('student_count', 250);
+        
+        // Fetch all items associated with the product to verify and get prices
+        $productItems = $product->items()->where('status', 'active')->with('tiers')->get();
+        
+        $totalPrice = $product->price;
+        $orderItemsData = [];
+
+        foreach ($productItems as $item) {
+            $isMandatory = !$item->pivot->is_optional;
+            $isSelected = in_array($item->id, $selectedItemIds);
+
+            if ($isMandatory || $isSelected) {
+                $itemPrice = $item->getPriceForStudents($studentCount);
+                $totalPrice += $itemPrice;
+                $orderItemsData[] = [
+                    'item_id' => $item->id,
+                    'item_name' => $item->name,
+                    'item_price' => $itemPrice,
+                    'billing_type' => $item->billing_type ?? 'one_time',
+                ];
+            }
+        }
 
         $order = Order::create([
             'user_id' => $user->id,
             'product_id' => $product->id,
             'order_number' => 'INV-' . strtoupper(Str::random(10)),
-            'total_price' => $product->price,
+            'total_price' => $totalPrice,
             'status' => 'pending',
             'payment_status' => 'unpaid',
             'notes' => $request->notes ?? 'Tidak ada catatan tambahan.',
+            'student_count' => $studentCount,
         ]);
+
+        // Create Order Items
+        foreach ($orderItemsData as $itemData) {
+            $order->items()->create($itemData);
+        }
 
         $serverKey = config('services.midtrans.server_key');
 

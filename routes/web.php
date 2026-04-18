@@ -41,6 +41,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
 
     // Products Management
     Route::resource('products', AdminProductController::class);
+    Route::resource('items', \App\Http\Controllers\Admin\ItemController::class);
 
     // Orders Management
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
@@ -53,6 +54,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
     // Store Profile
     Route::get('/profile/store', [StoreProfileController::class, 'edit'])->name('profile.store');
     Route::put('/profile/store', [StoreProfileController::class, 'update'])->name('profile.store.update');
+
+    // Customers Management
+    Route::get('/customers', [\App\Http\Controllers\Admin\CustomerController::class, 'index'])->name('customers.index');
 
     // Existing Admin Panel Routes
     Route::get('/schools', [SchoolController::class, 'index'])->name('schools');

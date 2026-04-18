@@ -11,7 +11,7 @@ class AccessTokenController extends Controller
 {
     public function index()
     {
-        $tokens = AccessToken::latest()->get();
+        $tokens = AccessToken::latest()->paginate(10);
         return inertia('Admin/Tokens/Index', [
             'tokens' => $tokens
         ]);

@@ -55,12 +55,12 @@ export default function Show({ auth, order, midtransClientKey }) {
                                 <div className="flex justify-between items-start mb-12">
                                     <div>
                                         <span className="inline-flex px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-extrabold uppercase tracking-widest mb-4 italic">Ringkasan Pesanan</span>
-                                        <h3 className="text-xl font-black text-slate-900 uppercase italic leading-none">{order.product.name}</h3>
+                                        <h3 className="text-xl font-black text-slate-900 uppercase italic leading-none">{order.product?.name || 'Paket Produk'}</h3>
                                         <p className="text-xs text-slate-500 mt-2 font-bold italic">Paket Website Profesional</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">Total Tagihan</p>
-                                        <p className="text-2xl font-black text-indigo-600 italic">Rp {new Intl.NumberFormat('id-ID').format(order.total_price)}</p>
+                                        <p className="text-2xl font-black text-indigo-600 italic">Rp {new Intl.NumberFormat('id-ID').format(order.total_price || 0)}</p>
                                     </div>
                                 </div>
 
