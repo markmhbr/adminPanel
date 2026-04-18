@@ -10,7 +10,7 @@ export default function Edit({ auth, product, items }) {
         status: product.status,
         items: product.items.map(i => ({ 
             id: i.id, 
-            is_optional: !!i.pivot.is_optional,
+            is_optional: Number(i.pivot.is_optional) === 1,
             allowed_tiers: i.pivot.allowed_tiers ? (typeof i.pivot.allowed_tiers === 'string' ? JSON.parse(i.pivot.allowed_tiers) : i.pivot.allowed_tiers) : [],
         })),
     });

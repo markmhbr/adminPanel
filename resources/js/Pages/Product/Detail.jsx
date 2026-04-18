@@ -5,8 +5,8 @@ import { useState, useMemo, useEffect } from 'react';
 
 export default function Detail({ product }) {
     // Initial selected items are the mandatory ones
-    const mandatoryItems = product.items?.filter(item => !item.pivot.is_optional) || [];
-    const optionalItems = product.items?.filter(item => item.pivot.is_optional) || [];
+    const mandatoryItems = product.items?.filter(item => Number(item.pivot.is_optional) === 0) || [];
+    const optionalItems = product.items?.filter(item => Number(item.pivot.is_optional) === 1) || [];
 
     const [selectedItems, setSelectedItems] = useState([]);
     const [studentCount, setStudentCount] = useState(250);

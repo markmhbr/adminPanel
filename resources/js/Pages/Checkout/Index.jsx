@@ -36,8 +36,8 @@ export default function Checkout({ product, selectedItemIds = [], studentCount =
     };
 
     // Logic to calculate total price
-    const mandatoryItems = product.items?.filter(item => !item.pivot.is_optional) || [];
-    const optionalItems = product.items?.filter(item => item.pivot.is_optional && selectedItemIds.includes(item.id)) || [];
+    const mandatoryItems = product.items?.filter(item => Number(item.pivot.is_optional) === 0) || [];
+    const optionalItems = product.items?.filter(item => Number(item.pivot.is_optional) === 1 && selectedItemIds.includes(item.id)) || [];
     
     const totalPrice = useMemo(() => {
         let total = 0;
