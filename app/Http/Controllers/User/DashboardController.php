@@ -43,7 +43,7 @@ class DashboardController extends Controller
         if ($order->user_id !== Auth::id()) {
             abort(403);
         }
-        $order->load('product');
+        $order->load(['product', 'items']);
         return Inertia::render('User/Orders/Show', [
             'order' => $order,
             'midtransClientKey' => config('services.midtrans.client_key')

@@ -1,5 +1,6 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import axios from 'axios';
 import Navbar from '@/Components/Landing/Navbar';
 import Footer from '@/Components/Landing/Footer';
 
@@ -29,7 +30,7 @@ export default function Checkout({ product, selectedItemIds = [], studentCount =
     const optionalItems = product.items?.filter(item => item.pivot.is_optional && selectedItemIds.includes(item.id)) || [];
     
     const totalPrice = useMemo(() => {
-        let total = parseFloat(product.price);
+        let total = 0;
         mandatoryItems.forEach(item => total += getItemPrice(item, studentCount));
         optionalItems.forEach(item => total += getItemPrice(item, studentCount));
         return total;
@@ -39,10 +40,47 @@ export default function Checkout({ product, selectedItemIds = [], studentCount =
         notes: '',
         selected_items: selectedItemIds,
         student_count: studentCount,
+        domain: '',
     });
+
+    const [isChecking, setIsChecking] = useState(false);
+    const [domainStatus, setDomainStatus] = useState(null);
+
+    const checkDomain = async () => {
+        if (!data.domain) {
+            setDomainStatus({ available: false, message: 'Nama domain tidak boleh kosong' });
+            return;
+        }
+
+        setIsChecking(true);
+        setDomainStatus(null);
+        try {
+            const response = await axios.post(route('check-domain'), { domain: data.domain });
+            setDomainStatus(response.data);
+        } catch (error) {
+            console.error('Domain Check Error:', error);
+            setDomainStatus({ 
+                available: false, 
+                message: error.response?.data?.message || error.message || 'Gagal mengecek domain.' 
+            });
+        } finally {
+            setIsChecking(false);
+        }
+    };
 
     const submit = (e) => {
         e.preventDefault();
+        
+        if (!data.domain) {
+            alert('Silahkan masukkan nama domain sekolah Anda.');
+            return;
+        }
+
+        if (domainStatus && !domainStatus.available) {
+            alert('Domain yang Anda pilih tidak tersedia.');
+            return;
+        }
+
         post(route('buy', product.id));
     };
 
@@ -84,10 +122,7 @@ export default function Checkout({ product, selectedItemIds = [], studentCount =
                                 
                                 <div className="px-8 pb-8 space-y-4">
                                     <div className="space-y-3">
-                                        <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase italic">
-                                            <span>Base Package</span>
-                                            <span>Rp {new Intl.NumberFormat('id-ID').format(product.price)}</span>
-                                        </div>
+
                                         
                                         <div className="flex justify-between items-center text-[10px] font-bold text-indigo-600 italic border-y border-slate-50 py-2">
                                             <span>Level Sekolah</span>
@@ -190,6 +225,40 @@ export default function Checkout({ product, selectedItemIds = [], studentCount =
                                         </div>
 
                                         <hr className="border-slate-50 mb-10" />
+
+                                        <h3 className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-6 italic">Domain Sekolah (.sch.id)</h3>
+                                        <div className="flex flex-col md:flex-row gap-4 mb-10">
+                                            <div className="flex-1 relative">
+                                                <div className="flex items-center bg-slate-50 rounded-[1.5rem] focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden border border-slate-100">
+                                                    <input 
+                                                        type="text"
+                                                        value={data.domain.replace('.sch.id', '')}
+                                                        onChange={e => {
+                                                            // Only allow alphanumeric and hyphen
+                                                            const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                                                            setData('domain', val);
+                                                            setDomainStatus(null);
+                                                        }}
+                                                        className="flex-1 px-5 py-4 bg-transparent border-none focus:ring-0 text-sm font-bold italic" 
+                                                        placeholder="sekolahanda"
+                                                    />
+                                                    <span className="px-5 py-4 bg-slate-100/50 text-slate-400 font-black text-sm italic">.sch.id</span>
+                                                </div>
+                                                {domainStatus && (
+                                                    <p className={`absolute -bottom-6 left-2 text-[10px] font-black uppercase italic ${domainStatus.available ? 'text-green-600' : 'text-red-500'}`}>
+                                                        {domainStatus.message}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <button 
+                                                type="button"
+                                                onClick={checkDomain}
+                                                disabled={isChecking || !data.domain}
+                                                className="px-8 py-4 bg-slate-900 text-white rounded-[1.5rem] font-bold text-xs uppercase tracking-widest italic hover:bg-slate-800 transition-all disabled:opacity-50"
+                                            >
+                                                {isChecking ? 'Checking...' : 'Cek Ketersediaan'}
+                                            </button>
+                                        </div>
 
                                         <h3 className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-6 italic">Catatan Tambahan</h3>
                                         <textarea 

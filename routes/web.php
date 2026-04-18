@@ -19,6 +19,7 @@ Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 Route::get('/product/{product:slug}', [LandingPageController::class, 'show'])->name('product.detail');
 Route::get('/checkout/{product:slug}', [LandingPageController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/{product}/process', [LandingPageController::class, 'processCheckout'])->name('buy');
+Route::post('/check-domain', [LandingPageController::class, 'checkDomain'])->name('check-domain');
 
 // Static Pages
 Route::get('/cara-beli', [PageController::class, 'caraBeli'])->name('pages.cara-beli');

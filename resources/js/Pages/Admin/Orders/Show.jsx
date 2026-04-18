@@ -56,6 +56,8 @@ export default function Show({ auth, order }) {
                                         <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-3 italic">Info Pelanggan:</p>
                                         <p className="text-sm font-extrabold text-gray-900 italic uppercase">{order.user.name}</p>
                                         <p className="text-xs font-bold text-gray-500 italic mt-1">{order.user.email}</p>
+                                        <p className="text-[10px] text-gray-400 font-black italic mt-4 uppercase">Sekolah: {order.user.school_name}</p>
+                                        <p className="text-[10px] text-gray-400 font-black italic uppercase">NPSN: {order.user.npsn}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-3 italic">Status Pembayaran:</p>
@@ -65,19 +67,47 @@ export default function Show({ auth, order }) {
                                     </div>
                                 </div>
 
+                                <div className="grid grid-cols-2 gap-8 mb-12 p-8 bg-slate-50 rounded-[2rem] border border-slate-100 relative z-10 shadow-inner">
+                                    <div>
+                                        <p className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-widest mb-2 italic">Permintaan Domain:</p>
+                                        <p className="text-base font-black text-indigo-700 italic lowercase">{order.domain || 'Belum diisi'}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 italic">Kapasitas Siswa:</p>
+                                        <p className="text-base font-black text-slate-900 italic uppercase">{order.student_count || 0} Siswa</p>
+                                    </div>
+                                </div>
+
                                 <div className="mb-12 relative z-10">
                                     <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-6 italic">Rincian Layanan:</p>
-                                    <div className="flex items-center justify-between py-4 border-b border-gray-50">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">
-                                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between py-4 border-b border-gray-50">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 font-bold italic">
+                                                    P
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-extrabold text-gray-900 italic uppercase">{order.product.name}</p>
+                                                    <p className="text-[10px] text-gray-400 font-bold italic">Paket Utama</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-extrabold text-gray-900 italic uppercase">{order.product.name}</p>
-                                                <p className="text-[10px] text-gray-400 font-bold italic">Paket Website Profesional</p>
-                                            </div>
+                                            <p className="text-sm font-extrabold text-gray-400 italic">Rp 0</p>
                                         </div>
-                                        <p className="text-sm font-extrabold text-gray-900 italic">Rp {new Intl.NumberFormat('id-ID').format(order.total_price)}</p>
+
+                                        {order.items?.map(item => (
+                                            <div key={item.id} className="flex items-center justify-between py-4 border-b border-gray-50 last:border-0">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-black">
+                                                        ✓
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-extrabold text-gray-900 italic uppercase">{item.item_name}</p>
+                                                        <p className="text-[10px] text-gray-400 font-bold italic uppercase">{item.billing_type === 'annual' ? 'Per Tahun' : 'Sekali Beli'}</p>
+                                                    </div>
+                                                </div>
+                                                <p className="text-sm font-extrabold text-gray-900 italic">Rp {new Intl.NumberFormat('id-ID').format(item.item_price)}</p>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 

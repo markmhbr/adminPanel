@@ -10,7 +10,7 @@ export default function Detail({ product }) {
 
     const [selectedItems, setSelectedItems] = useState([]);
     const [studentCount, setStudentCount] = useState(250);
-    const [price, setPrice] = useState(product.price);
+    const [price, setPrice] = useState(0);
 
     // Get unique levels from all items to generate dynamic level buttons
     const availableLevels = useMemo(() => {
@@ -65,7 +65,7 @@ export default function Detail({ product }) {
     };
 
     const totalPrice = useMemo(() => {
-        let total = parseFloat(product.price);
+        let total = 0;
         
         // Add mandatory items with tiered pricing
         mandatoryItems.forEach(item => {

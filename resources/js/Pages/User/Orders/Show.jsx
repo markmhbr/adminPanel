@@ -20,7 +20,7 @@ export default function Show({ auth, order, midtransClientKey }) {
         if (window.snap) {
             window.snap.pay(order.snap_token, {
                 onSuccess: function (result) {
-                    window.location.href = route('dashboard');
+                    window.location.href = route('user.dashboard');
                 },
                 onPending: function (result) {
                     window.location.reload();
@@ -37,7 +37,7 @@ export default function Show({ auth, order, midtransClientKey }) {
             user={auth.user}
             header={
                 <div className="flex flex-col gap-2">
-                    <Link href={route('dashboard')} className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors italic">
+                    <Link href={route('user.dashboard')} className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors italic">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
                         Kembali ke Dashboard
                     </Link>
@@ -64,14 +64,35 @@ export default function Show({ auth, order, midtransClientKey }) {
                                     </div>
                                 </div>
 
+                                <div className="grid md:grid-cols-2 gap-6 mb-8 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                                    <div>
+                                        <p className="text-[10px] text-slate-400 font-black uppercase italic tracking-widest mb-1">Domain Sekolah</p>
+                                        <p className="text-sm font-bold text-slate-900 italic lowercase">{order.domain || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-slate-400 font-black uppercase italic tracking-widest mb-1">Pilihan Paket</p>
+                                        <p className="text-sm font-bold text-slate-900 italic uppercase">{order.student_count || 0} Siswa</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3 mb-12 bg-white rounded-2xl p-2">
+                                    <p className="text-[10px] text-slate-400 font-black uppercase italic tracking-widest mb-4">Fitur & Layanan:</p>
+                                    {order.items?.map(item => (
+                                        <div key={item.id} className="flex justify-between items-center text-xs font-bold text-slate-700 italic border-b border-slate-50 pb-2 last:border-0">
+                                            <span>✓ {item.item_name}</span>
+                                            <span className="text-slate-400">Rp {new Intl.NumberFormat('id-ID').format(item.item_price || 0)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
                                 <div className="space-y-4 border-t border-slate-50 pt-8 mb-12">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-slate-500 font-black italic uppercase">Status Pembayaran</span>
-                                        <span className={`font-black uppercase italic ${order.payment_status === 'paid' ? 'text-green-600' : 'text-orange-600'}`}>{order.payment_status.toUpperCase()}</span>
+                                        <span className={`font-black uppercase italic ${order.payment_status === 'paid' ? 'text-green-600' : 'text-orange-600'}`}>{order.payment_status?.toUpperCase() || '-'}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-slate-500 font-black italic uppercase">Status Pengerjaan</span>
-                                        <span className="font-black text-slate-900 uppercase italic">{order.status.toUpperCase()}</span>
+                                        <span className="font-black text-slate-900 uppercase italic">{order.status?.toUpperCase() || '-'}</span>
                                     </div>
                                 </div>
 

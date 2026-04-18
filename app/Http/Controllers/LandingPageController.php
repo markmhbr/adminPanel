@@ -8,9 +8,11 @@ use App\Models\HeroBanner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Midtrans\Config;
 use Midtrans\Snap;
+use Iodev\Whois\Factory;
 
 class LandingPageController extends Controller
 {
@@ -83,7 +85,7 @@ class LandingPageController extends Controller
         // Fetch all items associated with the product to verify and get prices
         $productItems = $product->items()->where('status', 'active')->with('tiers')->get();
         
-        $totalPrice = $product->price;
+        $totalPrice = 0;
         $orderItemsData = [];
 
         foreach ($productItems as $item) {
@@ -111,6 +113,7 @@ class LandingPageController extends Controller
             'payment_status' => 'unpaid',
             'notes' => $request->notes ?? 'Tidak ada catatan tambahan.',
             'student_count' => $studentCount,
+            'domain' => Str::endsWith(strtolower($request->domain), '.sch.id') ? strtolower($request->domain) : strtolower($request->domain) . '.sch.id',
         ]);
 
         // Create Order Items
@@ -148,5 +151,56 @@ class LandingPageController extends Controller
         }
 
         return redirect()->route('user.order.show', $order)->with('success', 'Pesanan berhasil dikonfirmasi!');
+    }
+
+    public function checkDomain(Request $request)
+    {
+        $domainName = $request->input('domain');
+        
+        if (!$domainName) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Nama domain harus diisi'
+            ], 422);
+        }
+
+        // Clean input and ensure it ends with .sch.id
+        $domainName = strtolower(trim($domainName));
+        $domain = Str::endsWith($domainName, '.sch.id') ? $domainName : $domainName . '.sch.id';
+
+        // Check if domain is already in our database
+        $existsInDb = Order::where('domain', $domain)->exists();
+        if ($existsInDb) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Domain sudah terdaftar di sistem kami.'
+            ]);
+        }
+
+        try {
+            $whois = Factory::get()->createWhois();
+            $available = $whois->isDomainAvailable($domain);
+
+            return response()->json([
+                'available' => $available,
+                'message' => $available ? 'Domain tersedia!' : 'Domain sudah digunakan.'
+            ]);
+        } catch (\Throwable $e) {
+            Log::error("Domain Check Error for $domain: " . $e->getMessage());
+            // Fallback to DNS check if WHOIS fails
+            try {
+                $available = !checkdnsrr($domain, 'ANY');
+                return response()->json([
+                    'available' => $available,
+                    'message' => $available ? 'Domain tersedia!' : 'Domain sudah digunakan.'
+                ]);
+            } catch (\Throwable $dnsError) {
+                Log::error("DNS Check Error for $domain: " . $dnsError->getMessage());
+                return response()->json([
+                    'available' => false,
+                    'message' => 'Gagal mengecek ketersediaan domain.'
+                ], 500);
+            }
+        }
     }
 }

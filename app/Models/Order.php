@@ -18,6 +18,8 @@ class Order extends Model
         'payment_status',
         'snap_token',
         'notes',
+        'student_count',
+        'domain',
     ];
 
     public function user()

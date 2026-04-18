@@ -5,7 +5,6 @@ import { useMemo } from 'react';
 export default function Edit({ auth, product, items }) {
     const { data, setData, put, processing, errors } = useForm({
         name: product.name,
-        price: product.price,
         description: product.description,
         demo_url: product.demo_url,
         status: product.status,
@@ -35,9 +34,7 @@ export default function Edit({ auth, product, items }) {
 
 
 
-    const basePrice = useMemo(() => {
-        return parseFloat(data.price) || 0;
-    }, [data.price]);
+
 
     return (
         <AuthenticatedLayout
@@ -60,17 +57,7 @@ export default function Edit({ auth, product, items }) {
                             {errors.name && <p className="text-[10px] text-red-500 font-bold uppercase ml-1">{errors.name}</p>}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Harga Base (Rp)</label>
-                                    <input 
-                                        type="number"
-                                        value={data.price}
-                                        onChange={e => setData('price', e.target.value)}
-                                        className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700 italic"
-                                    />
-                                    {errors.price && <p className="text-[10px] text-red-500 font-bold uppercase ml-1">{errors.price}</p>}
-                                </div>
+                        <div className="grid grid-cols-1 gap-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Status</label>
                                 <select 
@@ -92,15 +79,16 @@ export default function Edit({ auth, product, items }) {
                                     return (
                                         <div 
                                             key={item.id} 
-                                            className={`p-6 border-2 rounded-3xl transition-all ${selectedItem ? 'border-indigo-600 bg-indigo-50/30' : 'border-slate-100 bg-slate-50/30 hover:border-slate-200'}`}
+                                            onClick={() => toggleItem(item.id)}
+                                            className={`p-6 border-2 rounded-3xl transition-all cursor-pointer select-none ${selectedItem ? 'border-indigo-600 bg-indigo-50/30' : 'border-slate-100 bg-slate-50/30 hover:border-slate-200'}`}
                                         >
                                             <div className="flex items-center justify-between mb-4">
                                                 <div className="flex items-center gap-3">
                                                     <input 
                                                         type="checkbox"
                                                         checked={!!selectedItem}
-                                                        onChange={() => toggleItem(item.id)}
-                                                        className="w-5 h-5 text-indigo-600 border-none bg-white rounded-lg focus:ring-0 transition-all"
+                                                        onChange={() => {}} // Controlled by card click
+                                                        className="w-5 h-5 text-indigo-600 border-none bg-white rounded-lg focus:ring-0 transition-all pointer-events-none"
                                                     />
                                                     <div>
                                                         <span className="text-sm font-black text-slate-900 uppercase italic leading-none block mb-1">{item.name}</span>
@@ -113,7 +101,7 @@ export default function Edit({ auth, product, items }) {
                                             </div>
                                             
                                             {selectedItem && (
-                                                <div className="mt-4 space-y-4">
+                                                <div className="mt-4 space-y-4" onClick={(e) => e.stopPropagation()}>
                                                     <div className="flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm">
                                                         <span className="text-[10px] font-black text-slate-400 uppercase italic">Sifat Item:</span>
                                                         <div className="flex gap-2">

@@ -41,7 +41,6 @@ export default function Index({ auth, products }) {
                                 <thead>
                                     <tr className="bg-slate-50/50">
                                         <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Produk</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Harga</th>
                                         <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Demo</th>
                                         <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Aksi</th>
                                     </tr>
@@ -60,9 +59,7 @@ export default function Index({ auth, products }) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6 text-center">
-                                                <span className="text-sm font-black text-indigo-600 italic">Rp {new Intl.NumberFormat('id-ID').format(product.price)}</span>
-                                            </td>
+
                                             <td className="px-8 py-6 text-center">
                                                 <a href={product.demo_url} target="_blank" className="text-xs font-bold text-slate-400 hover:text-indigo-600 transition-colors italic">Visit Demo &rarr;</a>
                                             </td>
