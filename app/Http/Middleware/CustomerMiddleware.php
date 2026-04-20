@@ -22,8 +22,12 @@ class CustomerMiddleware
             'role' => Auth::user() ? Auth::user()->role : 'guest',
             'path' => $request->path(),
         ]);
-        if (Auth::check() && in_array(strtolower(Auth::user()->role), ['admin', 'customer', 'user'])) {
-            return $next($request);
+        $user = Auth::user();
+        if (Auth::check() && $user && $user->role) {
+            $role = strtolower((string)$user->role);
+            if (in_array($role, ['admin', 'customer', 'user', 'owner'])) {
+                return $next($request);
+            }
         }
 
         abort(403, 'Unauthorized access.');

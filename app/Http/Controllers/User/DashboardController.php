@@ -40,7 +40,7 @@ class DashboardController extends Controller
 
     public function showOrder(Order $order)
     {
-        if ($order->user_id !== Auth::id()) {
+        if (Auth::user()->role !== 'admin' && $order->user_id !== Auth::id()) {
             abort(403);
         }
         $order->load(['product', 'items']);
