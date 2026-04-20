@@ -151,44 +151,6 @@ export default function Detail({ product }) {
                                     </p>
                                 </div>
 
-                                {/* Student Count Selection */}
-                                <div className="bg-indigo-600 rounded-[2rem] p-8 mb-10 text-white shadow-xl shadow-indigo-100">
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-sm font-black uppercase tracking-widest italic">Jumlah Siswa Sekolah</h3>
-                                            <p className="text-[10px] font-bold text-indigo-100 italic">Harga item akan menyesuaikan tingkatan (level) siswa Anda.</p>
-                                        </div>
-                                    </div>
-                                    <input 
-                                        type="range" 
-                                        min="1" 
-                                        max="1000" 
-                                        step="1"
-                                        value={studentCount}
-                                        onChange={e => setStudentCount(parseInt(e.target.value))}
-                                        className="w-full h-2 bg-indigo-400 rounded-lg appearance-none cursor-pointer accent-white"
-                                    />
-                                    <div className="flex justify-between items-center mt-4">
-                                        <span className="text-xs font-black italic">{studentCount} Siswa</span>
-                                        <div className="flex flex-wrap gap-2">
-                                            {availableLevels.map((level, idx) => (
-                                                <button 
-                                                    key={idx}
-                                                    onClick={() => setStudentCount(level.max_students)} 
-                                                    className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase italic transition-all ${studentCount === level.max_students ? 'bg-white text-indigo-600' : 'bg-white/20 text-white'}`}
-                                                >
-                                                    {level.name} ({level.max_students})
-                                                </button>
-                                            ))}
-                                            {availableLevels.length === 0 && (
-                                                <span className="text-[10px] font-bold opacity-50 italic">Harga Tetap</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
 
                                 {/* Items Section */}
                                 <div className="space-y-6 mb-10">
@@ -210,10 +172,7 @@ export default function Detail({ product }) {
                                                                 {item.billing_type === 'free' ? (
                                                                     <span className="text-green-600 font-black uppercase">Gratis</span>
                                                                 ) : (
-                                                                    <>
-                                                                        Rp {new Intl.NumberFormat('id-ID').format(itemPrice)} 
-                                                                        {item.billing_type === 'annual' ? ' / tahun' : ' (Sekali beli)'}
-                                                                    </>
+                                                                    <span className="text-slate-400 uppercase font-black">Termasuk</span>
                                                                 )}
                                                             </p>
                                                         </div>
@@ -244,10 +203,7 @@ export default function Detail({ product }) {
                                                                 {item.billing_type === 'free' ? (
                                                                     <span className="text-green-600 font-black uppercase">Gratis</span>
                                                                 ) : (
-                                                                    <>
-                                                                        + Rp {new Intl.NumberFormat('id-ID').format(itemPrice)}
-                                                                        {item.billing_type === 'annual' ? ' / tahun' : ' (Sekali beli)'}
-                                                                    </>
+                                                                    <span className="text-slate-400 uppercase font-black">Optional</span>
                                                                 )}
                                                             </p>
                                                         </div>

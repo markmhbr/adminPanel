@@ -137,10 +137,6 @@ export default function Checkout({ product, selectedItemIds = [], studentCount =
                                     <div className="space-y-3">
 
                                         
-                                        <div className="flex justify-between items-center text-[10px] font-bold text-indigo-600 italic border-y border-slate-50 py-2">
-                                            <span>Level Sekolah</span>
-                                            <span>{studentCount} Siswa</span>
-                                        </div>
                                         
                                         {/* Mandatory Items Sumary */}
                                         {mandatoryItems.map(item => {
@@ -149,13 +145,8 @@ export default function Checkout({ product, selectedItemIds = [], studentCount =
                                                 <div key={item.id} className="flex justify-between items-start text-[10px] font-bold text-slate-900 italic">
                                                     <span>✓ {item.name}</span>
                                                     <div className="text-right">
-                                                        {item.billing_type === 'free' ? (
+                                                        {item.billing_type === 'free' && (
                                                             <p className="text-green-600">GRATIS</p>
-                                                        ) : (
-                                                            <>
-                                                                <p>Rp {new Intl.NumberFormat('id-ID').format(itemPrice)}</p>
-                                                                <p className="text-[8px] opacity-50 font-black">{item.billing_type === 'annual' ? 'PER TAHUN' : 'SEKALI BELI'}</p>
-                                                            </>
                                                         )}
                                                     </div>
                                                 </div>
@@ -169,13 +160,8 @@ export default function Checkout({ product, selectedItemIds = [], studentCount =
                                                 <div key={item.id} className="flex justify-between items-start text-[10px] font-bold text-indigo-600 italic">
                                                     <span>+ {item.name} (Opt)</span>
                                                     <div className="text-right">
-                                                        {item.billing_type === 'free' ? (
+                                                        {item.billing_type === 'free' && (
                                                             <p className="text-green-600">GRATIS</p>
-                                                        ) : (
-                                                            <>
-                                                                <p>Rp {new Intl.NumberFormat('id-ID').format(itemPrice)}</p>
-                                                                <p className="text-[8px] opacity-50 font-black uppercase">{item.billing_type === 'annual' ? 'PER TAHUN' : 'SEKALI BELI'}</p>
-                                                            </>
                                                         )}
                                                     </div>
                                                 </div>
