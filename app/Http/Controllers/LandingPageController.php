@@ -93,6 +93,12 @@ class LandingPageController extends Controller
 
     public function processCheckout(Request $request, Product $product)
     {
+        Log::info('processCheckout diagnostic', [
+            'user_id' => Auth::id(),
+            'role' => Auth::user() ? Auth::user()->role : 'guest',
+            'request_data' => $request->all(),
+        ]);
+
         $user = Auth::user();
         $selectedItemIds = $request->input('selected_items', []);
         $studentCount = (int) $request->input('student_count', 250);
