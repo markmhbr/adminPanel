@@ -89,5 +89,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/chats', [ChatController::class, 'getAdminChats'])->name('admin.chats');
     Route::post('/chat/{chat}/read', [ChatController::class, 'markAsRead'])->name('chat.read');
 });
+Route::post('/midtrans/notification', [App\Http\Controllers\PaymentController::class, 'notification'])->name('midtrans.notification');
 
 require __DIR__.'/auth.php';

@@ -17,12 +17,15 @@ export default function UpdateProfileInformation({
         useForm({
             name: user.name,
             email: user.email,
+            school_name: user.school_name || '',
+            npsn: user.npsn || '',
+            phone_number: user.phone_number || '',
         });
 
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('admin.profile.update'), {
+        patch(route('profile.update'), {
             onSuccess: () => PremiumAlert.success('Profil Diperbarui', 'Informasi profil Anda telah berhasil diperbarui dengan aman.')
         });
     };
@@ -42,14 +45,14 @@ export default function UpdateProfileInformation({
                 </div>
 
                 <p className="text-gray-400 font-medium ml-14">
-                    Perbarui informasi profil akun dan alamat email Anda.
+                    Perbarui informasi profil akun dan alamat email sekolah Anda.
                 </p>
             </header>
 
-            <form onSubmit={submit} className="mt-6 space-y-8 max-w-2xl ml-14">
+            <form onSubmit={submit} className="mt-6 space-y-8 max-w-4xl ml-14">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                        <InputLabel htmlFor="name" value="Nama Lengkap" />
+                        <InputLabel htmlFor="name" value="Nama Lengkap Koordinator" />
                         <TextInput
                             id="name"
                             className="mt-1 block w-full h-14"
@@ -76,6 +79,45 @@ export default function UpdateProfileInformation({
                             placeholder="admin@sekolah.id"
                         />
                         <InputError className="mt-2" message={errors.email} />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="school_name" value="Nama Sekolah" />
+                        <TextInput
+                            id="school_name"
+                            className="mt-1 block w-full h-14"
+                            value={data.school_name}
+                            onChange={(e) => setData('school_name', e.target.value)}
+                            required
+                            placeholder="Contoh: SMK Negeri 1 Jakarta"
+                        />
+                        <InputError className="mt-2" message={errors.school_name} />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="npsn" value="NPSN" />
+                        <TextInput
+                            id="npsn"
+                            className="mt-1 block w-full h-14"
+                            value={data.npsn}
+                            onChange={(e) => setData('npsn', e.target.value)}
+                            required
+                            placeholder="Contoh: 12345678"
+                        />
+                        <InputError className="mt-2" message={errors.npsn} />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="phone_number" value="Nomor WhatsApp" />
+                        <TextInput
+                            id="phone_number"
+                            className="mt-1 block w-full h-14"
+                            value={data.phone_number}
+                            onChange={(e) => setData('phone_number', e.target.value)}
+                            required
+                            placeholder="Contoh: 081234567890"
+                        />
+                        <InputError className="mt-2" message={errors.phone_number} />
                     </div>
                 </div>
 

@@ -16,7 +16,7 @@ class ProfileTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->get('/profile');
+            ->get(route('profile.edit'));
 
         $response->assertOk();
     }
@@ -27,36 +27,50 @@ class ProfileTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->patch('/profile', [
+            ->patch(route('profile.update'), [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
+                'school_name' => 'Test School',
+                'npsn' => '12345678',
+                'phone_number' => '081234567890',
             ]);
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+            ->assertRedirect(route('profile.edit'));
 
         $user->refresh();
 
         $this->assertSame('Test User', $user->name);
         $this->assertSame('test@example.com', $user->email);
+        $this->assertSame('Test School', $user->school_name);
+        $this->assertSame('12345678', $user->npsn);
+        $this->assertSame('081234567890', $user->phone_number);
         $this->assertNull($user->email_verified_at);
     }
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'school_name' => 'Original School',
+            'npsn' => '87654321',
+            'phone_number' => '08987654321',
+            'email_verified_at' => now(),
+        ]);
 
         $response = $this
             ->actingAs($user)
-            ->patch('/profile', [
+            ->patch(route('profile.update'), [
                 'name' => 'Test User',
                 'email' => $user->email,
+                'school_name' => $user->school_name,
+                'npsn' => $user->npsn,
+                'phone_number' => $user->phone_number,
             ]);
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+            ->assertRedirect(route('profile.edit'));
 
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
@@ -67,7 +81,7 @@ class ProfileTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->delete('/profile', [
+            ->delete(route('profile.destroy'), [
                 'password' => 'password',
             ]);
 
@@ -85,14 +99,14 @@ class ProfileTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->from('/profile')
-            ->delete('/profile', [
+            ->from(route('profile.edit'))
+            ->delete(route('profile.destroy'), [
                 'password' => 'wrong-password',
             ]);
 
         $response
             ->assertSessionHasErrors('password')
-            ->assertRedirect('/profile');
+            ->assertRedirect(route('profile.edit'));
 
         $this->assertNotNull($user->fresh());
     }

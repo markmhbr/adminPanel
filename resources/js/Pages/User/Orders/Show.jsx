@@ -2,11 +2,15 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useEffect } from 'react';
 
-export default function Show({ auth, order, midtransClientKey }) {
+export default function Show({ auth, order, midtransClientKey, midtransIsProduction }) {
     useEffect(() => {
         if (order.payment_status === 'unpaid') {
             const script = document.createElement('script');
-            script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+            const snapUrl = midtransIsProduction 
+                ? 'https://app.midtrans.com/snap/snap.js'
+                : 'https://app.sandbox.midtrans.com/snap/snap.js';
+            
+            script.src = snapUrl;
             script.setAttribute('data-client-key', midtransClientKey);
             document.head.appendChild(script);
 
@@ -75,22 +79,46 @@ export default function Show({ auth, order, midtransClientKey }) {
                                     </div>
                                 </div>
 
-                                <div className="space-y-3 mb-12 bg-white rounded-2xl p-2">
-                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-4">Fitur & Layanan:</p>
-                                    {order.items?.map(item => (
-                                        <div key={item.id} className="flex justify-between items-center text-xs font-bold text-slate-700 border-b border-slate-50 pb-2 last:border-0">
-                                            <span>✓ {item.item_name}</span>
-                                            <span className="text-slate-400">Rp {new Intl.NumberFormat('id-ID').format(item.item_price || 0)}</span>
-                                        </div>
-                                    ))}
+                                <div className="space-y-4 mb-12 bg-white rounded-2xl p-2">
+                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-4">Fitur & Layanan Terpilih:</p>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {order.items?.map(item => (
+                                            <div key={item.id} className="flex justify-between items-center text-xs font-bold text-slate-700 border-b border-slate-50 pb-2 last:border-0 group">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-5 h-5 bg-indigo-50 text-indigo-600 rounded-md flex items-center justify-center text-[10px]">✓</div>
+                                                    <span>{item.item_name}</span>
+                                                </div>
+                                                {parseFloat(item.item_price) === 0 && (
+                                                    <span className="text-[9px] font-black uppercase text-green-600 bg-green-50 px-2 py-0.5 rounded">Gratis</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4 border-t border-slate-50 pt-8 mb-12">
-                                    <div className="flex justify-between text-sm">
+                                    {order.subtotal && (
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex justify-between text-xs items-center">
+                                                <span className="text-slate-400 font-black uppercase tracking-widest">Subtotal Investasi</span>
+                                                <span className="font-black text-slate-700">Rp {new Intl.NumberFormat('id-ID').format(order.subtotal)}</span>
+                                            </div>
+                                            <div className="flex justify-between text-xs items-center">
+                                                <span className="text-slate-400 font-black uppercase tracking-widest">Pajak (PPN {order.tax_percentage}%)</span>
+                                                <span className="font-black text-slate-700">+ Rp {new Intl.NumberFormat('id-ID').format(order.tax_amount)}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm items-center pt-4 border-t border-indigo-100 mt-2">
+                                                <span className="text-indigo-600 font-black uppercase tracking-widest">Total Pembayaran</span>
+                                                <span className="text-xl font-black text-indigo-600 underline decoration-indigo-200 underline-offset-8">Rp {new Intl.NumberFormat('id-ID').format(order.total_price)}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="flex justify-between text-sm items-center pt-8 border-t border-slate-50">
                                         <span className="text-slate-500 font-black uppercase">Status Pembayaran</span>
                                         <span className={`font-black uppercase ${order.payment_status === 'paid' ? 'text-green-600' : 'text-orange-600'}`}>{order.payment_status?.toUpperCase() || '-'}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm">
+                                    <div className="flex justify-between text-sm items-center">
                                         <span className="text-slate-500 font-black uppercase">Status Pengerjaan</span>
                                         <span className="font-black text-slate-900 uppercase">{order.status?.toUpperCase() || '-'}</span>
                                     </div>

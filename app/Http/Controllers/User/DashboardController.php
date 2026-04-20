@@ -46,7 +46,8 @@ class DashboardController extends Controller
         $order->load(['product', 'items']);
         return Inertia::render('User/Orders/Show', [
             'order' => $order,
-            'midtransClientKey' => config('services.midtrans.client_key')
+            'midtransClientKey' => config('services.midtrans.client_key'),
+            'midtransIsProduction' => config('services.midtrans.is_production')
         ]);
     }
 }

@@ -169,9 +169,19 @@ export default function Checkout({ product, selectedItemIds = [], studentCount =
                                         })}
                                     </div>
 
-                                    <div className="pt-6 border-t border-slate-100 flex justify-between items-center">
-                                        <span className="text-xs font-black text-slate-900 uppercase">Total Investasi:</span>
-                                        <span className="text-2xl font-black text-blue-600">Rp {new Intl.NumberFormat('id-ID').format(totalPrice)}</span>
+                                    <div className="pt-6 border-t border-slate-100 space-y-3">
+                                        <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase">
+                                            <span>Subtotal:</span>
+                                            <span>Rp {new Intl.NumberFormat('id-ID').format(totalPrice)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase">
+                                            <span>Pajak (12%):</span>
+                                            <span>Rp {new Intl.NumberFormat('id-ID').format(totalPrice * 0.12)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center pt-3 border-t border-slate-50">
+                                            <span className="text-xs font-black text-slate-900 uppercase tracking-tight">Total Investasi:</span>
+                                            <span className="text-2xl font-black text-blue-600">Rp {new Intl.NumberFormat('id-ID').format(totalPrice * 1.12)}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

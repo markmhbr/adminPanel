@@ -135,11 +135,18 @@ class LandingPageController extends Controller
             }
         }
 
+        $taxPercentage = (float) config('services.tax.percentage', 12);
+        $taxAmount = $totalPrice * ($taxPercentage / 100);
+        $finalTotal = $totalPrice + $taxAmount;
+
         $order = Order::create([
             'user_id' => $user->id,
             'product_id' => $product->id,
             'order_number' => 'INV-' . strtoupper(Str::random(10)),
-            'total_price' => $totalPrice,
+            'subtotal' => $totalPrice,
+            'tax_amount' => $taxAmount,
+            'tax_percentage' => $taxPercentage,
+            'total_price' => $finalTotal,
             'status' => 'pending',
             'payment_status' => 'unpaid',
             'notes' => $request->notes ?? 'Tidak ada catatan tambahan.',

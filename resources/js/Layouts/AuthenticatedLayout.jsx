@@ -272,7 +272,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="p-6 lg:p-10">
                         <AnimatePresence mode="wait">
                             <motion.div
-                                key={window.location.pathname}
+                                key={usePage().url}
                                 initial={{ opacity: 0, y: 15 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -15 }}
