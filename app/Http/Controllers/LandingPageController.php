@@ -56,6 +56,14 @@ class LandingPageController extends Controller
     {
         if (!Auth::check()) {
             session(['buying_product_id' => $product->id]);
+            
+            // Persist selection in session for guest users
+            if ($request->has('selected_items')) {
+                session(['selected_items' => $request->input('selected_items')]);
+            }
+            if ($request->has('student_count')) {
+                session(['student_count' => $request->input('student_count')]);
+            }
         }
 
         $product->load(['items' => function($query) {
@@ -69,10 +77,17 @@ class LandingPageController extends Controller
             }
         });
 
+        // Get selected items from request or session
+        $selectedItems = $request->input('selected_items', session('selected_items', []));
+        $studentCount = (int) $request->input('student_count', session('student_count', 250));
+
+        // Ensure selectedItems is an array of integers
+        $selectedItemIds = array_map('intval', (array) $selectedItems);
+
         return Inertia::render('Checkout/Index', [
             'product' => $product,
-            'selectedItemIds' => $request->input('selected_items', []),
-            'studentCount' => (int) $request->input('student_count', 250)
+            'selectedItemIds' => $selectedItemIds,
+            'studentCount' => $studentCount
         ]);
     }
 
@@ -131,6 +146,9 @@ class LandingPageController extends Controller
             'student_count' => $studentCount,
             'domain' => Str::endsWith(strtolower($request->domain), '.sch.id') ? strtolower($request->domain) : strtolower($request->domain) . '.sch.id',
         ]);
+
+        // Clear session selection after successful order creation
+        session()->forget(['selected_items', 'student_count', 'buying_product_id']);
 
         // Create Order Items
         foreach ($orderItemsData as $itemData) {
