@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -40,6 +41,13 @@ class DashboardController extends Controller
 
     public function showOrder(Order $order)
     {
+        Log::info('showOrder ownership check', [
+            'auth_id' => Auth::id(),
+            'order_user_id' => $order->user_id,
+            'user_role' => Auth::user()->role,
+            'match' => Auth::id() === $order->user_id
+        ]);
+
         if (Auth::user()->role !== 'admin' && $order->user_id !== Auth::id()) {
             abort(403);
         }
