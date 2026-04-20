@@ -16,7 +16,7 @@ class CustomerMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && in_array(Auth::user()->role, ['admin', 'customer'])) {
+        if (Auth::check() && in_array(strtolower(Auth::user()->role), ['admin', 'customer', 'user'])) {
             return $next($request);
         }
 
