@@ -20,8 +20,8 @@ export default function Index({ auth, customers, filters }) {
             header={
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight italic uppercase leading-none">Daftar Pelanggan</h2>
-                        <p className="text-xs text-slate-500 mt-2 font-bold italic uppercase tracking-wider">Manajemen Unit Sekolah yang Terdaftar</p>
+                        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight uppercase leading-none">Daftar Pelanggan</h2>
+                        <p className="text-xs text-slate-500 mt-2 font-bold uppercase tracking-wider">Manajemen Unit Sekolah yang Terdaftar</p>
                     </div>
                 </div>
             }
@@ -41,7 +41,7 @@ export default function Index({ auth, customers, filters }) {
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
                                 placeholder="Cari NPSN, Nama Sekolah, atau Email..."
-                                className="block w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 transition-all font-bold text-slate-700 italic shadow-sm"
+                                className="block w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 transition-all font-bold text-slate-700 shadow-sm"
                             />
                         </form>
                     </div>
@@ -51,26 +51,26 @@ export default function Index({ auth, customers, filters }) {
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="bg-slate-50/50">
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest italic text-center w-16">#</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Data Sekolah</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Kontak</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest italic text-center">Tgl Daftar</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest italic text-right">Pesanan</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-16">#</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Sekolah</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Kontak</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Tgl Daftar</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Pesanan</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
                                     {customers.data.length > 0 ? customers.data.map((customer, index) => (
                                         <tr key={customer.id} className="hover:bg-slate-50/50 transition-colors">
-                                            <td className="px-8 py-6 text-center text-xs font-black text-slate-400 italic">
+                                            <td className="px-8 py-6 text-center text-xs font-black text-slate-400">
                                                 {(customers.current_page - 1) * customers.per_page + index + 1}
                                             </td>
                                             <td className="px-8 py-6">
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-black text-slate-900 uppercase italic leading-none">{customer.school_name || customer.name}</span>
-                                                    <span className="text-[10px] font-bold text-indigo-600 mt-2 italic px-2 py-0.5 bg-indigo-50 rounded-md self-start">NPSN: {customer.npsn || '-'}</span>
+                                                    <span className="text-sm font-black text-slate-900 uppercase leading-none">{customer.school_name || customer.name}</span>
+                                                    <span className="text-[10px] font-bold text-indigo-600 mt-2 px-2 py-0.5 bg-indigo-50 rounded-md self-start">NPSN: {customer.npsn || '-'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6 text-sm font-bold text-slate-600 italic">
+                                            <td className="px-8 py-6 text-sm font-bold text-slate-600">
                                                 <div className="flex flex-col gap-1">
                                                     <div className="flex items-center gap-2">
                                                         <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
@@ -82,13 +82,13 @@ export default function Index({ auth, customers, filters }) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6 text-center text-xs font-bold text-slate-500 italic uppercase">
+                                            <td className="px-8 py-6 text-center text-xs font-bold text-slate-500 uppercase">
                                                 {new Date(customer.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </td>
                                             <td className="px-8 py-6 text-right">
                                                 <Link 
                                                     href={route('admin.orders.index', { search: customer.email })} 
-                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase italic hover:bg-slate-200 transition-all hover:translate-x-1"
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase hover:bg-slate-200 transition-all hover:translate-x-1"
                                                 >
                                                     Cek Pesanan &rarr;
                                                 </Link>
@@ -101,7 +101,7 @@ export default function Index({ auth, customers, filters }) {
                                                     <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                                                         <svg className="w-8 h-8 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                                                     </div>
-                                                    <p className="text-sm font-black text-slate-400 uppercase italic tracking-widest">Tidak ada pelanggan ditemukan</p>
+                                                    <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Tidak ada pelanggan ditemukan</p>
                                                 </div>
                                             </td>
                                         </tr>

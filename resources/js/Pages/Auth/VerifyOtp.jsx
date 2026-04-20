@@ -39,14 +39,14 @@ export default function VerifyOtp({ email }) {
                                 </svg>
                             </div>
                             
-                            <h2 className="text-3xl font-black italic uppercase tracking-tight mb-4">Cek Email Anda</h2>
-                            <p className="text-blue-100 font-medium italic leading-relaxed max-w-xs mx-auto">
+                            <h2 className="text-3xl font-black uppercase tracking-tight mb-4">Cek Email Anda</h2>
+                            <p className="text-blue-100 font-medium leading-relaxed max-w-xs mx-auto">
                                 Kami telah mengirimkan kode OTP rahasia ke alamat email sekolah Anda untuk memastikan keamanan akun.
                             </p>
 
                             <div className="mt-10 p-4 bg-indigo-900/30 rounded-2xl border border-white/10 inline-block">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-200 mb-1">Email Tujuan:</p>
-                                <p className="text-sm font-black italic text-white">{email}</p>
+                                <p className="text-sm font-black text-white">{email}</p>
                             </div>
                         </div>
                     </div>
@@ -55,7 +55,7 @@ export default function VerifyOtp({ email }) {
                     <div className="lg:w-1/2 p-12 lg:p-16 bg-white flex flex-col justify-center">
                         <div className="max-w-sm mx-auto w-full">
                             <div className="mb-10 text-center lg:text-left">
-                                <h3 className="text-3xl font-black text-slate-900 italic uppercase mb-2">Verifikasi</h3>
+                                <h3 className="text-3xl font-black text-slate-900 uppercase mb-2">Verifikasi</h3>
                                 <div className="w-12 h-1.5 bg-blue-600 rounded-full mb-6 lg:mx-0 mx-auto"></div>
                             </div>
 
@@ -80,7 +80,7 @@ export default function VerifyOtp({ email }) {
                                     <button 
                                         type="submit" 
                                         disabled={processing}
-                                        className="w-full flex justify-center items-center gap-3 py-5 px-4 rounded-2xl shadow-xl shadow-blue-200 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 hover:-translate-y-1 transition-all uppercase tracking-[0.2em] italic disabled:opacity-50"
+                                        className="w-full flex justify-center items-center gap-3 py-5 px-4 rounded-2xl shadow-xl shadow-blue-200 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 hover:-translate-y-1 transition-all uppercase tracking-[0.2em] disabled:opacity-50"
                                     >
                                         Verifikasi Sekarang
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -89,7 +89,7 @@ export default function VerifyOtp({ email }) {
                             </form>
 
                             <div className="mt-10 text-center">
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
                                     Belum menerima kode? 
                                 <button 
                                     onClick={handleResend}

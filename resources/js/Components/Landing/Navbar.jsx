@@ -16,11 +16,11 @@ export default function Navbar() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                 </svg>
                             </div>
-                            <span className="text-2xl font-black tracking-tight text-white uppercase italic">SIMAK<span className="text-blue-500">BUY</span></span>
+                            <span className="text-2xl font-black tracking-tight text-white uppercase">SIMAK<span className="text-blue-500">BUY</span></span>
                         </Link>
                     </div>
                     
-                    <div className="hidden md:flex items-center gap-8 text-[11px] font-bold uppercase tracking-widest italic text-slate-300">
+                    <div className="hidden md:flex items-center gap-8 text-[11px] font-bold uppercase tracking-widest text-slate-300">
                         <Link href={route('landing')} className="hover:text-blue-400 transition-colors">Home</Link>
                         <a href="#katalog" className="hover:text-blue-400 transition-colors">Katalog</a>
                         <a href="#alur" className="hover:text-blue-400 transition-colors">Alur Beli</a>
@@ -31,14 +31,14 @@ export default function Navbar() {
                     <div className="flex items-center gap-4">
                         {auth.user ? (
                             auth.user?.role === 'admin' ? (
-                                <Link href={route('admin.dashboard')} className="px-6 py-3 bg-blue-600/20 border border-blue-500/50 text-blue-400 rounded-xl text-xs font-bold shadow-[0_0_15px_rgba(37,99,235,0.2)] hover:bg-blue-600 hover:text-white transition-all uppercase italic">Dashboard Admin</Link>
+                                <Link href={route('admin.dashboard')} className="px-6 py-3 bg-blue-600/20 border border-blue-500/50 text-blue-400 rounded-xl text-xs font-bold shadow-[0_0_15px_rgba(37,99,235,0.2)] hover:bg-blue-600 hover:text-white transition-all uppercase">Dashboard Admin</Link>
                             ) : (
-                                <Link href={route('user.dashboard')} className="px-6 py-3 bg-blue-600/20 border border-blue-500/50 text-blue-400 rounded-xl text-xs font-bold shadow-[0_0_15px_rgba(37,99,235,0.2)] hover:bg-blue-600 hover:text-white transition-all uppercase italic">Portal Pelanggan</Link>
+                                <Link href={route('user.dashboard')} className="px-6 py-3 bg-blue-600/20 border border-blue-500/50 text-blue-400 rounded-xl text-xs font-bold shadow-[0_0_15px_rgba(37,99,235,0.2)] hover:bg-blue-600 hover:text-white transition-all uppercase">Portal Pelanggan</Link>
                             )
                         ) : (
                             <>
-                                <Link href={route('login')} className="text-xs font-bold text-slate-300 hover:text-white transition-colors uppercase italic hidden sm:block">Masuk</Link>
-                                <Link href={route('register')} className="px-6 py-3 bg-white text-slate-900 rounded-xl text-xs font-black shadow-lg shadow-white/10 hover:bg-slate-200 hover:scale-105 transition-all uppercase tracking-widest italic">Daftar</Link>
+                                <Link href={route('login')} className="text-xs font-bold text-slate-300 hover:text-white transition-colors uppercase hidden sm:block">Masuk</Link>
+                                <Link href={route('register')} className="px-6 py-3 bg-white text-slate-900 rounded-xl text-xs font-black shadow-lg shadow-white/10 hover:bg-slate-200 hover:scale-105 transition-all uppercase tracking-widest">Daftar</Link>
                             </>
                         )}
                     </div>

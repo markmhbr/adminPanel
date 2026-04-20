@@ -11,8 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) { // Changed \ to $middleware
-        $middleware->web(append: [ // Changed \-> to $middleware->
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'customer' => \App\Http\Middleware\CustomerMiddleware::class,
+        ]);
+        
+        $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);

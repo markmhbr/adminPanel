@@ -10,13 +10,13 @@ export default function Pagination({ links }) {
                     <div key={key}>
                         {link.url === null ? (
                             <div
-                                className="inline-flex items-center justify-center w-10 h-10 text-slate-400 text-[10px] font-black uppercase tracking-tighter opacity-50 cursor-not-allowed italic"
+                                className="inline-flex items-center justify-center w-10 h-10 text-slate-400 text-[10px] font-black uppercase tracking-tighter opacity-50 cursor-not-allowed"
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         ) : (
                             <Link
                                 href={link.url}
-                                className={`inline-flex items-center justify-center w-10 h-10 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all duration-300 italic ${
+                                className={`inline-flex items-center justify-center w-10 h-10 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all duration-300 ${
                                     link.active 
                                         ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 rotate-3 scale-110 z-10' 
                                         : 'text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm'

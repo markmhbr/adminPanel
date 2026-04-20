@@ -35,19 +35,19 @@ export default function Login() {
                             <div className="w-16 h-16 bg-blue-600 rounded-[2rem] flex items-center justify-center mb-10 shadow-xl shadow-blue-500/20">
                                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
                             </div>
-                            <h2 className="text-4xl font-black italic uppercase tracking-tight mb-6 leading-tight">Selamat Datang <br/><span className="text-blue-500 text-6xl italic leading-[1]">Kembali!</span></h2>
-                            <p className="text-slate-400 font-medium italic leading-relaxed mb-10">Masuk ke dashboard untuk mengelola website, memantau pesanan, atau berkonsultasi dengan tim teknis kami.</p>
+                            <h2 className="text-4xl font-black uppercase tracking-tight mb-6 leading-tight">Selamat Datang <br/><span className="text-blue-500 text-6xl leading-[1]">Kembali!</span></h2>
+                            <p className="text-slate-400 font-medium leading-relaxed mb-10">Masuk ke dashboard untuk mengelola website, memantau pesanan, atau berkonsultasi dengan tim teknis kami.</p>
                             
                             <ul className="space-y-4">
-                                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest italic text-blue-400">
+                                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-blue-400">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
                                     Pantau Progress Website
                                 </li>
-                                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest italic text-blue-400">
+                                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-blue-400">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
                                     Akses Live Chat Support
                                 </li>
-                                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest italic text-blue-400">
+                                <li className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-blue-400">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
                                     Kelola Pembayaran Aman
                                 </li>
@@ -55,7 +55,7 @@ export default function Login() {
                         </div>
 
                         <div className="relative z-10 pt-10 border-t border-slate-800">
-                            <p className="text-[10px] font-bold italic uppercase tracking-[0.2em] text-slate-500">Simak Buy &bull; Profesional Digital Partner</p>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Simak Buy &bull; Profesional Digital Partner</p>
                         </div>
                     </div>
 
@@ -63,7 +63,7 @@ export default function Login() {
                     <div className="lg:w-1/2 p-12 lg:p-16 bg-white flex flex-col justify-center">
                         <div className="max-w-sm mx-auto w-full">
                             <div className="mb-10 text-center">
-                                <h3 className="text-3xl font-black text-slate-900 italic uppercase mb-2 leading-tight">Login Akun</h3>
+                                <h3 className="text-3xl font-black text-slate-900 uppercase mb-2 leading-tight">Login Akun</h3>
                                 <div className="w-12 h-1 bg-blue-600 mx-auto rounded-full mb-4"></div>
                             </div>
 
@@ -81,7 +81,7 @@ export default function Login() {
                                             value={data.email}
                                             onChange={(e) => setData('email', e.target.value)}
                                             required 
-                                            className="block w-full pl-12 pr-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300 italic" 
+                                            className="block w-full pl-12 pr-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" 
                                             placeholder="email@sekolah.sch.id"
                                         />
                                     </div>
@@ -104,7 +104,7 @@ export default function Login() {
                                             value={data.password}
                                             onChange={(e) => setData('password', e.target.value)}
                                             required 
-                                            className="block w-full pl-12 pr-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300 italic" 
+                                            className="block w-full pl-12 pr-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" 
                                             placeholder="••••••••"
                                         />
                                     </div>
@@ -115,7 +115,7 @@ export default function Login() {
                                     <button 
                                         type="submit" 
                                         disabled={processing}
-                                        className="w-full flex justify-center items-center gap-3 py-5 px-4 rounded-2xl shadow-xl shadow-blue-200 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 hover:-translate-y-1 transition-all uppercase tracking-widest italic disabled:opacity-50"
+                                        className="w-full flex justify-center items-center gap-3 py-5 px-4 rounded-2xl shadow-xl shadow-blue-200 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 hover:-translate-y-1 transition-all uppercase tracking-widest disabled:opacity-50"
                                     >
                                         Masuk Ke Akun
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
@@ -124,7 +124,7 @@ export default function Login() {
                             </form>
 
                             <div className="mt-8 text-center">
-                                <p className="text-xs text-slate-500 font-bold italic">Belum punya akun? <Link href={route('register')} className="text-blue-600 hover:text-blue-700 underline underline-offset-4 ml-1">Daftar Akun Baru</Link></p>
+                                <p className="text-xs text-slate-500 font-bold">Belum punya akun? <Link href={route('register')} className="text-blue-600 hover:text-blue-700 underline underline-offset-4 ml-1">Daftar Akun Baru</Link></p>
                             </div>
                         </div>
                     </div>

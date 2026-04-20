@@ -47,13 +47,14 @@ export default function Index({ auth, tokens }) {
     const handleDelete = (id) => {
         PremiumAlert.confirm(
             'Hapus Token?',
-            'Akses menggunakan token ini tidak akan bisa terhubung lagi.',
-            () => {
+            'Akses menggunakan token ini tidak akan bisa terhubung lagi.'
+        ).then((result) => {
+            if (result.isConfirmed) {
                 router.delete(route('admin.tokens.destroy', id), {
                     onSuccess: () => PremiumAlert.success('Terhapus', 'Token telah dihapus.')
                 });
             }
-        );
+        });
     };
 
     const handleToggle = (id) => {
@@ -73,8 +74,8 @@ export default function Index({ auth, tokens }) {
             header={
                 <div className="flex flex-col md:flex-row justify-between items-center w-full gap-6">
                     <div className="text-center md:text-left">
-                        <h2 className="text-3xl font-black leading-tight text-slate-900 italic uppercase tracking-tight">Access Tokens</h2>
-                        <p className="text-slate-400 font-bold text-xs mt-1 italic uppercase tracking-widest">
+                        <h2 className="text-3xl font-black leading-tight text-slate-900 uppercase tracking-tight">Access Tokens</h2>
+                        <p className="text-slate-400 font-bold text-xs mt-1 uppercase tracking-widest">
                             {activeTab === 'admin-panel' 
                                 ? 'Kelola kunci akses API untuk project sekolah.' 
                                 : 'Kelola kunci akses untuk integrasi data eksternal.'}
@@ -177,7 +178,7 @@ export default function Index({ auth, tokens }) {
                                     </>
                                 ) : (
                                     <div className='py-8'>
-                                        <p className='text-gray-400 font-bold uppercase tracking-widest italic'>Belum ada token aktif</p>
+                                        <p className='text-gray-400 font-bold uppercase tracking-widest'>Belum ada token aktif</p>
                                         <p className='text-gray-400 text-xs mt-2'>Klik 'Generate Baru' untuk memulai</p>
                                     </div>
                                 )}

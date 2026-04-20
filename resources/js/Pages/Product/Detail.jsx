@@ -120,17 +120,17 @@ export default function Detail({ product }) {
                         <div className="space-y-6 sticky top-32">
                             <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-[3rem] p-12 aspect-square flex flex-col justify-center items-center text-white relative overflow-hidden shadow-2xl shadow-blue-200">
                                 <svg className="w-32 h-32 opacity-20 mb-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                <h2 className="text-4xl font-[800] text-center tracking-tight leading-tight italic uppercase">{product.name}</h2>
+                                <h2 className="text-4xl font-[800] text-center tracking-tight leading-tight uppercase">{product.name}</h2>
                                 <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-400 rounded-full blur-3xl opacity-30"></div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 italic">Durasi Kerja</p>
-                                    <p className="text-sm font-bold text-slate-900 italic">3-7 Hari Kerja</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Durasi Kerja</p>
+                                    <p className="text-sm font-bold text-slate-900">3-7 Hari Kerja</p>
                                 </div>
                                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 italic">Dukungan</p>
-                                    <p className="text-sm font-bold text-slate-900 italic">Prioritas 24/7</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Dukungan</p>
+                                    <p className="text-sm font-bold text-slate-900">Prioritas 24/7</p>
                                 </div>
                             </div>
                         </div>
@@ -139,14 +139,14 @@ export default function Detail({ product }) {
                         <div className="space-y-8">
                             <div className="bg-white rounded-[3rem] p-10 lg:p-12 border border-slate-100 shadow-xl shadow-slate-200/40">
                                 <div className="flex items-center gap-2 mb-6">
-                                    <span className="px-3 py-1 bg-green-50 text-green-700 rounded-lg text-[10px] font-bold uppercase tracking-wider italic">Ready to Deploy</span>
-                                    <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-bold uppercase tracking-wider italic">Premium Template</span>
+                                    <span className="px-3 py-1 bg-green-50 text-green-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Ready to Deploy</span>
+                                    <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Premium Template</span>
                                 </div>
 
-                                <h1 className="text-4xl font-black text-slate-900 leading-tight mb-6 italic uppercase">{product.name}</h1>
+                                <h1 className="text-4xl font-black text-slate-900 leading-tight mb-6 uppercase">{product.name}</h1>
                                 
                                 <div className="prose prose-slate max-w-none mb-10">
-                                    <p className="text-lg text-slate-600 font-medium leading-relaxed whitespace-pre-line italic">
+                                    <p className="text-lg text-slate-600 font-medium leading-relaxed whitespace-pre-line">
                                         {product.description}
                                     </p>
                                 </div>
@@ -154,7 +154,7 @@ export default function Detail({ product }) {
 
                                 {/* Items Section */}
                                 <div className="space-y-6 mb-10">
-                                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest italic border-b border-slate-100 pb-2">Fitur & Item Produk</h3>
+                                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Fitur & Item Produk</h3>
                                     
                                     <div className="space-y-3">
                                         {/* Mandatory Items */}
@@ -167,8 +167,8 @@ export default function Detail({ product }) {
                                                             <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                                                         </div>
                                                         <div>
-                                                            <p className="text-xs font-black text-slate-900 uppercase italic">{item.name}</p>
-                                                            <p className="text-[10px] text-slate-400 italic">
+                                                            <p className="text-xs font-black text-slate-900 uppercase">{item.name}</p>
+                                                            <p className="text-[10px] text-slate-400">
                                                                 {item.billing_type === 'free' ? (
                                                                     <span className="text-green-600 font-black uppercase">Gratis</span>
                                                                 ) : (
@@ -177,7 +177,7 @@ export default function Detail({ product }) {
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <span className="text-[10px] font-black text-blue-600 italic uppercase">Paket Wajib</span>
+                                                    <span className="text-[10px] font-black text-blue-600 uppercase">Paket Wajib</span>
                                                 </div>
                                             );
                                         })}
@@ -198,8 +198,8 @@ export default function Detail({ product }) {
                                                             )}
                                                         </div>
                                                         <div>
-                                                            <p className="text-xs font-black text-slate-900 uppercase italic">{item.name}</p>
-                                                            <p className="text-[10px] text-slate-400 italic">
+                                                            <p className="text-xs font-black text-slate-900 uppercase">{item.name}</p>
+                                                            <p className="text-[10px] text-slate-400">
                                                                 {item.billing_type === 'free' ? (
                                                                     <span className="text-green-600 font-black uppercase">Gratis</span>
                                                                 ) : (
@@ -208,7 +208,7 @@ export default function Detail({ product }) {
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <span className={`text-[10px] font-black italic uppercase ${selectedItems.includes(item.id) ? 'text-indigo-600' : 'text-slate-400'}`}>
+                                                    <span className={`text-[10px] font-black uppercase ${selectedItems.includes(item.id) ? 'text-indigo-600' : 'text-slate-400'}`}>
                                                         {selectedItems.includes(item.id) ? 'Terpilih' : 'Optional'}
                                                     </span>
                                                 </div>
@@ -220,12 +220,12 @@ export default function Detail({ product }) {
                                 <div className="bg-slate-50 rounded-3xl p-8 mb-10 border border-slate-100">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                                         <div>
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 italic">Total Investasi</p>
-                                            <p className="text-4xl font-black text-slate-900 tracking-tight italic transition-all duration-300">
+                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Investasi</p>
+                                            <p className="text-4xl font-black text-slate-900 tracking-tight transition-all duration-300">
                                                 Rp {new Intl.NumberFormat('id-ID').format(price)}
                                             </p>
                                         </div>
-                                        <a href={product.demo_url} target="_blank" rel="noopener noreferrer" className="px-8 py-3 bg-white border border-slate-200 text-slate-700 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-all text-center uppercase italic tracking-widest">Lihat Live Demo</a>
+                                        <a href={product.demo_url} target="_blank" rel="noopener noreferrer" className="px-8 py-3 bg-white border border-slate-200 text-slate-700 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-all text-center uppercase tracking-widest">Lihat Live Demo</a>
                                     </div>
                                 </div>
 
@@ -236,11 +236,11 @@ export default function Detail({ product }) {
                                             selected_items: selectedItems,
                                             student_count: studentCount 
                                         }}
-                                        className="w-full py-5 bg-blue-600 text-white rounded-[2rem] font-bold text-lg shadow-2xl shadow-blue-100 hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-center italic"
+                                        className="w-full py-5 bg-blue-600 text-white rounded-[2rem] font-bold text-lg shadow-2xl shadow-blue-100 hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-center"
                                     >
                                         Lanjut ke Checkout
                                     </Link>
-                                    <p className="text-[10px] text-center text-slate-400 font-bold italic uppercase tracking-widest">Transaksi Aman via Midtrans Payment Gateway</p>
+                                    <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest">Transaksi Aman via Midtrans Payment Gateway</p>
                                 </div>
                             </div>
                         </div>

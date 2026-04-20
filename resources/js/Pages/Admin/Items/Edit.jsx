@@ -41,12 +41,12 @@ export default function Edit({ auth, item }) {
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
                     <form onSubmit={submit} className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 space-y-8">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Nama Item</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Item</label>
                             <input 
                                 type="text"
                                 value={data.name}
                                 onChange={e => setData('name', e.target.value)}
-                                className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700 italic"
+                                className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700"
                                 placeholder="Contoh: Web Profile Sekolah"
                             />
                             {errors.name && <p className="text-[10px] text-red-500 font-bold uppercase ml-1">{errors.name}</p>}
@@ -54,23 +54,23 @@ export default function Edit({ auth, item }) {
 
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Harga Default (Rp)</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Harga Default (Rp)</label>
                                 <input 
                                     type="number"
                                     value={data.price}
                                     onChange={e => setData('price', e.target.value)}
-                                    className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700 italic"
+                                    className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700"
                                     placeholder="500000"
                                 />
                                 {errors.price && <p className="text-[10px] text-red-500 font-bold uppercase ml-1">{errors.price}</p>}
-                                <p className="text-[10px] text-slate-400 italic">Digunakan jika tidak ada level harga yang cocok.</p>
+                                <p className="text-[10px] text-slate-400">Digunakan jika tidak ada level harga yang cocok.</p>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Siklus Tagihan</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Siklus Tagihan</label>
                                 <select 
                                     value={data.billing_type}
                                     onChange={e => setData('billing_type', e.target.value)}
-                                    className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700 italic appearance-none"
+                                    className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700 appearance-none"
                                 >
                                     <option value="one_time">Sekali Beli (One-time)</option>
                                     <option value="annual">Per Tahun (Annual)</option>
@@ -79,11 +79,11 @@ export default function Edit({ auth, item }) {
                                 {errors.billing_type && <p className="text-[10px] text-red-500 font-bold uppercase ml-1">{errors.billing_type}</p>}
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Status</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
                                 <select 
                                     value={data.status}
                                     onChange={e => setData('status', e.target.value)}
-                                    className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700 italic appearance-none"
+                                    className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700 appearance-none"
                                 >
                                     <option value="active">Active</option>
                                     <option value="inactive">Inactive</option>
@@ -94,11 +94,11 @@ export default function Edit({ auth, item }) {
                         {/* Tiers Management */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Pengaturan Level Harga (Berdasarkan Siswa)</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pengaturan Level Harga (Berdasarkan Siswa)</label>
                                 <button 
                                     type="button"
                                     onClick={addTier}
-                                    className="text-[10px] font-black text-indigo-600 uppercase tracking-widest italic hover:text-indigo-700 transition-colors"
+                                    className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 transition-colors"
                                 >
                                     + Tambah Level
                                 </button>
@@ -108,32 +108,32 @@ export default function Edit({ auth, item }) {
                                 {data.tiers.map((tier, index) => (
                                     <div key={index} className="grid grid-cols-12 gap-4 items-end bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                         <div className="col-span-4 space-y-2">
-                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Nama Level</label>
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Level</label>
                                             <input 
                                                 type="text"
                                                 value={tier.level_name}
                                                 onChange={e => updateTier(index, 'level_name', e.target.value)}
-                                                className="block w-full px-4 py-2 bg-white border-none rounded-xl focus:ring-2 focus:ring-indigo-600 transition-all font-bold text-slate-700 text-xs italic"
+                                                className="block w-full px-4 py-2 bg-white border-none rounded-xl focus:ring-2 focus:ring-indigo-600 transition-all font-bold text-slate-700 text-xs"
                                                 placeholder="Level 1"
                                             />
                                         </div>
                                         <div className="col-span-3 space-y-2">
-                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Maks Siswa</label>
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Maks Siswa</label>
                                             <input 
                                                 type="number"
                                                 value={tier.max_students}
                                                 onChange={e => updateTier(index, 'max_students', e.target.value)}
-                                                className="block w-full px-4 py-2 bg-white border-none rounded-xl focus:ring-2 focus:ring-indigo-600 transition-all font-bold text-slate-700 text-xs italic"
+                                                className="block w-full px-4 py-2 bg-white border-none rounded-xl focus:ring-2 focus:ring-indigo-600 transition-all font-bold text-slate-700 text-xs"
                                                 placeholder="250"
                                             />
                                         </div>
                                         <div className="col-span-4 space-y-2">
-                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Harga (Rp)</label>
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Harga (Rp)</label>
                                             <input 
                                                 type="number"
                                                 value={tier.price}
                                                 onChange={e => updateTier(index, 'price', e.target.value)}
-                                                className="block w-full px-4 py-2 bg-white border-none rounded-xl focus:ring-2 focus:ring-indigo-600 transition-all font-bold text-slate-700 text-xs italic"
+                                                className="block w-full px-4 py-2 bg-white border-none rounded-xl focus:ring-2 focus:ring-indigo-600 transition-all font-bold text-slate-700 text-xs"
                                                 placeholder="100000"
                                             />
                                         </div>
@@ -149,29 +149,29 @@ export default function Edit({ auth, item }) {
                                     </div>
                                 ))}
                                 {data.tiers.length === 0 && (
-                                    <p className="text-[10px] text-slate-400 text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 italic">Belum ada level harga khusus. Klik "Tambah Level" untuk membuat harga dinamis.</p>
+                                    <p className="text-[10px] text-slate-400 text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">Belum ada level harga khusus. Klik "Tambah Level" untuk membuat harga dinamis.</p>
                                 )}
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 italic">Deskripsi</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Deskripsi</label>
                             <textarea 
                                 value={data.description}
                                 onChange={e => setData('description', e.target.value)}
                                 rows="5"
-                                className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-[2rem] focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700 italic"
+                                className="block w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-[2rem] focus:bg-white focus:border-indigo-600 focus:ring-0 transition-all font-bold text-slate-700"
                                 placeholder="Jelaskan detail item ini..."
                             ></textarea>
                             {errors.description && <p className="text-[10px] text-red-500 font-bold uppercase ml-1">{errors.description}</p>}
                         </div>
 
                         <div className="flex items-center justify-end gap-4 pt-6">
-                            <Link href={route('admin.items.index')} className="text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors italic">Batal</Link>
+                            <Link href={route('admin.items.index')} className="text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">Batal</Link>
                             <button 
                                 type="submit" 
                                 disabled={processing}
-                                className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:opacity-50 italic"
+                                className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:opacity-50"
                             >
                                 Perbarui Item
                             </button>

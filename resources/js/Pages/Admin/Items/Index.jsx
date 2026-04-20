@@ -1,12 +1,20 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import Pagination from '@/Components/Pagination';
+import { PremiumAlert } from '@/Utils/alert';
 
 export default function Index({ auth, items }) {
     const deleteItem = (id) => {
-        if (confirm('Apakah Anda yakin ingin menghapus item ini?')) {
-            router.delete(route('admin.items.destroy', id));
-        }
+        PremiumAlert.confirm(
+            'Hapus Item',
+            'Apakah Anda yakin ingin menghapus item ini?'
+        ).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route('admin.items.destroy', id), {
+                    onSuccess: () => PremiumAlert.success('Berhasil', 'Item berhasil dihapus')
+                });
+            }
+        });
     };
 
     return (
@@ -15,12 +23,12 @@ export default function Index({ auth, items }) {
             header={
                 <div className="flex flex-col md:flex-row justify-between items-center w-full gap-6">
                     <div className="text-center md:text-left">
-                        <h2 className="text-3xl font-black leading-tight text-slate-900 italic uppercase tracking-tight">Kelola Item</h2>
-                        <p className="text-slate-400 font-bold text-xs mt-1 italic uppercase tracking-widest">Daftar fitur tambahan untuk kustomisasi produk.</p>
+                        <h2 className="text-3xl font-black leading-tight text-slate-900 uppercase tracking-tight">Kelola Item</h2>
+                        <p className="text-slate-400 font-bold text-xs mt-1 uppercase tracking-widest">Daftar fitur tambahan untuk kustomisasi produk.</p>
                     </div>
                     <Link
                         href={route('admin.items.create')}
-                        className="group relative flex items-center justify-center gap-3 px-8 h-14 bg-slate-900 hover:bg-indigo-600 text-white rounded-2xl font-black tracking-widest text-[10px] uppercase transition-all duration-500 shadow-xl shadow-indigo-100 hover:-translate-y-1 overflow-hidden italic"
+                        className="group relative flex items-center justify-center gap-3 px-8 h-14 bg-slate-900 hover:bg-indigo-600 text-white rounded-2xl font-black tracking-widest text-[10px] uppercase transition-all duration-500 shadow-xl shadow-indigo-100 hover:-translate-y-1 overflow-hidden"
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         <svg className="w-5 h-5 relative z-10 transition-transform duration-500 group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -55,16 +63,16 @@ export default function Index({ auth, items }) {
                                                         {item.name.charAt(0)}
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-black text-slate-900 uppercase italic leading-none">{item.name}</p>
-                                                        <p className="text-[10px] font-bold text-slate-400 mt-2 italic line-clamp-1">{item.description || 'Tidak ada deskripsi'}</p>
+                                                        <p className="text-sm font-black text-slate-900 uppercase leading-none">{item.name}</p>
+                                                        <p className="text-[10px] font-bold text-slate-400 mt-2 line-clamp-1">{item.description || 'Tidak ada deskripsi'}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6 text-center">
-                                                <span className="text-sm font-black text-emerald-600 italic">Rp {new Intl.NumberFormat('id-ID').format(item.price)}</span>
+                                                <span className="text-sm font-black text-emerald-600">Rp {new Intl.NumberFormat('id-ID').format(item.price)}</span>
                                             </td>
                                             <td className="px-8 py-6 text-center">
-                                                <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-full italic ${item.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                                                <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-full ${item.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                                                     {item.status}
                                                 </span>
                                             </td>

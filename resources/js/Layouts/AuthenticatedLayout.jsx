@@ -1,11 +1,23 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect, Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, Transition } from '@headlessui/react';
+import { PremiumAlert } from '@/Utils/alert';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+
+    const handleLogout = () => {
+        PremiumAlert.confirm(
+            'Konfirmasi Logout',
+            'Apakah Anda yakin ingin keluar dari sistem?'
+        ).then((result) => {
+            if (result.isConfirmed) {
+                router.post(route('logout'));
+            }
+        });
+    };
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -69,7 +81,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-100">
                         <ApplicationLogo className="h-4 w-4 fill-current text-white" />
                     </div>
-                    <span className="font-black text-slate-900 uppercase tracking-widest text-sm italic">Admin Hub</span>
+                    <span className="font-black text-slate-900 uppercase tracking-widest text-sm">Admin Hub</span>
                 </Link>
                 <button 
                     onClick={() => setIsSidebarOpen(true)}
@@ -109,8 +121,8 @@ export default function AuthenticatedLayout({ header, children }) {
                             <ApplicationLogo className="h-6 w-6 fill-current text-white" />
                         </motion.div>
                         <div className="flex flex-col">
-                            <span className="font-black text-slate-900 uppercase tracking-widest leading-none italic">Admin Hub</span>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase italic mt-1 tracking-tighter">Premium Core</span>
+                            <span className="font-black text-slate-900 uppercase tracking-widest leading-none">Admin Hub</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-tighter">Premium Core</span>
                         </div>
                     </Link>
                     <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-slate-600 transition-colors">
@@ -120,7 +132,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 {/* Navigation Section */}
                 <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2 custom-scrollbar">
-                    <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest italic mb-4">Main Navigation</p>
+                    <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Main Navigation</p>
                     {navigation.map((item) => (
                         <Link
                             key={item.name}
@@ -134,7 +146,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
                             </motion.svg>
-                            <span className="italic uppercase tracking-wide">{item.name}</span>
+                            <span className="uppercase tracking-wide">{item.name}</span>
                             {item.current && (
                                 <motion.div 
                                     layoutId="activeTab"
@@ -146,7 +158,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 </nav>
 
                 <div className="p-8 border-t border-slate-100 flex items-center justify-center">
-                    <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.3em] italic">Hexanusa © 2026</p>
+                    <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.3em]">Hexanusa © 2026</p>
                 </div>
             </motion.aside>
 
@@ -164,7 +176,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <input 
                                     type="text" 
                                     placeholder="Search anything..."
-                                    className="w-full h-11 pl-11 pr-4 bg-white/50 backdrop-blur-sm border border-slate-200 rounded-2xl text-xs font-bold italic focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 transition-all outline-none"
+                                    className="w-full h-11 pl-11 pr-4 bg-white/50 backdrop-blur-sm border border-slate-200 rounded-2xl text-xs font-bold focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 transition-all outline-none"
                                 />
                             </div>
                         </div>
@@ -193,8 +205,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                         {user?.name?.charAt(0).toUpperCase()}
                                     </div>
                                     <div className="hidden sm:block text-left">
-                                        <p className="text-[10px] font-black text-slate-900 uppercase italic leading-none">{user?.name}</p>
-                                        <p className="text-[8px] font-bold text-slate-400 uppercase italic mt-1 tracking-tighter">{user?.role === 'admin' ? 'Administrator' : 'Unit Sekolah'}</p>
+                                        <p className="text-[10px] font-black text-slate-900 uppercase leading-none">{user?.name}</p>
+                                        <p className="text-[8px] font-bold text-slate-400 uppercase mt-1 tracking-tighter">{user?.role === 'admin' ? 'Administrator' : 'Unit Sekolah'}</p>
                                     </div>
                                     <svg className={`w-4 h-4 text-slate-400 ml-1 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
@@ -210,23 +222,28 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 className="absolute right-0 mt-3 w-64 bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-100 py-4 px-2 focus:outline-none z-[100]"
                                             >
                                                 <div className="px-4 py-3 mb-2 border-b border-slate-50">
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Signed in as</p>
-                                                    <p className="text-xs font-black text-slate-900 truncate mt-1 italic">{user?.email}</p>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Signed in as</p>
+                                                    <p className="text-xs font-black text-slate-900 truncate mt-1">{user?.email}</p>
                                                 </div>
                                                 
                                                 <div className="space-y-1">
-                                                    <Link href={user?.role === 'admin' ? route('admin.profile.store') : '#'} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold italic uppercase tracking-wide transition-all hover:bg-indigo-50 text-slate-600 hover:text-indigo-600">
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                                        Profil Perusahaan
-                                                    </Link>
-                                                    <Link href={user?.role === 'admin' ? route('admin.profile.edit') : route('profile.edit')} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold italic uppercase tracking-wide transition-all hover:bg-indigo-50 text-slate-600 hover:text-indigo-600">
+                                                    {user?.role === 'admin' && (
+                                                        <Link href={route('admin.profile.store')} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all hover:bg-indigo-50 text-slate-600 hover:text-indigo-600">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                                            Profil Perusahaan
+                                                        </Link>
+                                                    )}
+                                                    <Link href={route('profile.edit')} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all hover:bg-indigo-50 text-slate-600 hover:text-indigo-600">
                                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                                                         My Profile
                                                     </Link>
-                                                    <Link href={route('logout')} method="post" as="button" className="flex w-full items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold italic uppercase tracking-wide transition-all hover:bg-red-50 text-slate-600 hover:text-red-600">
+                                                    <button 
+                                                        onClick={handleLogout}
+                                                        className="flex w-full items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all hover:bg-red-50 text-slate-600 hover:text-red-600 text-left"
+                                                    >
                                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                                                         Log out
-                                                    </Link>
+                                                    </button>
                                                 </div>
                                             </motion.div>
                                         </>
