@@ -36,7 +36,7 @@ class ChatController extends Controller
 
     public function getMessages(Chat $chat)
     {
-        if (Auth::user()->role !== 'admin' && Auth::id() !== $chat->user_id) {
+        if (Auth::user()->role !== 'admin' && Auth::id() != $chat->user_id) {
             abort(403);
         }
 
@@ -45,7 +45,7 @@ class ChatController extends Controller
 
     public function sendMessage(Request $request, Chat $chat)
     {
-        if (Auth::user()->role !== 'admin' && Auth::id() !== $chat->user_id) {
+        if (Auth::user()->role !== 'admin' && Auth::id() != $chat->user_id) {
             abort(403);
         }
 

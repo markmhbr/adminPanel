@@ -11,6 +11,11 @@ class Chat extends Model
 
     protected $fillable = ['user_id', 'last_message_at', 'is_active'];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'is_active' => 'boolean'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

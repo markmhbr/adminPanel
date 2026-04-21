@@ -45,10 +45,10 @@ class DashboardController extends Controller
             'auth_id' => Auth::id(),
             'order_user_id' => $order->user_id,
             'user_role' => Auth::user()->role,
-            'match' => Auth::id() === $order->user_id
+            'match' => (int)Auth::id() == (int)$order->user_id
         ]);
 
-        if (Auth::user()->role !== 'admin' && $order->user_id !== Auth::id()) {
+        if (Auth::user()->role !== 'admin' && $order->user_id != Auth::id()) {
             abort(403);
         }
         $order->load(['product', 'items']);

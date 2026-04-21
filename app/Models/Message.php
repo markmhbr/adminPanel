@@ -11,6 +11,12 @@ class Message extends Model
 
     protected $fillable = ['chat_id', 'sender_id', 'message', 'is_read', 'type'];
 
+    protected $casts = [
+        'chat_id' => 'integer',
+        'sender_id' => 'integer',
+        'is_read' => 'boolean'
+    ];
+
     public function chat()
     {
         return $this->belongsTo(Chat::class);
