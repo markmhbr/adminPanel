@@ -20,7 +20,7 @@ class LandingPageController extends Controller
     {
         $products = Product::where('status', 'published')
             ->with(['items' => function($query) {
-                $query->where('status', 'active')->take(5);
+                $query->where('status', 'active')->orderBy('created_at', 'asc');
             }])
             ->latest()
             ->take(6)
@@ -37,7 +37,7 @@ class LandingPageController extends Controller
     public function show(Product $product)
     {
         $product->load(['items' => function($query) {
-            $query->where('status', 'active')->with('tiers');
+            $query->where('status', 'active')->orderBy('created_at', 'asc')->with('tiers');
         }]);
 
         // Decode JSON pivot data

@@ -108,139 +108,132 @@ export default function Detail({ product }) {
     };
 
     return (
-        <div className="antialiased text-slate-900 bg-slate-50 selection:bg-blue-100 selection:text-blue-700 font-['Plus Jakarta Sans', sans-serif]">
+        <div className="bg-[#050505] min-h-screen text-white antialiased selection:bg-blue-600 selection:text-white font-['Plus Jakarta Sans', sans-serif]">
             <Head title={`${product.name} | Simak Buy`} />
             
             <Navbar />
 
-            <main className="pt-32 pb-20 mt-10">
-                <div className="max-w-7xl mx-auto px-6 lg:px-8">
-                    <div className="grid lg:grid-cols-2 gap-12 items-start">
+            <main className="pt-32 pb-24 relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(37,99,235,0.05),transparent_70%)] -z-10"></div>
+                
+                <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+                    <div className="grid lg:grid-cols-2 gap-16 items-start">
                         {/* Product Image / Visual */}
-                        <div className="space-y-6 sticky top-32">
-                            <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-[3rem] p-12 aspect-square flex flex-col justify-center items-center text-white relative overflow-hidden shadow-2xl shadow-blue-200">
-                                <svg className="w-32 h-32 opacity-20 mb-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                <h2 className="text-4xl font-[800] text-center tracking-tight leading-tight uppercase">{product.name}</h2>
-                                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-400 rounded-full blur-3xl opacity-30"></div>
+                        <div className="space-y-8 sticky top-32">
+                            <div className="group relative bg-gradient-to-br from-blue-700 to-blue-900 rounded-[3rem] p-16 aspect-square flex flex-col justify-center items-center text-white overflow-hidden shadow-[0_0_100px_rgba(37,99,235,0.2)] border border-white/10">
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.1),transparent)] transition-opacity duration-700 group-hover:opacity-100 opacity-50"></div>
+                                <svg className="w-40 h-40 opacity-20 mb-10 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                <h2 className="text-5xl font-black text-center tracking-tighter leading-none uppercase z-10">{product.name}</h2>
+                                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-500 rounded-full blur-[100px] opacity-20 transition-all duration-700 group-hover:opacity-40 group-hover:scale-125"></div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Durasi Kerja</p>
-                                    <p className="text-sm font-bold text-slate-900">3-7 Hari Kerja</p>
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="bg-white/[0.03] p-8 rounded-[2rem] border border-white/5 text-center backdrop-blur-xl">
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Build Duration</p>
+                                    <p className="text-lg font-bold text-white">3-7 Working Days</p>
                                 </div>
-                                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Dukungan</p>
-                                    <p className="text-sm font-bold text-slate-900">Prioritas 24/7</p>
+                                <div className="bg-white/[0.03] p-8 rounded-[2rem] border border-white/5 text-center backdrop-blur-xl">
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Tech Support</p>
+                                    <p className="text-lg font-bold text-white">Priority 24/7</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Product Info */}
-                        <div className="space-y-8">
-                            <div className="bg-white rounded-[3rem] p-10 lg:p-12 border border-slate-100 shadow-xl shadow-slate-200/40">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <span className="px-3 py-1 bg-green-50 text-green-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Ready to Deploy</span>
-                                    <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Premium Template</span>
+                        <div className="space-y-10">
+                            <div className="bg-white/[0.02] rounded-[3rem] p-10 lg:p-14 border border-white/5 shadow-2xl backdrop-blur-3xl relative">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 blur-[60px] -z-10"></div>
+                                
+                                <div className="flex items-center gap-3 mb-8">
+                                    <span className="px-4 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-[10px] font-bold uppercase tracking-widest">Enterprise Edition</span>
+                                    <span className="px-4 py-1.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-[10px] font-bold uppercase tracking-widest">Production Ready</span>
                                 </div>
 
-                                <h1 className="text-4xl font-black text-slate-900 leading-tight mb-6 uppercase">{product.name}</h1>
+                                <h1 className="text-5xl font-black text-white leading-none mb-8 uppercase tracking-tighter">{product.name}</h1>
                                 
-                                <div className="prose prose-slate max-w-none mb-10">
-                                    <p className="text-lg text-slate-600 font-medium leading-relaxed whitespace-pre-line">
+                                <div className="mb-12">
+                                    <p className="text-lg text-slate-400 font-medium leading-relaxed whitespace-pre-line">
                                         {product.description}
                                     </p>
                                 </div>
 
 
                                 {/* Items Section */}
-                                <div className="space-y-6 mb-10">
-                                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Fitur & Item Produk</h3>
+                                <div className="space-y-8 mb-12">
+                                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-white/5 pb-4">Components & Modules</h3>
                                     
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         {/* Mandatory Items */}
-                                        {mandatoryItems.map(item => {
-                                            const itemPrice = getItemPrice(item, studentCount);
-                                            return (
-                                                <div key={item.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 opacity-75">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                                                            <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-xs font-black text-slate-900 uppercase">{item.name}</p>
-                                                            <p className="text-[10px] text-slate-400">
-                                                                {item.billing_type === 'free' ? (
-                                                                    <span className="text-green-600 font-black uppercase">Gratis</span>
-                                                                ) : (
-                                                                    <span className="text-slate-400 uppercase font-black">Termasuk</span>
-                                                                )}
-                                                            </p>
-                                                        </div>
+                                        {mandatoryItems.map(item => (
+                                            <div key={item.id} className="flex items-center justify-between p-6 bg-white/[0.05] rounded-3xl border border-white/5 transition-all">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 bg-blue-600/20 rounded-2xl flex items-center justify-center text-blue-500 shadow-lg shadow-blue-600/10">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
                                                     </div>
-                                                    <span className="text-[10px] font-black text-blue-600 uppercase">Paket Wajib</span>
+                                                    <div>
+                                                        <p className="text-base font-bold text-white uppercase tracking-tight">{item.name}</p>
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Included in Package</p>
+                                                    </div>
                                                 </div>
-                                            );
-                                        })}
+                                                <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest bg-blue-500/5 px-3 py-1 rounded-md border border-blue-500/10">Paket Wajib</span>
+                                            </div>
+                                        ))}
 
                                         {/* Optional Items */}
-                                        {optionalItems.map(item => {
-                                            const itemPrice = getItemPrice(item, studentCount);
-                                            return (
-                                                <div 
-                                                    key={item.id} 
-                                                    onClick={() => toggleItem(item.id)}
-                                                    className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer select-none active:scale-[0.98] ${selectedItems.includes(item.id) ? 'bg-indigo-50 border-indigo-600' : 'bg-white border-slate-100 hover:border-slate-200'}`}
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${selectedItems.includes(item.id) ? 'bg-indigo-600' : 'bg-slate-200'}`}>
-                                                            {selectedItems.includes(item.id) && (
-                                                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-xs font-black text-slate-900 uppercase">{item.name}</p>
-                                                            <p className="text-[10px] text-slate-400">
-                                                                {item.billing_type === 'free' ? (
-                                                                    <span className="text-green-600 font-black uppercase">Gratis</span>
-                                                                ) : (
-                                                                    <span className="text-slate-400 uppercase font-black">Optional</span>
-                                                                )}
-                                                            </p>
-                                                        </div>
+                                        {optionalItems.map(item => (
+                                            <div 
+                                                key={item.id} 
+                                                onClick={() => toggleItem(item.id)}
+                                                className={`flex items-center justify-between p-6 rounded-3xl border-2 transition-all cursor-pointer select-none active:scale-[0.98] group ${selectedItems.includes(item.id) ? 'bg-indigo-600 border-indigo-400 shadow-2xl shadow-indigo-600/20' : 'bg-white/[0.02] border-white/5 hover:border-white/10'}`}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${selectedItems.includes(item.id) ? 'bg-white text-indigo-600' : 'bg-white/5 text-slate-500 group-hover:text-white'}`}>
+                                                        {selectedItems.includes(item.id) ? (
+                                                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                                                        ) : (
+                                                            <div className="w-3 h-3 rounded-full border-2 border-current"></div>
+                                                        )}
                                                     </div>
-                                                    <span className={`text-[10px] font-black uppercase ${selectedItems.includes(item.id) ? 'text-indigo-600' : 'text-slate-400'}`}>
-                                                        {selectedItems.includes(item.id) ? 'Terpilih' : 'Optional'}
-                                                    </span>
+                                                    <div>
+                                                        <p className={`text-base font-bold uppercase tracking-tight ${selectedItems.includes(item.id) ? 'text-white' : 'text-slate-300'}`}>{item.name}</p>
+                                                        <p className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${selectedItems.includes(item.id) ? 'text-indigo-200' : 'text-slate-500'}`}>Optional Module</p>
+                                                    </div>
                                                 </div>
-                                            );
-                                        })}
+                                                <span className={`text-[10px] font-bold uppercase tracking-widest ${selectedItems.includes(item.id) ? 'text-white' : 'text-slate-400'}`}>
+                                                    {selectedItems.includes(item.id) ? 'Addon Active' : 'Optional'}
+                                                </span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 
-                                <div className="bg-slate-50 rounded-3xl p-8 mb-10 border border-slate-100">
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                                <div className="bg-white/5 rounded-[2.5rem] p-10 mb-12 border border-white/5 relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-4 h-full bg-blue-600 transition-all duration-700 group-hover:w-full -z-10 opacity-10"></div>
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-10">
                                         <div>
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Investasi</p>
-                                            <p className="text-4xl font-black text-slate-900 tracking-tight transition-all duration-300">
+                                            <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.2em] mb-4">Investment Summary</p>
+                                            <p className="text-5xl font-bold text-white tracking-tighter transition-all duration-300">
                                                 Rp {new Intl.NumberFormat('id-ID').format(price)}
                                             </p>
                                         </div>
-                                        <a href={product.demo_url} target="_blank" rel="noopener noreferrer" className="px-8 py-3 bg-white border border-slate-200 text-slate-700 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-all text-center uppercase tracking-widest">Lihat Live Demo</a>
+                                        <a href={product.demo_url} target="_blank" rel="noopener noreferrer" className="px-10 py-4 border border-white/10 text-white rounded-2xl font-bold text-sm hover:bg-white/5 transition-all text-center uppercase tracking-widest">Live Preview</a>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col gap-4">
+                                <div className="space-y-6">
                                     <Link 
                                         href={route('checkout', product.slug)} 
                                         data={{ 
                                             selected_items: selectedItems,
                                             student_count: studentCount 
                                         }}
-                                        className="w-full py-5 bg-blue-600 text-white rounded-[2rem] font-bold text-lg shadow-2xl shadow-blue-100 hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-center"
+                                        className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-bold text-xl shadow-2xl shadow-blue-600/30 hover:bg-blue-700 active:scale-[0.98] transition-all uppercase tracking-[0.1em] text-center block"
                                     >
-                                        Lanjut ke Checkout
+                                        Proceed to Checkout
                                     </Link>
-                                    <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest">Transaksi Aman via Midtrans Payment Gateway</p>
+                                    <div className="flex items-center justify-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                                        <svg className="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 4.946-2.397 9.267-6 11.588-3.603-2.321-6-6.642-6-11.587 0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
+                                        Secured via Global Payment Gateway
+                                    </div>
                                 </div>
                             </div>
                         </div>
