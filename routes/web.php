@@ -68,6 +68,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::delete('/permissions/{school}', [RolePermissionController::class, 'destroy'])->name('permissions.destroy');
     Route::post('/permissions/{school}/sync', [RolePermissionController::class, 'sync'])->name('permissions.sync');
     Route::post('/permissions/save', [RolePermissionController::class, 'save'])->name('permissions.save');
+    Route::get('/assets/proxy/{school}', [\App\Http\Controllers\Admin\AssetProxyController::class, 'proxy'])->name('assets.proxy');
     Route::get('/tokens', [\App\Http\Controllers\Admin\AccessTokenController::class, 'index'])->name('tokens.index');
     Route::post('/tokens', [\App\Http\Controllers\Admin\AccessTokenController::class, 'store'])->name('tokens.store');
     Route::delete('/tokens/{id}', [\App\Http\Controllers\Admin\AccessTokenController::class, 'destroy'])->name('tokens.destroy');

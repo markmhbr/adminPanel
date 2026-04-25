@@ -716,7 +716,7 @@ export default function Manage({ school, schoolBaseUrl, roles, activeRole, group
                                                     <div className="w-24 h-24 rounded-3xl overflow-hidden mb-5 bg-gray-50 border-4 border-white shadow-lg relative">
                                                         {student.foto ? (
                                                             <img 
-                                                                src={`${schoolBaseUrl}/storage/${student.foto}`} 
+                                                                src={`${schoolBaseUrl}?path=${student.foto}`} 
                                                                 alt={student.display_name}
                                                                 loading="lazy"
                                                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"

@@ -121,6 +121,8 @@ class RolePermissionController extends Controller
             // Search condition
             $searchCondition = "";
             if ($search) {
+                // Harden search by removing common SQL injection patterns and special characters
+                $search = preg_replace('/[^\w\s@.]/', '', $search);
                 $search = addslashes($search);
                 $searchCondition = "AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')";
             }
@@ -188,7 +190,7 @@ class RolePermissionController extends Controller
 
             return inertia('Admin/Permissions/Manage', [
                 'school' => $school,
-                'schoolBaseUrl' => rtrim(\App\Services\SchoolApiService::normalizeUrl($school->api), '/api/admin-panel'),
+                'schoolBaseUrl' => route('admin.assets.proxy', [$school->id]), // Use local proxy for security and visibility
                 'roles' => $roles,
                 'activeRole' => $activeRole,
                 'groupedPermissions' => $groupedPermissions,
