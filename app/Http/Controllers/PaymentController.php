@@ -76,6 +76,8 @@ class PaymentController extends Controller
             $status = \Midtrans\Transaction::status($order->order_number);
             $transaction = $status->transaction_status;
             
+            Log::info("Manual Sync for Order #{$order->order_number}: Status is {$transaction}", (array)$status);
+            
             if ($transaction == 'settlement' || $transaction == 'capture') {
                 if (isset($status->fraud_status) && $status->fraud_status == 'challenge') {
                     $order->update(['payment_status' => 'pending']);

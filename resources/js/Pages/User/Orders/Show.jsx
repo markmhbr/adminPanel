@@ -59,6 +59,20 @@ export default function Show({ auth, order, midtransClientKey, midtransIsProduct
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    {/* Flash Messages */}
+                    {auth.flash?.success && (
+                        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3 text-emerald-700 text-sm font-bold animate-in fade-in slide-in-from-top-4 duration-500">
+                            <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 flex-shrink-0">✓</div>
+                            {auth.flash.success}
+                        </div>
+                    )}
+                    {auth.flash?.error && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-700 text-sm font-bold animate-in fade-in slide-in-from-top-4 duration-500">
+                            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center text-red-600 flex-shrink-0">!</div>
+                            {auth.flash.error}
+                        </div>
+                    )}
+
                     <div className="grid lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-2">
                             <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-10 overflow-hidden relative">
