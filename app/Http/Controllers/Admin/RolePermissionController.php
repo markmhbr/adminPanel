@@ -99,6 +99,10 @@ class RolePermissionController extends Controller
                 return strtoupper($groupName);
             });
 
+            $activeTab = $request->query('tab', 'permissions');
+            $search = $request->query('search');
+            
+            // Sync when props change or initial load
             $activeRolePermissions = [];
             if ($activeRole) {
                 // Use raw query for role_has_permissions to ensure we get ALL of them (more than 100)
@@ -109,16 +113,94 @@ class RolePermissionController extends Controller
                     ->toArray();
             }
 
-            // Fetch school basic info via API
-            $schoolInfo = \App\Services\SchoolApiService::getTableData($school, 'sekolahs');
-            $school->nama_sekolah = $schoolInfo[0]['nama'] ?? 'Nama tidak ditemukan';
+            // Pagination settings
+            $studentPage = intval($request->query('student_page', 1));
+            $perPage = 12;
+            $offset = ($studentPage - 1) * $perPage;
+
+            // Search condition
+            $searchCondition = "";
+            if ($search) {
+                $search = addslashes($search);
+                $searchCondition = "AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')";
+            }
+
+            // Decide which student data to fetch
+            if ($activeTab === 'students' || !$activeRole) {
+                // Fetch ALL active students in the school
+                $countQuery = "SELECT COUNT(*) as total FROM siswas WHERE status = 'Aktif' " . str_replace('AND', 'AND', $searchCondition);
+                if ($search) {
+                    $countQuery = "SELECT COUNT(*) as total FROM siswas WHERE status = 'Aktif' AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')";
+                }
+
+                $membersQuery = "SELECT 
+                                    id, 
+                                    nama as display_name, 
+                                    foto,
+                                    nisn,
+                                    nama_rombel,
+                                    peserta_didik_id as username
+                                FROM siswas 
+                                WHERE status = 'Aktif' 
+                                " . ($search ? "AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')" : "") . "
+                                LIMIT {$perPage} OFFSET {$offset}";
+            } else {
+                // Fetch members of the active role
+                $countQuery = "SELECT COUNT(*) as total 
+                              FROM model_has_roles mhr 
+                              JOIN penggunas p ON mhr.model_id = p.id
+                              JOIN siswas s ON p.peserta_didik_id = s.peserta_didik_id
+                              WHERE mhr.role_id = {$activeRole->id} 
+                              AND mhr.model_type = 'App\\\\Models\\\\Pengguna'
+                              AND s.status = 'Aktif'
+                              " . ($search ? "AND (s.nama LIKE '%$search%' OR s.nisn LIKE '%$search%' OR p.username LIKE '%$search%')" : "");
+                
+                $membersQuery = "SELECT 
+                                    s.id, 
+                                    s.nama as display_name, 
+                                    s.foto,
+                                    s.nisn,
+                                    s.nama_rombel,
+                                    p.username
+                                FROM model_has_roles mhr
+                                JOIN penggunas p ON mhr.model_id = p.id
+                                JOIN siswas s ON p.peserta_didik_id = s.peserta_didik_id
+                                WHERE mhr.role_id = {$activeRole->id} 
+                                AND mhr.model_type = 'App\\\\Models\\\\Pengguna'
+                                AND s.status = 'Aktif'
+                                " . ($search ? "AND (s.nama LIKE '%$search%' OR s.nisn LIKE '%$search%' OR p.username LIKE '%$search%')" : "") . "
+                                LIMIT {$perPage} OFFSET {$offset}";
+            }
+
+            // Optimization: Cache the query results for 60 seconds to reduce API load
+            $cacheKey = "school_{$school->id}_" . md5($countQuery . $membersQuery);
+            $cachedData = \Illuminate\Support\Facades\Cache::remember($cacheKey, 60, function() use ($school, $countQuery, $membersQuery) {
+                $totalRaw = \App\Services\SchoolApiService::executeRawQuery($school, $countQuery);
+                $membersRaw = \App\Services\SchoolApiService::executeRawQuery($school, $membersQuery);
+                return [
+                    'total' => $totalRaw['data'][0]['total'] ?? 0,
+                    'members' => $membersRaw['data'] ?? []
+                ];
+            });
+
+            $totalCount = $cachedData['total'];
+            $membersData = collect($cachedData['members'])->map(fn($m) => (object)$m);
 
             return inertia('Admin/Permissions/Manage', [
                 'school' => $school,
+                'schoolBaseUrl' => rtrim(\App\Services\SchoolApiService::normalizeUrl($school->api), '/api/admin-panel'),
                 'roles' => $roles,
                 'activeRole' => $activeRole,
                 'groupedPermissions' => $groupedPermissions,
-                'activeRolePermissions' => $activeRolePermissions
+                'activeRolePermissions' => $activeRolePermissions,
+                'activeTab' => $activeTab,
+                'members' => [
+                    'data' => $membersData,
+                    'current_page' => $studentPage,
+                    'per_page' => $perPage,
+                    'total' => intval($totalCount),
+                    'last_page' => ceil($totalCount / $perPage)
+                ]
             ]);
         } catch (\Exception $e) {
             return redirect()->route('admin.permissions.index')->withErrors(['connection' => 'Gagal menghubungkan ke API sekolah: ' . $e->getMessage()]);
