@@ -21,7 +21,7 @@ export default function Navbar() {
                     </div>
                     
                     <div className="hidden md:flex items-center gap-10 text-base font-medium tracking-wide text-slate-400">
-                        <Link href={route('landing')} className="hover:text-white active:scale-95 transition-all duration-200">Home</Link>
+                        <Link href={route('landing')} className="hover:text-white active:scale-95 transition-all duration-200">Beranda</Link>
                         <Link href={route('landing') + '#katalog'} className="hover:text-white active:scale-95 transition-all duration-200">Katalog</Link>
                         <Link href={route('landing') + '#alur'} className="hover:text-white active:scale-95 transition-all duration-200">Alur Beli</Link>
                         <Link href={route('landing') + '#syarat'} className="hover:text-white active:scale-95 transition-all duration-200">Syarat</Link>

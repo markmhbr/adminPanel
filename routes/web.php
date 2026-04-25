@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SchoolController;
+
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\LandingPageController;
@@ -64,7 +64,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::get('/customers', [\App\Http\Controllers\Admin\CustomerController::class, 'index'])->name('customers.index');
 
     // Existing Admin Panel Routes
-    Route::get('/schools', [SchoolController::class, 'index'])->name('schools');
+
     Route::post('/roles', [RoleController::class, 'getRoles']);
     Route::get('/permissions', [RolePermissionController::class, 'index'])->name('permissions.index');
     Route::post('/permissions', [RolePermissionController::class, 'store'])->name('permissions.store');

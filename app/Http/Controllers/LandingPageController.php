@@ -26,7 +26,7 @@ class LandingPageController extends Controller
             ->take(6)
             ->get();
         $heroBanners = HeroBanner::where('status', 'active')->orderBy('order_index')->get();
-        return Inertia::render('Welcome', [
+        return Inertia::render('Landing/Index', [
             'products' => $products,
             'heroBanners' => $heroBanners,
             'canLogin' => \Illuminate\Support\Facades\Route::has('login'),
@@ -47,7 +47,7 @@ class LandingPageController extends Controller
             }
         });
 
-        return Inertia::render('Product/Detail', [
+        return Inertia::render('Landing/ProductDetail', [
             'product' => $product
         ]);
     }
@@ -84,7 +84,7 @@ class LandingPageController extends Controller
         // Ensure selectedItems is an array of integers
         $selectedItemIds = array_map('intval', (array) $selectedItems);
 
-        return Inertia::render('Checkout/Index', [
+        return Inertia::render('Landing/Checkout', [
             'product' => $product,
             'selectedItemIds' => $selectedItemIds,
             'studentCount' => $studentCount

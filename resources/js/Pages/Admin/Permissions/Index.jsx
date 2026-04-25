@@ -10,17 +10,28 @@ import InputLabel from "@/Components/InputLabel";
 import InputError from "@/Components/InputError";
 
 export default function Index({ schools, tokens }) {
+    const [activeTab, setActiveTab] = useState("wilayah");
+    const [searchQuery, setSearchQuery] = useState("");
     const [selectedKabupaten, setSelectedKabupaten] = useState("");
     const [selectedKecamatan, setSelectedKecamatan] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editingSchool, setEditingSchool] = useState(null);
+    
+    // Pagination state for "Langsung" tab
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
 
     const { data, setData, post, patch, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         api: '',
         access: '',
         skip_connection_test: false,
     });
+
+    // Reset pagination when search query or tab changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, activeTab]);
 
     // Auto-select token tipe 'admin-panel' untuk config baru
     useEffect(() => {
@@ -47,14 +58,43 @@ export default function Index({ schools, tokens }) {
         )].sort();
     }, [schools, selectedKabupaten]);
 
-    // Get schools based on selected Kecamatan
-    const filteredSchools = useMemo(() => {
+    // Filter schools for "Wilayah" tab
+    const filteredSchoolsWilayah = useMemo(() => {
         if (!selectedKecamatan) return [];
-        return schools.filter(s => 
+        let filtered = schools.filter(s => 
             s.kabupaten_kota === selectedKabupaten && 
             s.kecamatan === selectedKecamatan
-        ).sort((a, b) => a.nama_sekolah.localeCompare(b.nama_sekolah));
-    }, [schools, selectedKabupaten, selectedKecamatan]);
+        );
+
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            filtered = filtered.filter(s => 
+                (s.nama_sekolah && s.nama_sekolah.toLowerCase().includes(query)) ||
+                (s.api && s.api.toLowerCase().includes(query))
+            );
+        }
+
+        return filtered.sort((a, b) => (a.nama_sekolah || '').localeCompare(b.nama_sekolah || ''));
+    }, [schools, selectedKabupaten, selectedKecamatan, searchQuery]);
+
+    // Filter schools for "Langsung" tab
+    const filteredSchoolsDirectAll = useMemo(() => {
+        const query = searchQuery.toLowerCase();
+        return schools.filter(s => 
+            (s.nama_sekolah && s.nama_sekolah.toLowerCase().includes(query)) ||
+            (s.kabupaten_kota && s.kabupaten_kota.toLowerCase().includes(query)) ||
+            (s.kecamatan && s.kecamatan.toLowerCase().includes(query)) ||
+            (s.api && s.api.toLowerCase().includes(query))
+        ).sort((a, b) => (a.nama_sekolah || '').localeCompare(b.nama_sekolah || ''));
+    }, [schools, searchQuery]);
+
+    // Paginated schools for "Langsung" tab
+    const paginatedSchoolsDirect = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredSchoolsDirectAll.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredSchoolsDirectAll, currentPage]);
+
+    const totalPages = Math.ceil(filteredSchoolsDirectAll.length / itemsPerPage);
 
     const handleManage = (schoolId) => {
         router.get(`/admin/permissions/${schoolId}`);
@@ -118,6 +158,68 @@ export default function Index({ schools, tokens }) {
             });
         }
     };
+
+    const SchoolCard = ({ school, idx }) => (
+        <div 
+            key={school.id} 
+            style={{ animationDelay: `${idx * 50}ms` }}
+            className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white shadow-xl shadow-gray-100 hover:shadow-indigo-100 hover:-translate-y-2 transition-all duration-500 group animate-in fade-in slide-in-from-bottom-4 h-full flex flex-col"
+        >
+            <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+            </div>
+            
+            <h4 className="text-xl font-black text-gray-900 leading-tight mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                {school.nama_sekolah || (school.name || 'Unit Sekolah')}
+            </h4>
+            <div className="flex flex-col gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-8">
+                <span className="flex items-center">
+                    <svg className="h-3.5 w-3.5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    </svg>
+                    {school.kabupaten_kota || 'Unknown Kab'}
+                </span>
+                <span className="flex items-center">
+                    <svg className="h-3.5 w-3.5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    {school.kecamatan || 'Unknown Kec'}
+                </span>
+            </div>
+
+            <div className="mt-auto space-y-4">
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={() => handleEdit(school)}
+                        className="flex-grow h-11 bg-indigo-50 text-indigo-600 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2-2V11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit Config
+                    </button>
+                    <button 
+                        onClick={() => handleDelete(school)}
+                        className="w-11 h-11 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300 flex items-center justify-center shadow-sm"
+                        title="Hapus Konfigurasi"
+                    >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+
+                <button 
+                    onClick={() => handleManage(school.id)}
+                    className="w-full h-14 bg-gray-900 group-hover:bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-[0.1em] text-[10px] transition-all duration-300 shadow-xl shadow-gray-100 group-hover:shadow-indigo-100 transform active:scale-95"
+                >
+                    Kelola Izin Akses
+                </button>
+            </div>
+        </div>
+    );
 
     return (
         <AuthenticatedLayout
@@ -259,162 +361,215 @@ export default function Index({ schools, tokens }) {
                 </Dialog>
             </Transition>
 
-            <div className="py-0 relative z-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="py-8 relative z-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
                     
-                    {/* Filter Card - Full Width Matching Header */}
-                    <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-2xl shadow-indigo-100/30 overflow-hidden border border-white relative group transition-all duration-500 hover:shadow-indigo-200/50">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-30 -mr-20 -mt-20 group-hover:scale-110 transition-transform duration-700"></div>
-                        
-                        <div className="relative z-10 p-8">
-                            <div className="flex flex-col md:flex-row items-center gap-8">
-                                <div className="flex-shrink-0 hidden lg:block">
-                                    <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-200 rotate-3 transition-transform duration-500 group-hover:rotate-0">
-                                        <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-6.414-6.414A1 1 0 013 6.586V4z" />
-                                        </svg>
-                                    </div>
-                                </div>
+                    {/* Tab Navigation */}
+                    <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+                        <div className="inline-flex p-1.5 bg-gray-100 rounded-2xl border border-gray-200">
+                            <button
+                                onClick={() => { setActiveTab("wilayah"); setSearchQuery(""); }}
+                                className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'wilayah' ? 'bg-white text-indigo-600 shadow-lg shadow-indigo-100 border border-indigo-50' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                Berdasarkan Wilayah
+                            </button>
+                            <button
+                                onClick={() => { setActiveTab("langsung"); setSearchQuery(""); }}
+                                className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'langsung' ? 'bg-white text-indigo-600 shadow-lg shadow-indigo-100 border border-indigo-50' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                Cari Langsung
+                            </button>
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="relative w-full md:w-96 group">
+                            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-600 transition-colors">
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input 
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder={activeTab === 'wilayah' ? "Cari nama sekolah di wilayah terpilih..." : "Cari nama sekolah, kabupaten, atau kecamatan..."}
+                                className="w-full h-14 pl-14 pr-6 rounded-2xl border-gray-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all duration-300 text-gray-900 font-bold shadow-xl shadow-gray-100/50 placeholder:text-gray-300"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Wilayah Content */}
+                    {activeTab === 'wilayah' && (
+                        <div className="space-y-10">
+                            {/* Filter Card */}
+                            <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-2xl shadow-indigo-100/30 overflow-hidden border border-white relative group transition-all duration-500 hover:shadow-indigo-200/50">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-30 -mr-20 -mt-20 group-hover:scale-110 transition-transform duration-700"></div>
                                 
-                                <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                                    {/* Kabupaten Select */}
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Wilayah Kabupaten / Kota</label>
-                                        <div className="relative group/select">
-                                            <select 
-                                                className="w-full h-14 pl-6 pr-12 rounded-2xl border-gray-100 bg-gray-50/50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 appearance-none !bg-none transition-all duration-300 text-gray-900 font-bold shadow-sm"
-                                                value={selectedKabupaten}
-                                                onChange={(e) => {
-                                                    setSelectedKabupaten(e.target.value);
-                                                    setSelectedKecamatan("");
-                                                }}
-                                            >
-                                                <option value="">Semua Kabupaten</option>
-                                                {kabupatenList.map(kab => (
-                                                    <option key={kab} value={kab}>{kab}</option>
-                                                ))}
-                                            </select>
-                                            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover/select:text-indigo-600 transition-colors">
-                                                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                <div className="relative z-10 p-8">
+                                    <div className="flex flex-col md:flex-row items-center gap-8">
+                                        <div className="flex-shrink-0 hidden lg:block">
+                                            <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-200 rotate-3 transition-transform duration-500 group-hover:rotate-0">
+                                                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-6.414-6.414A1 1 0 013 6.586V4z" />
                                                 </svg>
                                             </div>
                                         </div>
-                                    </div>
+                                        
+                                        <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                                            {/* Kabupaten Select */}
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Wilayah Kabupaten / Kota</label>
+                                                <div className="relative group/select">
+                                                    <select 
+                                                        className="w-full h-14 pl-6 pr-12 rounded-2xl border-gray-100 bg-gray-50/50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 appearance-none !bg-none transition-all duration-300 text-gray-900 font-bold shadow-sm"
+                                                        value={selectedKabupaten}
+                                                        onChange={(e) => {
+                                                            setSelectedKabupaten(e.target.value);
+                                                            setSelectedKecamatan("");
+                                                        }}
+                                                    >
+                                                        <option value="">Semua Kabupaten</option>
+                                                        {kabupatenList.map(kab => (
+                                                            <option key={kab} value={kab}>{kab}</option>
+                                                        ))}
+                                                    </select>
+                                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover/select:text-indigo-600 transition-colors">
+                                                        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                    {/* Kecamatan Select */}
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Kecamatan Unit</label>
-                                        <div className="relative group/select">
-                                            <select 
-                                                className={`w-full h-14 pl-6 pr-12 rounded-2xl border-gray-100 bg-gray-50/50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 appearance-none !bg-none transition-all duration-300 text-gray-900 font-bold shadow-sm ${!selectedKabupaten ? 'opacity-40 cursor-not-allowed' : ''}`}
-                                                value={selectedKecamatan}
-                                                disabled={!selectedKabupaten}
-                                                onChange={(e) => setSelectedKecamatan(e.target.value)}
-                                            >
-                                                <option value="">Pilih Kecamatan</option>
-                                                {kecamatanList.map(kec => (
-                                                    <option key={kec} value={kec}>{kec}</option>
-                                                ))}
-                                            </select>
-                                            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover/select:text-indigo-600 transition-colors">
-                                                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                </svg>
+                                            {/* Kecamatan Select */}
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Kecamatan Unit</label>
+                                                <div className="relative group/select">
+                                                    <select 
+                                                        className={`w-full h-14 pl-6 pr-12 rounded-2xl border-gray-100 bg-gray-50/50 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 appearance-none !bg-none transition-all duration-300 text-gray-900 font-bold shadow-sm ${!selectedKabupaten ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                                        value={selectedKecamatan}
+                                                        disabled={!selectedKabupaten}
+                                                        onChange={(e) => setSelectedKecamatan(e.target.value)}
+                                                    >
+                                                        <option value="">Pilih Kecamatan</option>
+                                                        {kecamatanList.map(kec => (
+                                                            <option key={kec} value={kec}>{kec}</option>
+                                                        ))}
+                                                    </select>
+                                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover/select:text-indigo-600 transition-colors">
+                                                        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* School Grid */}
-                    {selectedKecamatan && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                            {/* School Grid for Wilayah */}
+                            {selectedKecamatan ? (
+                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-2xl font-black text-gray-900 tracking-tight flex items-center">
+                                            <span className="bg-indigo-600 w-2 h-8 rounded-full mr-4"></span>
+                                            Daftar Sekolah di {selectedKecamatan}
+                                            <span className="ml-4 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
+                                                {filteredSchoolsWilayah.length} Sekolah
+                                            </span>
+                                        </h3>
+                                    </div>
+                                    
+                                    {filteredSchoolsWilayah.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                            {filteredSchoolsWilayah.map((school, idx) => (
+                                                <SchoolCard key={school.id} school={school} idx={idx} />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="py-20 text-center bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Tidak ada sekolah ditemukan dengan pencarian tersebut.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="py-20 text-center animate-in fade-in duration-1000">
+                                    <div className="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+                                         <svg className="h-12 w-12 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                    </div>
+                                    <h5 className="text-xl font-black text-gray-300 tracking-tight uppercase tracking-widest">Silakan pilih wilayah sekolah</h5>
+                                    <p className="text-gray-300 font-medium mt-2">Daftar sekolah akan muncul secara otomatis setelah Kecamatan dipilih.</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Langsung Content */}
+                    {activeTab === 'langsung' && (
+                        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-2xl font-black text-gray-900 tracking-tight flex items-center">
                                     <span className="bg-indigo-600 w-2 h-8 rounded-full mr-4"></span>
-                                    Daftar Sekolah di {selectedKecamatan}
-                                    <span className="ml-4 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-black border border-indigo-100">
-                                        {filteredSchools.length} Sekolah
+                                    Hasil Pencarian Langsung
+                                    <span className="ml-4 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
+                                        {filteredSchoolsDirectAll.length} Sekolah
                                     </span>
                                 </h3>
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {filteredSchools.map((school, idx) => (
-                                    <div 
-                                        key={school.id} 
-                                        style={{ animationDelay: `${idx * 50}ms` }}
-                                        className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white shadow-xl shadow-gray-100 hover:shadow-indigo-100 hover:-translate-y-2 transition-all duration-500 group animate-in fade-in slide-in-from-bottom-4"
-                                    >
-                                        <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm">
-                                            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                        </div>
-                                        
-                                        <h4 className="text-xl font-black text-gray-900 leading-tight mb-2 group-hover:text-indigo-600 transition-colors">
-                                            {school.nama_sekolah}
-                                        </h4>
-                                        <div className="flex flex-col gap-2 text-sm text-gray-400 font-bold uppercase tracking-widest mb-8">
-                                            <span className="flex items-center">
-                                                <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                </svg>
-                                                {school.kabupaten_kota}
-                                            </span>
-                                            <span className="flex items-center">
-                                                <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                                </svg>
-                                                {school.kecamatan}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <button 
-                                                onClick={() => handleEdit(school)}
-                                                className="flex-grow h-11 bg-indigo-50 text-indigo-600 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-2"
-                                            >
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                                Edit Config
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDelete(school)}
-                                                className="w-11 h-11 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300 flex items-center justify-center shadow-sm"
-                                                title="Hapus Konfigurasi"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                        </div>
-
-                                        <button 
-                                            onClick={() => handleManage(school.id)}
-                                            className="w-full h-14 bg-gray-900 group-hover:bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-[0.1em] text-xs transition-all duration-300 shadow-xl shadow-gray-100 group-hover:shadow-indigo-100 transform active:scale-95"
-                                        >
-                                            Kelola Izin Akses
-                                        </button>
+                            {paginatedSchoolsDirect.length > 0 ? (
+                                <>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                        {paginatedSchoolsDirect.map((school, idx) => (
+                                            <SchoolCard key={school.id} school={school} idx={idx} />
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
-                    {!selectedKecamatan && (
-                        <div className="py-20 text-center animate-in fade-in duration-1000">
-                            <div className="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
-                                 <svg className="h-12 w-12 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                            </div>
-                            <h5 className="text-xl font-black text-gray-300 tracking-tight uppercase tracking-widest">Silakan pilih wilayah sekolah</h5>
-                            <p className="text-gray-300 font-medium mt-2">Daftar sekolah akan muncul secara otomatis setelah Kecamatan dipilih.</p>
+                                    {/* Pagination Controls */}
+                                    {totalPages > 1 && (
+                                        <div className="flex justify-center items-center gap-3 pt-10">
+                                            <button
+                                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                                disabled={currentPage === 1}
+                                                className="w-12 h-12 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-indigo-600 transition-all disabled:opacity-30 disabled:hover:bg-white shadow-lg shadow-gray-100/50"
+                                            >
+                                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+
+                                            <div className="flex gap-2">
+                                                {[...Array(totalPages)].map((_, i) => (
+                                                    <button
+                                                        key={i + 1}
+                                                        onClick={() => setCurrentPage(i + 1)}
+                                                        className={`w-12 h-12 rounded-xl text-xs font-black transition-all duration-300 ${currentPage === i + 1 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white border border-gray-100 text-gray-400 hover:bg-gray-50'}`}
+                                                    >
+                                                        {i + 1}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <button
+                                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                                disabled={currentPage === totalPages}
+                                                className="w-12 h-12 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-indigo-600 transition-all disabled:opacity-30 disabled:hover:bg-white shadow-lg shadow-gray-100/50"
+                                            >
+                                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="py-20 text-center bg-gray-50/50 rounded-[2.5rem] border border-dashed border-gray-200">
+                                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Ketikkan nama sekolah atau wilayah untuk mulai mencari.</p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
