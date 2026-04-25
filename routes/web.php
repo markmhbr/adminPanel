@@ -9,8 +9,6 @@ use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ChatController;
-use App\Http\Controllers\HeroBannerController;
-use App\Http\Controllers\StoreProfileController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -53,12 +51,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
-    // Hero Banner
-    Route::resource('hero', HeroBannerController::class);
-
-    // Store Profile
-    Route::get('/profile/store', [StoreProfileController::class, 'edit'])->name('profile.store');
-    Route::put('/profile/store', [StoreProfileController::class, 'update'])->name('profile.store.update');
+    // Interface Management
+    Route::get('/interface', [\App\Http\Controllers\Admin\InterfaceController::class, 'index'])->name('interface.index');
+    Route::post('/interface/profile', [\App\Http\Controllers\Admin\InterfaceController::class, 'updateProfile'])->name('interface.updateProfile');
 
     // Customers Management
     Route::get('/customers', [\App\Http\Controllers\Admin\CustomerController::class, 'index'])->name('customers.index');

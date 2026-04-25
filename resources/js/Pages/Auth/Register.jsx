@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 export default function Register() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [activeStep, setActiveStep] = useState(1);
     const { data, setData, post, processing, errors, reset } = useForm({
         npsn: '',
         school_name: '',
@@ -63,14 +64,14 @@ export default function Register() {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4 + (i * 0.1) }}
-                                        className={`relative flex items-start gap-6 group ${item.opacity || ''}`}
+                                        className={`relative flex items-start gap-6 group transition-opacity duration-500 ${activeStep === item.step ? 'opacity-100' : 'opacity-40'}`}
                                     >
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black shadow-lg relative z-10 transition-transform ${item.step === 1 ? 'bg-white text-blue-600 group-hover:scale-110' : 'bg-blue-500 border-2 border-blue-400 text-white'}`}>
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black shadow-lg relative z-10 transition-all duration-500 ${activeStep === item.step ? 'bg-white text-blue-600 scale-110 shadow-white/20' : 'bg-blue-500 border-2 border-blue-400 text-white'}`}>
                                             {item.step}
                                         </div>
                                         <div>
-                                            <h4 className={`font-black uppercase text-sm mb-1 ${item.step === 1 ? '' : 'text-blue-200'}`}>{item.title}</h4>
-                                            <p className={`text-xs font-medium leading-relaxed ${item.step === 1 ? 'text-blue-100' : 'text-blue-200/70'}`}>{item.desc}</p>
+                                            <h4 className={`font-black uppercase text-sm mb-1 transition-colors duration-500 ${activeStep === item.step ? 'text-white' : 'text-blue-200'}`}>{item.title}</h4>
+                                            <p className={`text-xs font-medium leading-relaxed transition-colors duration-500 ${activeStep === item.step ? 'text-blue-50/80' : 'text-blue-200/50'}`}>{item.desc}</p>
                                         </div>
                                     </motion.div>
                                 ))}
@@ -110,13 +111,14 @@ export default function Register() {
 
                             <form onSubmit={submit} className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <motion.div initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="space-y-2">
+                                    <motion.div initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="space-y-2">
                                         <label htmlFor="npsn" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">NPSN</label>
                                         <input 
                                             id="npsn" 
                                             name="npsn" 
                                             type="text" 
                                             value={data.npsn}
+                                            onFocus={() => setActiveStep(1)}
                                             onChange={(e) => setData('npsn', e.target.value)}
                                             required 
                                             className="block w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" 
@@ -125,13 +127,14 @@ export default function Register() {
                                         {errors.npsn && <p className="text-[10px] text-red-500 font-bold ml-1 mt-1 uppercase">{errors.npsn}</p>}
                                     </motion.div>
 
-                                    <motion.div initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.45 }} className="space-y-2">
+                                    <motion.div initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.45 }} className="space-y-2">
                                         <label htmlFor="school_name" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nama Sekolah</label>
                                         <input 
                                             id="school_name" 
                                             name="school_name" 
                                             type="text" 
                                             value={data.school_name}
+                                            onFocus={() => setActiveStep(1)}
                                             onChange={(e) => setData('school_name', e.target.value)}
                                             required 
                                             className="block w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" 
@@ -141,38 +144,42 @@ export default function Register() {
                                     </motion.div>
                                 </div>
 
-                                <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="space-y-2">
-                                    <label htmlFor="email" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Sekolah</label>
-                                    <input 
-                                        id="email" 
-                                        name="email" 
-                                        type="email" 
-                                        value={data.email}
-                                        onChange={(e) => setData('email', e.target.value)}
-                                        required 
-                                        className="block w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" 
-                                        placeholder="email@sekolah.sch.id"
-                                    />
-                                    {errors.email && <p className="text-[10px] text-red-500 font-bold ml-1 mt-1 uppercase">{errors.email}</p>}
-                                </motion.div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <motion.div initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="space-y-2">
+                                        <label htmlFor="email" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Sekolah</label>
+                                        <input 
+                                            id="email" 
+                                            name="email" 
+                                            type="email" 
+                                            value={data.email}
+                                            onFocus={() => setActiveStep(2)}
+                                            onChange={(e) => setData('email', e.target.value)}
+                                            required 
+                                            className="block w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" 
+                                            placeholder="email@sekolah.sch.id"
+                                        />
+                                        {errors.email && <p className="text-[10px] text-red-500 font-bold ml-1 mt-1 uppercase">{errors.email}</p>}
+                                    </motion.div>
 
-                                <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.55 }} className="space-y-2">
-                                    <label htmlFor="phone_number" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nomor WhatsApp</label>
-                                    <input 
-                                        id="phone_number" 
-                                        name="phone_number" 
-                                        type="text" 
-                                        value={data.phone_number}
-                                        onChange={(e) => setData('phone_number', e.target.value)}
-                                        required 
-                                        className="block w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" 
-                                        placeholder="0812xxxx"
-                                    />
-                                    {errors.phone_number && <p className="text-[10px] text-red-500 font-bold ml-1 mt-1 uppercase">{errors.phone_number}</p>}
-                                </motion.div>
+                                    <motion.div initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.55 }} className="space-y-2">
+                                        <label htmlFor="phone_number" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nomor WhatsApp</label>
+                                        <input 
+                                            id="phone_number" 
+                                            name="phone_number" 
+                                            type="text" 
+                                            value={data.phone_number}
+                                            onFocus={() => setActiveStep(2)}
+                                            onChange={(e) => setData('phone_number', e.target.value)}
+                                            required 
+                                            className="block w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" 
+                                            placeholder="0812xxxx"
+                                        />
+                                        {errors.phone_number && <p className="text-[10px] text-red-500 font-bold ml-1 mt-1 uppercase">{errors.phone_number}</p>}
+                                    </motion.div>
+                                </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <motion.div initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.6 }} className="space-y-2 group">
+                                    <motion.div initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.6 }} className="space-y-2 group">
                                         <label htmlFor="password" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Kata Sandi</label>
                                         <div className="relative">
                                             <input 
@@ -180,6 +187,7 @@ export default function Register() {
                                                 name="password" 
                                                 type={showPassword ? 'text' : 'password'}
                                                 value={data.password}
+                                                onFocus={() => setActiveStep(2)}
                                                 onChange={(e) => setData('password', e.target.value)}
                                                 required 
                                                 className="block w-full px-5 py-4 pr-12 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" 
@@ -195,7 +203,7 @@ export default function Register() {
                                         </div>
                                         {errors.password && <p className="text-[10px] text-red-500 font-bold ml-1 mt-1 uppercase">{errors.password}</p>}
                                     </motion.div>
-                                    <motion.div initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.65 }} className="space-y-2 group">
+                                    <motion.div initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.65 }} className="space-y-2 group">
                                         <label htmlFor="password_confirmation" className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Konfirmasi</label>
                                         <div className="relative">
                                             <input 
@@ -203,6 +211,7 @@ export default function Register() {
                                                 name="password_confirmation" 
                                                 type={showConfirm ? 'text' : 'password'}
                                                 value={data.password_confirmation}
+                                                onFocus={() => setActiveStep(2)}
                                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                                 required 
                                                 className="block w-full px-5 py-4 pr-12 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:ring-0 transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300" 

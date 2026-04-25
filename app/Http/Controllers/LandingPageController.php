@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Order;
-use App\Models\HeroBanner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -25,10 +24,8 @@ class LandingPageController extends Controller
             ->latest()
             ->take(6)
             ->get();
-        $heroBanners = HeroBanner::where('status', 'active')->orderBy('order_index')->get();
         return Inertia::render('Landing/Index', [
             'products' => $products,
-            'heroBanners' => $heroBanners,
             'canLogin' => \Illuminate\Support\Facades\Route::has('login'),
             'canRegister' => \Illuminate\Support\Facades\Route::has('register'),
         ]);

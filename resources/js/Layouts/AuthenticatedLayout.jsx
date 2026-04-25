@@ -60,7 +60,7 @@ export default function AuthenticatedLayout({ header, children }) {
         { name: 'Pelanggan', href: route('admin.customers.index'), icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', current: route().current('admin.customers.index') },
         { name: 'Hak Akses', href: route('admin.permissions.index'), icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', current: route().current('admin.permissions.*') },
         { name: 'API Tokens', href: route('admin.tokens.index'), icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z', current: route().current('admin.tokens.*') },
-        { name: 'Banners', href: route('admin.hero.index'), icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', current: route().current('admin.hero.*') },
+        { name: 'Interface', href: route('admin.interface.index'), icon: 'M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z', current: route().current('admin.interface.*') },
     ] : [
         { name: 'Dashboard', href: route('user.dashboard'), icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', current: route().current('user.dashboard') },
         { name: 'Pesanan Saya', href: route('user.orders'), icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z', current: route().current('user.orders') },
@@ -81,7 +81,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-100">
                         <ApplicationLogo className="h-4 w-4 fill-current text-white" />
                     </div>
-                    <span className="font-black text-slate-900 uppercase tracking-widest text-sm">Admin Hub</span>
+                    <span className="font-black text-slate-900 tracking-widest text-sm">Admin Hub</span>
                 </Link>
                 <button 
                     onClick={() => setIsSidebarOpen(true)}
@@ -121,8 +121,8 @@ export default function AuthenticatedLayout({ header, children }) {
                             <ApplicationLogo className="h-6 w-6 fill-current text-white" />
                         </motion.div>
                         <div className="flex flex-col">
-                            <span className="font-black text-slate-900 uppercase tracking-widest leading-none">Admin Hub</span>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-tighter">Premium Core</span>
+                            <span className="font-black text-slate-900 tracking-widest leading-none">Admin Hub</span>
+                            <span className="text-[10px] font-bold text-slate-400 mt-1 tracking-tighter">Premium Core</span>
                         </div>
                     </Link>
                     <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-slate-600 transition-colors">
@@ -132,7 +132,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 {/* Navigation Section */}
                 <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2 custom-scrollbar">
-                    <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Main Navigation</p>
+                    <p className="px-4 text-[10px] font-black text-slate-400 tracking-widest mb-4">Main Navigation</p>
                     {navigation.map((item) => (
                         <Link
                             key={item.name}
@@ -146,7 +146,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
                             </motion.svg>
-                            <span className="uppercase tracking-wide">{item.name}</span>
+                            <span className="tracking-wide">{item.name}</span>
                             {item.current && (
                                 <motion.div 
                                     layoutId="activeTab"
@@ -205,8 +205,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                         {user?.name?.charAt(0).toUpperCase()}
                                     </div>
                                     <div className="hidden sm:block text-left">
-                                        <p className="text-[10px] font-black text-slate-900 uppercase leading-none">{user?.name}</p>
-                                        <p className="text-[8px] font-bold text-slate-400 uppercase mt-1 tracking-tighter">{user?.role === 'admin' ? 'Administrator' : 'Unit Sekolah'}</p>
+                                        <p className="text-[10px] font-black text-slate-900 leading-none">{user?.name}</p>
+                                        <p className="text-[8px] font-bold text-slate-400 mt-1 tracking-tighter">{user?.role === 'admin' ? 'Administrator' : 'Unit Sekolah'}</p>
                                     </div>
                                     <svg className={`w-4 h-4 text-slate-400 ml-1 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
@@ -222,15 +222,15 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 className="absolute right-0 mt-3 w-64 bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-100 py-4 px-2 focus:outline-none z-[100]"
                                             >
                                                 <div className="px-4 py-3 mb-2 border-b border-slate-50">
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Signed in as</p>
+                                                    <p className="text-[10px] font-black text-slate-400 tracking-widest">Signed in as</p>
                                                     <p className="text-xs font-black text-slate-900 truncate mt-1">{user?.email}</p>
                                                 </div>
                                                 
                                                 <div className="space-y-1">
                                                     {user?.role === 'admin' && (
-                                                        <Link href={route('admin.profile.store')} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all hover:bg-indigo-50 text-slate-600 hover:text-indigo-600">
+                                                        <Link href={route('admin.interface.index')} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold tracking-wide transition-all hover:bg-indigo-50 text-slate-600 hover:text-indigo-600">
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                                            Profil Perusahaan
+                                                            Manajemen Interface
                                                         </Link>
                                                     )}
                                                     <Link href={route('profile.edit')} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all hover:bg-indigo-50 text-slate-600 hover:text-indigo-600">
@@ -239,10 +239,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                                     </Link>
                                                     <button 
                                                         onClick={handleLogout}
-                                                        className="flex w-full items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all hover:bg-red-50 text-slate-600 hover:text-red-600 text-left"
+                                                        className="flex w-full items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold tracking-wide transition-all hover:bg-red-50 text-slate-600 hover:text-red-600 text-left"
                                                     >
                                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                                                        Log out
+                                                        Keluar Sistem
                                                     </button>
                                                 </div>
                                             </motion.div>
