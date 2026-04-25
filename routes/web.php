@@ -90,5 +90,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/chat/{chat}/read', [ChatController::class, 'markAsRead'])->name('chat.read');
 });
 Route::post('/midtrans/notification', [App\Http\Controllers\PaymentController::class, 'notification'])->name('midtrans.notification');
+Route::post('/my-orders/{order}/sync', [App\Http\Controllers\PaymentController::class, 'syncStatus'])->name('user.order.sync')->middleware(['auth']);
 
 require __DIR__.'/auth.php';

@@ -1,8 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 
 export default function Show({ auth, order, midtransClientKey, midtransIsProduction }) {
+    const { post: syncPost, processing: syncProcessing } = useForm();
     useEffect(() => {
         if (order.payment_status === 'unpaid') {
             const script = document.createElement('script');
@@ -34,6 +35,11 @@ export default function Show({ auth, order, midtransClientKey, midtransIsProduct
                 }
             });
         }
+    };
+
+    const handleSync = (e) => {
+        e.preventDefault();
+        syncPost(route('user.order.sync', order.id));
     };
 
     return (
@@ -115,12 +121,43 @@ export default function Show({ auth, order, midtransClientKey, midtransIsProduct
                                     )}
                                     
                                     <div className="flex justify-between text-sm items-center pt-8 border-t border-slate-50">
-                                        <span className="text-slate-500 font-black uppercase">Status Pembayaran</span>
-                                        <span className={`font-black uppercase ${order.payment_status === 'paid' ? 'text-green-600' : 'text-orange-600'}`}>{order.payment_status?.toUpperCase() || '-'}</span>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-slate-500 font-black uppercase font-mono tracking-tighter">Status Pembayaran</span>
+                                            {order.payment_status !== 'paid' && (
+                                                <button 
+                                                    onClick={handleSync}
+                                                    disabled={syncProcessing}
+                                                    className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest flex items-center gap-1 disabled:opacity-50"
+                                                >
+                                                    <svg className={`w-3 h-3 ${syncProcessing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                                    {syncProcessing ? 'Sinkronisasi...' : 'Cek Status'}
+                                                </button>
+                                            )}
+                                        </div>
+                                        <span className={`font-black uppercase px-3 py-1 rounded-lg text-xs ${
+                                            order.payment_status === 'paid' ? 'bg-green-50 text-green-600' : 
+                                            order.payment_status === 'pending' ? 'bg-orange-50 text-orange-600' :
+                                            'bg-red-50 text-red-600'
+                                        }`}>
+                                            {order.payment_status === 'paid' ? 'Sudah Dibayar' : 
+                                             order.payment_status === 'pending' ? 'Menunggu Pembayaran' : 
+                                             order.payment_status === 'unpaid' ? 'Belum Dibayar' : 
+                                             order.payment_status?.toUpperCase() || '-'}
+                                        </span>
                                     </div>
-                                    <div className="flex justify-between text-sm items-center">
-                                        <span className="text-slate-500 font-black uppercase">Status Pengerjaan</span>
-                                        <span className="font-black text-slate-900 uppercase">{order.status?.toUpperCase() || '-'}</span>
+                                    <div className="flex justify-between text-sm items-center mt-4">
+                                        <span className="text-slate-500 font-black uppercase font-mono tracking-tighter">Status Pengerjaan</span>
+                                        <span className={`font-black uppercase px-3 py-1 rounded-lg text-xs ${
+                                            order.status === 'completed' ? 'bg-indigo-50 text-indigo-600' : 
+                                            order.status === 'processing' ? 'bg-blue-50 text-blue-600' :
+                                            'bg-slate-100 text-slate-900'
+                                        }`}>
+                                            {order.status === 'pending' ? 'Menunggu' : 
+                                             order.status === 'processing' ? 'Sedang Dikerjakan' : 
+                                             order.status === 'completed' ? 'Selesai' : 
+                                             order.status === 'cancelled' ? 'Dibatalkan' :
+                                             order.status?.toUpperCase() || '-'}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -133,7 +170,7 @@ export default function Show({ auth, order, midtransClientKey, midtransIsProduct
                                     </button>
                                 ) : (
                                     <div className="p-8 bg-green-50 border border-green-100 rounded-2xl text-center shadow-inner">
-                                        <p className="text-green-700 font-black uppercase">Terima kasih! Pembayaran Anda telah kami terima.</p>
+                                        <p className="text-green-700 font-black uppercase tracking-tight">Terima kasih! Pembayaran Anda telah kami terima.</p>
                                         <p className="text-xs text-green-600 mt-2 font-bold">Proyek Anda sedang kami tinjau untuk segera dikerjakan.</p>
                                     </div>
                                 )}

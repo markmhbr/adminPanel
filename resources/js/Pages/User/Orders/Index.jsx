@@ -35,13 +35,28 @@ export default function Index({ auth, orders }) {
                                                 <p className="text-[10px] font-bold text-slate-400 mt-2">Web Development Project</p>
                                             </td>
                                             <td className="px-8 py-6 text-center">
-                                                <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider ${order.status === 'completed' ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
-                                                    {order.status}
+                                                <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider ${
+                                                    order.status === 'completed' ? 'bg-indigo-50 text-indigo-700' : 
+                                                    order.status === 'processing' ? 'bg-blue-50 text-blue-700' :
+                                                    'bg-slate-50 text-slate-700'
+                                                }`}>
+                                                    {order.status === 'pending' ? 'Menunggu' : 
+                                                     order.status === 'processing' ? 'Sedang Dikerjakan' : 
+                                                     order.status === 'completed' ? 'Selesai' : 
+                                                     order.status === 'cancelled' ? 'Dibatalkan' :
+                                                     order.status}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6 text-center">
-                                                <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider ${order.payment_status === 'paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-orange-50 text-orange-700 border border-orange-100'}`}>
-                                                    {order.payment_status}
+                                                <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider ${
+                                                    order.payment_status === 'paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 
+                                                    order.payment_status === 'pending' ? 'bg-orange-50 text-orange-700 border border-orange-100' :
+                                                    'bg-red-50 text-red-700 border border-red-100'
+                                                }`}>
+                                                    {order.payment_status === 'paid' ? 'Sudah Dibayar' : 
+                                                     order.payment_status === 'pending' ? 'Menunggu Pembayaran' : 
+                                                     order.payment_status === 'unpaid' ? 'Belum Dibayar' : 
+                                                     order.payment_status}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6 text-right">

@@ -69,8 +69,16 @@ export default function Dashboard({ totalOrders, processingOrders, completedOrde
                                                         <p className="text-[10px] font-bold text-slate-400 mt-1">Inv: #{order.order_number}</p>
                                                     </td>
                                                     <td className="px-8 py-5">
-                                                        <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">
-                                                            {order.status}
+                                                        <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
+                                                            order.status === 'completed' ? 'bg-indigo-50 text-indigo-700' : 
+                                                            order.status === 'processing' ? 'bg-blue-50 text-blue-700' :
+                                                            'bg-slate-50 text-slate-700'
+                                                        }`}>
+                                                            {order.status === 'pending' ? 'Menunggu' : 
+                                                             order.status === 'processing' ? 'Sedang Dikerjakan' : 
+                                                             order.status === 'completed' ? 'Selesai' : 
+                                                             order.status === 'cancelled' ? 'Dibatalkan' :
+                                                             order.status}
                                                         </span>
                                                     </td>
                                                     <td className="px-8 py-5">
