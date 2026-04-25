@@ -66,13 +66,19 @@ class RolePermissionController extends Controller
             }
 
             // Use raw query for permissions to ensure we get ALL of them (more than 100)
-            $permissionsRaw = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT * FROM permissions ORDER BY name ASC");
-            $permissions = collect($permissionsRaw['data'] ?? [])
-                ->map(function ($p) {
-                    $p = (object)$p;
-                    $p->is_restricted = (bool) ($p->is_restricted ?? false);
-                    return $p;
-                });
+            try {
+                $permissionsRaw = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT * FROM permissions ORDER BY name ASC");
+                $permissions = collect($permissionsRaw['data'] ?? []);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Failed to fetch permissions for school {$school->id}: " . $e->getMessage());
+                $permissions = collect([]);
+            }
+
+            $permissions = $permissions->map(function ($p) {
+                $p = (object)$p;
+                $p->is_restricted = (bool) ($p->is_restricted ?? false);
+                return $p;
+            });
 
             $groupedPermissions = $permissions->groupBy(function ($permission) {
                 // Split by common separators: dot, dash, colon, or underscore
@@ -101,22 +107,49 @@ class RolePermissionController extends Controller
 
             $activeTab = $request->query('tab', 'permissions');
             $search = $request->query('search');
+            $selectedRombelId = $request->query('rombel_id');
             
+            // Get Rombels from API with error handling and caching
+            $rombels = Cache::remember("school_{$school->id}_rombels", 3600, function() use ($school) {
+                try {
+                    // Method 1: Try fetch from 'rombels' table (standard in this system)
+                    // The error log showed 'nama_rombel' is not a column in 'rombels', it's likely 'nama'
+                    try {
+                        $response = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT id, nama as nama_rombel, tingkat FROM rombels ORDER BY tingkat ASC, nama ASC");
+                        if (!empty($response['data'])) return $response['data'];
+                    } catch (\Exception $e) { /* fall through */ }
+
+                    // Method 2: Fallback to 'siswas' table which definitely has these columns based on Siswa model
+                    $response = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT DISTINCT rombongan_belajar_id as id, nama_rombel, tingkat_pendidikan_id as tingkat FROM siswas WHERE status = 'Aktif' AND rombongan_belajar_id IS NOT NULL ORDER BY tingkat ASC, nama_rombel ASC");
+                    return $response['data'] ?? [];
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning("Failed to fetch rombels for school {$school->id}: " . $e->getMessage());
+                    return [];
+                }
+            });
+            $rombels = collect($rombels)->map(fn($r) => (object)$r);
+
             // Sync when props change or initial load
             $activeRolePermissions = [];
             if ($activeRole) {
                 // Use raw query for role_has_permissions to ensure we get ALL of them (more than 100)
-                $rolePermsRaw = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT permission_id FROM role_has_permissions WHERE role_id = {$activeRole->id}");
-                $activeRolePermissions = collect($rolePermsRaw['data'] ?? [])
-                    ->pluck('permission_id')
-                    ->unique()
-                    ->toArray();
+                try {
+                    $rolePermsRaw = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT permission_id FROM role_has_permissions WHERE role_id = {$activeRole->id}");
+                    $activeRolePermissions = collect($rolePermsRaw['data'] ?? [])
+                        ->pluck('permission_id')
+                        ->unique()
+                        ->toArray();
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning("Failed to fetch role permissions for role {$activeRole->id} in school {$school->id}: " . $e->getMessage());
+                    $activeRolePermissions = [];
+                }
             }
 
             // Pagination settings
+            $isPrinting = $request->has('print_all');
             $studentPage = intval($request->query('student_page', 1));
-            $perPage = 12;
-            $offset = ($studentPage - 1) * $perPage;
+            $perPage = $isPrinting ? 1000 : 12; // Fetch more for printing
+            $offset = $isPrinting ? 0 : ($studentPage - 1) * $perPage;
 
             // Search condition
             $searchCondition = "";
@@ -128,12 +161,15 @@ class RolePermissionController extends Controller
             }
 
             // Decide which student data to fetch
-            if ($activeTab === 'students' || !$activeRole) {
-                // Fetch ALL active students in the school
-                $countQuery = "SELECT COUNT(*) as total FROM siswas WHERE status = 'Aktif' " . str_replace('AND', 'AND', $searchCondition);
-                if ($search) {
-                    $countQuery = "SELECT COUNT(*) as total FROM siswas WHERE status = 'Aktif' AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')";
+            if ($activeTab === 'students' || $activeTab === 'id-card' || !$activeRole) {
+                // Filtering for id-card tab
+                $additionalCondition = "";
+                if ($activeTab === 'id-card' && $selectedRombelId) {
+                    $additionalCondition = " AND rombongan_belajar_id = '{$selectedRombelId}'";
                 }
+
+                // Fetch students with optional class filter and A-Z sorting
+                $countQuery = "SELECT COUNT(*) as total FROM siswas WHERE status = 'Aktif' " . ($search ? "AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')" : "") . $additionalCondition;
 
                 $membersQuery = "SELECT 
                                     id, 
@@ -145,6 +181,8 @@ class RolePermissionController extends Controller
                                 FROM siswas 
                                 WHERE status = 'Aktif' 
                                 " . ($search ? "AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')" : "") . "
+                                " . $additionalCondition . "
+                                ORDER BY nama ASC
                                 LIMIT {$perPage} OFFSET {$offset}";
             } else {
                 // Fetch members of the active role
@@ -188,14 +226,25 @@ class RolePermissionController extends Controller
             $totalCount = $cachedData['total'];
             $membersData = collect($cachedData['members'])->map(fn($m) => (object)$m);
 
+            if ($request->has('print_view')) {
+                return inertia('Admin/Permissions/PrintCards', [
+                    'school' => $school,
+                    'schoolBaseUrl' => route('admin.assets.proxy', [$school->id]),
+                    'selectedRombel' => collect($rombels)->firstWhere('id', $selectedRombelId),
+                    'members' => $membersData,
+                ]);
+            }
+
             return inertia('Admin/Permissions/Manage', [
                 'school' => $school,
                 'schoolBaseUrl' => route('admin.assets.proxy', [$school->id]), // Use local proxy for security and visibility
                 'roles' => $roles,
+                'rombels' => $rombels,
                 'activeRole' => $activeRole,
                 'groupedPermissions' => $groupedPermissions,
                 'activeRolePermissions' => $activeRolePermissions,
                 'activeTab' => $activeTab,
+                'selectedRombelId' => $selectedRombelId,
                 'members' => [
                     'data' => $membersData,
                     'current_page' => $studentPage,
@@ -205,6 +254,10 @@ class RolePermissionController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Permission management error for school {$schoolId}: " . $e->getMessage(), [
+                'exception' => $e,
+                'school_id' => $schoolId
+            ]);
             return redirect()->route('admin.permissions.index')->withErrors(['connection' => 'Gagal menghubungkan ke API sekolah: ' . $e->getMessage()]);
         }
     }

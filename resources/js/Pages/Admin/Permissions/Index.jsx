@@ -9,7 +9,14 @@ import TextInput from "@/Components/TextInput";
 import InputLabel from "@/Components/InputLabel";
 import InputError from "@/Components/InputError";
 
-export default function Index({ schools, tokens }) {
+export default function Index({ schools, tokens, errors }) {
+    // Show connection error from controller if any
+    useEffect(() => {
+        if (errors?.connection) {
+            PremiumAlert.error('Koneksi Gagal', errors.connection);
+        }
+    }, [errors?.connection]);
+
     const [activeTab, setActiveTab] = useState("wilayah");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedKabupaten, setSelectedKabupaten] = useState("");
@@ -22,7 +29,7 @@ export default function Index({ schools, tokens }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
 
-    const { data, setData, post, patch, delete: destroy, processing, errors, reset, clearErrors } = useForm({
+    const { data, setData, post, patch, delete: destroy, processing, errors: formErrors, reset, clearErrors } = useForm({
         api: '',
         access: '',
         skip_connection_test: false,
@@ -305,7 +312,7 @@ export default function Index({ schools, tokens }) {
                                                     className="w-full !rounded-2xl"
                                                     placeholder="Contoh: smakniscjr.sch.id"
                                                 />
-                                                <InputError message={errors.api} />
+                                                <InputError message={formErrors.api} />
                                             </div>
 
                                             {isEditing && (
@@ -319,7 +326,7 @@ export default function Index({ schools, tokens }) {
                                                         className="w-full !rounded-2xl font-mono"
                                                         placeholder="Kosongkan untuk gunakan token global"
                                                     />
-                                                    <InputError message={errors.access} />
+                                                    <InputError message={formErrors.access} />
                                                 </div>
                                             )}
                                         </div>
