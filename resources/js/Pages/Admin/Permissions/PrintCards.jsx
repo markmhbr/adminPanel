@@ -1,7 +1,7 @@
 import { Head } from "@inertiajs/react";
 import { useEffect } from "react";
 
-export default function PrintCards({ school, schoolBaseUrl, selectedRombel, members }) {
+export default function PrintCards({ school, remoteSchool, schoolBaseUrl, selectedRombel, members, activeTab }) {
     
     // Ensure all images are loaded before printing
     useEffect(() => {
@@ -110,14 +110,14 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
             <div className="print-area">
                 {chunkedMembers.map((pageMembers, pageIdx) => (
                     <div key={pageIdx} className="a4-page">
-                        {pageMembers.map((student) => {
-                            const isGtk = !!student.ptk_id || !student.nisn;
+                        {pageMembers.map((member) => {
+                            const isGtk = activeTab === 'gtks';
                             const bgImage = isGtk 
-                                ? school.remote_details?.background_kartu 
-                                : school.remote_details?.background_kartu_siswa;
+                                ? remoteSchool?.background_kartu 
+                                : remoteSchool?.background_kartu_siswa;
                             
                             return (
-                                <div key={student.id} 
+                                <div key={member.id} 
                                     className="id-card-container"
                                     style={{
                                         backgroundImage: bgImage 
@@ -129,8 +129,8 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
                                 >
                                     {/* HEADER */}
                                     <div className="header-section">
-                                        {school.remote_details?.logo ? (
-                                            <img src={`${schoolBaseUrl}?path=${school.remote_details.logo}`} className="header-logo" alt="Logo" />
+                                        {remoteSchool?.logo ? (
+                                            <img src={`${schoolBaseUrl}?path=${remoteSchool.logo}`} className="header-logo" alt="Logo" />
                                         ) : (
                                             <div style={{ width: '30px', height: '30px', background: '#eee', borderRadius: '50%' }}></div>
                                         )}
@@ -140,9 +140,9 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
                                     <div className="content-wrapper">
                                         {/* PHOTO */}
                                         <div className="photo-frame">
-                                            {student.foto ? (
+                                            {member.foto ? (
                                                 <img 
-                                                    src={`${schoolBaseUrl}?path=${student.foto}`} 
+                                                    src={`${schoolBaseUrl}?path=${member.foto}`} 
                                                     className="profile-img" 
                                                     alt="Foto"
                                                     loading="eager"
@@ -157,15 +157,15 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
                                         </div>
 
                                         {/* NAME */}
-                                        <div className="user-name">{student.display_name}</div>
+                                        <div className="user-name">{member.display_name}</div>
 
                                         {/* DETAIL (NISN or NIP) */}
-                                        <div className="id-text">{isGtk ? 'NIP' : 'NISN'}: {student.sub_detail || '-'}</div>
+                                        <div className="id-text">{isGtk ? 'NIP' : 'NISN'}: {member.sub_detail || '-'}</div>
 
                                         {/* QR CODE */}
                                         <div className="qr-box">
                                             <img 
-                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${student.qr_token || student.sub_detail || student.username || 'NA'}`} 
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${member.qr_token || member.sub_detail || member.username || 'NA'}`} 
                                                 alt="QR code"
                                                 className="qr-img" 
                                                 loading="eager"

@@ -199,8 +199,21 @@ class RolePermissionController extends Controller
                     }
                 }
 
+                // Only show active members
+                $additionalCondition .= " AND (status = 'Aktif')";
+
+                // Custom search based on table columns
+                $searchCondition = "";
+                if ($search) {
+                    if ($activeTab === 'gtks') {
+                        $searchCondition = " AND (nama LIKE '%$search%' OR nip LIKE '%$search%' OR ptk_id LIKE '%$search%')";
+                    } else {
+                        $searchCondition = " AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')";
+                    }
+                }
+
                 // Fetch members with optional filter and A-Z sorting
-                $countQuery = "SELECT COUNT(*) as total FROM {$tableName} WHERE (1=1) " . ($search ? "AND (nama LIKE '%$search%' OR nip LIKE '%$search%' OR ptk_id LIKE '%$search%' OR nisn LIKE '%$search%')" : "") . $additionalCondition;
+                $countQuery = "SELECT COUNT(*) as total FROM {$tableName} WHERE (1=1) {$searchCondition} {$additionalCondition}";
 
                 $membersQuery = "SELECT 
                                     id, 
@@ -212,9 +225,9 @@ class RolePermissionController extends Controller
                                     " . ($activeTab === 'gtks' ? "NULL" : "qr_token") . " as qr_token
                                 FROM {$tableName} 
                                 WHERE (1=1) 
-                                " . ($search ? "AND (nama LIKE '%$search%' OR nip LIKE '%$search%' OR ptk_id LIKE '%$search%' OR nisn LIKE '%$search%')" : "") . "
-                                " . $additionalCondition . "
-                                ORDER BY nama ASC
+                                {$searchCondition}
+                                {$additionalCondition} 
+                                ORDER BY nama ASC 
                                 LIMIT {$perPage} OFFSET {$offset}";
 
                 // Optimization: Cache the query results for 60 seconds to reduce API load
@@ -239,14 +252,17 @@ class RolePermissionController extends Controller
             if ($request->has('print_view')) {
                 return inertia('Admin/Permissions/PrintCards', [
                     'school' => $school,
+                    'remoteSchool' => $school->remote_details ?? null,
                     'schoolBaseUrl' => route('admin.assets.proxy', [$school->id]),
                     'selectedRombel' => collect($rombels)->firstWhere('id', $selectedRombelId),
                     'members' => $membersData,
+                    'activeTab' => $activeTab,
                 ]);
             }
 
             return inertia('Admin/Permissions/Manage', [
                 'school' => $school,
+                'remoteSchool' => $school->remote_details ?? null,
                 'schoolBaseUrl' => route('admin.assets.proxy', [$school->id]), // Use local proxy for security and visibility
                 'roles' => $roles,
                 'rombels' => $rombels,

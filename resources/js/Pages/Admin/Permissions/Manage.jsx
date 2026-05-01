@@ -657,25 +657,26 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                                     <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
                                         {serverTab === 'students' && (
                                             <>
-                                                <div className="relative w-full md:w-48">
+                                                <div className="relative w-full md:w-64 group">
                                                     <select
                                                         value={selectedRombelId || ""}
                                                         onChange={(e) => switchTab("students", { rombel_id: e.target.value })}
-                                                        className="w-full pl-10 pr-4 h-12 rounded-2xl border-gray-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all duration-300 text-xs font-bold shadow-sm appearance-none cursor-pointer"
+                                                        style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
+                                                        className="w-full pl-11 pr-12 h-12 rounded-2xl border-2 border-gray-100 bg-white/50 backdrop-blur-sm focus:border-indigo-500 focus:ring-0 focus:outline-none transition-all duration-300 text-xs font-black uppercase tracking-widest shadow-sm appearance-none cursor-pointer group-hover:border-indigo-200"
                                                     >
                                                         <option value="">Semua Kelas</option>
                                                         {rombels.map(rombel => (
                                                             <option key={rombel.id} value={rombel.id}>{rombel.nama_rombel}</option>
                                                         ))}
                                                     </select>
-                                                    <div className="absolute left-3.5 top-4 text-indigo-400 pointer-events-none">
+                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 pointer-events-none transition-transform group-hover:scale-110">
                                                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                                         </svg>
                                                     </div>
-                                                    <div className="absolute right-4 top-4 text-gray-400 pointer-events-none">
-                                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-hover:text-indigo-400 transition-colors">
+                                                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
                                                         </svg>
                                                     </div>
                                                 </div>
