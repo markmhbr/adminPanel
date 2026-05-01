@@ -22,17 +22,21 @@ class StoreProfileController extends Controller
         
         $request->validate([
             'store_name' => 'required|string|max:255',
-            'contact_email' => 'required|email',
-            'contact_phone' => 'nullable|string',
+            'email' => 'required|email',
+            'phone_number' => 'nullable|string',
             'address' => 'nullable|string',
         ]);
 
+        $data = $request->only(['store_name', 'email', 'phone_number', 'address']);
+        \Log::info('Store Profile Update Attempt:', $data);
+
         if ($profile) {
-            $profile->update($request->all());
+            $profile->update($data);
         } else {
-            StoreProfile::create($request->all());
+            StoreProfile::create($data);
         }
 
+        \Log::info('Store Profile Updated Successfully');
         return back()->with('success', 'Profil toko berhasil diperbarui!');
     }
 }

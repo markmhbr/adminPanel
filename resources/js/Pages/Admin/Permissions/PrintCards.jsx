@@ -3,18 +3,55 @@ import { useEffect } from "react";
 
 export default function PrintCards({ school, schoolBaseUrl, selectedRombel, members }) {
     
-    // Auto open print dialog
+    // Ensure all images are loaded before printing
     useEffect(() => {
-        const timer = setTimeout(() => {
+        const checkAllImagesLoaded = () => {
+            const images = document.querySelectorAll('.print-area img');
+            const totalImages = images.length;
+            let loadedCount = 0;
+
+            if (totalImages === 0) {
+                window.print();
+                return;
+            }
+
+            const onImageLoaded = () => {
+                loadedCount++;
+                if (loadedCount >= totalImages) {
+                    // Small additional delay to ensure layout is stable
+                    setTimeout(() => window.print(), 500);
+                }
+            };
+
+            images.forEach(img => {
+                if (img.complete) {
+                    onImageLoaded();
+                } else {
+                    img.addEventListener('load', onImageLoaded);
+                    img.addEventListener('error', onImageLoaded); // Continue even if some images fail
+                }
+            });
+        };
+
+        // Give React a moment to render the DOM before checking images
+        const timer = setTimeout(checkAllImagesLoaded, 2000);
+        
+        // Final fallback to ensure the print dialog opens eventually
+        const fallback = setTimeout(() => {
             window.print();
-        }, 1000);
-        return () => clearTimeout(timer);
+        }, 10000);
+
+        return () => {
+            clearTimeout(timer);
+            clearTimeout(fallback);
+        };
     }, []);
 
-    // Chunk members into arrays of 9
+    // Filter out invalid members and chunk into arrays of 9
+    const validMembers = members.filter(m => m.display_name || m.username);
     const chunkedMembers = [];
-    for (let i = 0; i < members.length; i += 9) {
-        chunkedMembers.push(members.slice(i, i + 9));
+    for (let i = 0; i < validMembers.length; i += 9) {
+        chunkedMembers.push(validMembers.slice(i, i + 9));
     }
 
     return (
@@ -29,15 +66,23 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
                                 Siap Mencetak
                             </h1>
                             <p className="text-gray-500 dark:text-gray-400 font-medium">
-                                Total <span className="text-indigo-600 font-black">{members.length}</span> kartu siap dicetak untuk kelas <span className="text-indigo-600 font-black">{selectedRombel?.nama_rombel}</span>.
+                                Total <span className="text-indigo-600 font-black">{validMembers.length}</span> kartu siap dicetak untuk kelas <span className="text-indigo-600 font-black">{selectedRombel?.nama_rombel}</span>.
                             </p>
                         </div>
-                        <button 
-                            onClick={() => window.print()}
-                            className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-indigo-200 dark:shadow-none"
-                        >
-                            Cetak Sekarang
-                        </button>
+                        <div className="flex items-center gap-4">
+                             <button 
+                                onClick={() => window.location.reload()}
+                                className="px-6 py-4 bg-white text-gray-600 border border-gray-200 rounded-2xl font-black uppercase tracking-widest text-xs transition-all hover:bg-gray-50 active:scale-95 shadow-sm"
+                            >
+                                Refresh
+                            </button>
+                            <button 
+                                onClick={() => window.print()}
+                                className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-indigo-200 dark:shadow-none"
+                            >
+                                Cetak Sekarang
+                            </button>
+                        </div>
                     </div>
                     
                     <div className="mt-8 p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800/50">
@@ -82,10 +127,7 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
                                                 src={`${schoolBaseUrl}?path=${student.foto}`} 
                                                 alt={student.display_name}
                                                 className="photo"
-                                                onError={(e) => {
-                                                    e.target.onerror = null;
-                                                    e.target.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(student.display_name) + "&background=random";
-                                                }}
+                                                loading="eager"
                                             />
                                         ) : (
                                             <div className="photo-placeholder">
@@ -98,14 +140,15 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
                                     
                                     <div className="student-info">
                                         <h2 className="name">{student.display_name}</h2>
-                                        <p className="nisn">NISN: {student.nisn}</p>
+                                        <p className="nisn">NISN: {student.nisn || '-'}</p>
                                     </div>
                                     
                                     <div className="qr-container">
                                         <img 
-                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${student.nisn || student.username}`} 
+                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${student.nisn || student.username || 'NA'}`} 
                                             alt="QR code"
                                             className="qr-code" 
+                                            loading="eager"
                                         />
                                     </div>
                                 </div>

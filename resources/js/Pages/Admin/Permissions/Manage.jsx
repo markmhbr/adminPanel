@@ -251,7 +251,7 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                             </h2>
                             <p className="text-gray-400 font-medium text-sm flex items-center mt-0.5">
                                 <span className="bg-indigo-50 text-indigo-600 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest mr-2 border border-indigo-100">School</span>
-                                {school.nama_sekolah}
+                                {school.nama}
                             </p>
                         </div>
                     </div>
@@ -295,7 +295,7 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                 </div>
             }
         >
-            <Head title={`Permissions - ${school.nama_sekolah}`} />
+            <Head title={`Permissions - ${school.nama}`} />
 
             <div className="py-6 relative z-10">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
@@ -592,88 +592,7 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                                                 )}
                                             </div>
 
-                                            {/* Member List for Active Role */}
-                                            <div className="p-8 lg:p-12 border-t border-gray-100 bg-gray-50/20">
-                                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-                                                    <div>
-                                                        <h4 className="text-xl font-black text-gray-900 tracking-tight uppercase">Daftar Anggota</h4>
-                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Siswa dengan Role {activeRole.name}</p>
-                                                    </div>
-                                                    
-                                                    <div className="relative w-full md:w-72">
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Cari anggota..."
-                                                            className="w-full pl-10 pr-4 h-11 rounded-xl border-gray-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all duration-300 text-xs shadow-sm"
-                                                            value={searchStudent}
-                                                            onChange={(e) => setSearchStudent(e.target.value)}
-                                                        />
-                                                        <div className="absolute left-3.5 top-3 text-gray-300">
-                                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                </div>
 
-                                                {members.data.length > 0 ? (
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                                        {members.data.map(student => (
-                                                            <div key={student.id} className="bg-white border border-gray-100 rounded-3xl p-5 flex items-center gap-5 group hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-50 transition-all duration-500 hover:-translate-y-0.5">
-                                                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-50 border-2 border-white shadow-md flex-shrink-0">
-                                                                    {student.foto ? (
-                                                                        <img 
-                                                                            src={`${schoolBaseUrl}/storage/${student.foto}`} 
-                                                                            alt={student.display_name}
-                                                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                                                        />
-                                                                    ) : (
-                                                                        <div className="w-full h-full translate-y-2 text-gray-200">
-                                                                            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                                <div className="flex-grow min-w-0">
-                                                                    <p className="font-black text-gray-900 text-xs truncate uppercase tracking-tight">{student.display_name}</p>
-                                                                    <p className="text-[10px] font-bold text-gray-400 mt-0.5 truncate">{student.username}</p>
-                                                                    <p className="text-[9px] font-black text-indigo-600 uppercase tracking-widest mt-1">{student.nama_rombel || 'NO CLASS'}</p>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                ) : (
-                                                    <div className="py-12 text-center bg-white rounded-[2rem] border border-dashed border-gray-200">
-                                                        <p className="text-gray-400 font-medium text-xs italic">Tidak ada anggota ditemukan.</p>
-                                                    </div>
-                                                )}
-
-                                                {/* Mini Pagination for Members */}
-                                                {members.last_page > 1 && (
-                                                    <div className="flex justify-center items-center gap-2 mt-10">
-                                                        <button
-                                                            onClick={() => goToPage(members.current_page - 1)}
-                                                            disabled={members.current_page === 1 || processing}
-                                                            className="w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-gray-100 text-gray-400 hover:text-indigo-600 disabled:opacity-30 transition-all"
-                                                        >
-                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" />
-                                                            </svg>
-                                                        </button>
-                                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">
-                                                            {members.current_page} / {members.last_page}
-                                                        </span>
-                                                        <button
-                                                            onClick={() => goToPage(members.current_page + 1)}
-                                                            disabled={members.current_page === members.last_page || processing}
-                                                            className="w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-gray-100 text-gray-400 hover:text-indigo-600 disabled:opacity-30 transition-all"
-                                                        >
-                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
                                         </>
                                     ) : (
                                         <div className="flex-grow flex items-center justify-center p-12 text-center animate-in fade-in duration-700">

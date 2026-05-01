@@ -25,7 +25,7 @@ export default function Navbar() {
                         <Link href={route('landing') + '#katalog'} className="hover:text-white active:scale-95 transition-all duration-200">Katalog</Link>
                         <Link href={route('landing') + '#alur'} className="hover:text-white active:scale-95 transition-all duration-200">Alur Beli</Link>
                         <Link href={route('landing') + '#syarat'} className="hover:text-white active:scale-95 transition-all duration-200">Syarat</Link>
-                        <Link href={route('pages.kontak')} className="hover:text-white active:scale-95 transition-all duration-200">Kontak</Link>
+                        <Link href={route('landing') + '#kontak'} className="hover:text-white active:scale-95 transition-all duration-200">Kontak</Link>
                     </div>
  
                     <div className="flex items-center gap-6">

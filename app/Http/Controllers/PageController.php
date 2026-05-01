@@ -24,6 +24,6 @@ class PageController extends Controller
 
     public function kontak()
     {
-        return Inertia::render('Pages/Static', ['page' => 'kontak']);
+        return Inertia::render('Landing/Contact');
     }
 }

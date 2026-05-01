@@ -36,6 +36,17 @@ export default function AuthenticatedLayout({ header, children }) {
         setIsSidebarOpen(false);
     }, [route().current()]);
 
+    const { flash } = usePage().props;
+
+    useEffect(() => {
+        if (flash?.success) {
+            PremiumAlert.success('Berhasil', flash.success);
+        }
+        if (flash?.error) {
+            PremiumAlert.error('Kesalahan', flash.error);
+        }
+    }, [flash]);
+
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', handleScroll);

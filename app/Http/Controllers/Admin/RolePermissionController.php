@@ -51,6 +51,19 @@ class RolePermissionController extends Controller
 
             $school = School::findOrFail($schoolId);
             
+            // Fetch school info from API to populate name
+            try {
+                $info = \App\Services\SchoolApiService::getTableData($school, 'sekolahs');
+                $schoolData = $info[0] ?? null;
+                $school->nama = $schoolData['nama'] ?? 'Nama tidak ditemukan';
+                $school->nama_sekolah = $school->nama; // For backward compatibility
+                $school->kabupaten_kota = $schoolData['kabupaten_kota'] ?? 'Unknown';
+                $school->kecamatan = $schoolData['kecamatan'] ?? 'Unknown';
+            } catch (\Exception $e) {
+                $school->nama = 'Koneksi Gagal';
+                $school->nama_sekolah = 'Koneksi Gagal';
+            }
+            
             // Get Roles and Permissions via API
             $roles = collect(\App\Services\SchoolApiService::getTableData($school, 'roles'))
                 ->map(fn($r) => (object)$r)
@@ -161,7 +174,7 @@ class RolePermissionController extends Controller
             }
 
             // Decide which student data to fetch
-            if ($activeTab === 'students' || $activeTab === 'id-card' || !$activeRole) {
+            if ($activeTab === 'students' || $activeTab === 'id-card') {
                 // Filtering for id-card tab
                 $additionalCondition = "";
                 if ($activeTab === 'id-card' && $selectedRombelId) {
@@ -184,47 +197,25 @@ class RolePermissionController extends Controller
                                 " . $additionalCondition . "
                                 ORDER BY nama ASC
                                 LIMIT {$perPage} OFFSET {$offset}";
+
+                // Optimization: Cache the query results for 60 seconds to reduce API load
+                $cacheKey = "school_{$school->id}_" . md5($countQuery . $membersQuery);
+                $cachedData = \Illuminate\Support\Facades\Cache::remember($cacheKey, 60, function() use ($school, $countQuery, $membersQuery) {
+                    $totalRaw = \App\Services\SchoolApiService::executeRawQuery($school, $countQuery);
+                    $membersRaw = \App\Services\SchoolApiService::executeRawQuery($school, $membersQuery);
+                    return [
+                        'total' => $totalRaw['data'][0]['total'] ?? 0,
+                        'members' => $membersRaw['data'] ?? []
+                    ];
+                });
+
+                $totalCount = $cachedData['total'];
+                $membersData = collect($cachedData['members'])->map(fn($m) => (object)$m);
             } else {
-                // Fetch members of the active role
-                $countQuery = "SELECT COUNT(*) as total 
-                              FROM model_has_roles mhr 
-                              JOIN penggunas p ON mhr.model_id = p.id
-                              JOIN siswas s ON p.peserta_didik_id = s.peserta_didik_id
-                              WHERE mhr.role_id = {$activeRole->id} 
-                              AND mhr.model_type = 'App\\\\Models\\\\Pengguna'
-                              AND s.status = 'Aktif'
-                              " . ($search ? "AND (s.nama LIKE '%$search%' OR s.nisn LIKE '%$search%' OR p.username LIKE '%$search%')" : "");
-                
-                $membersQuery = "SELECT 
-                                    s.id, 
-                                    s.nama as display_name, 
-                                    s.foto,
-                                    s.nisn,
-                                    s.nama_rombel,
-                                    p.username
-                                FROM model_has_roles mhr
-                                JOIN penggunas p ON mhr.model_id = p.id
-                                JOIN siswas s ON p.peserta_didik_id = s.peserta_didik_id
-                                WHERE mhr.role_id = {$activeRole->id} 
-                                AND mhr.model_type = 'App\\\\Models\\\\Pengguna'
-                                AND s.status = 'Aktif'
-                                " . ($search ? "AND (s.nama LIKE '%$search%' OR s.nisn LIKE '%$search%' OR p.username LIKE '%$search%')" : "") . "
-                                LIMIT {$perPage} OFFSET {$offset}";
+                // Tab is permissions or default, no members needed anymore as the UI has been removed
+                $totalCount = 0;
+                $membersData = collect([]);
             }
-
-            // Optimization: Cache the query results for 60 seconds to reduce API load
-            $cacheKey = "school_{$school->id}_" . md5($countQuery . $membersQuery);
-            $cachedData = \Illuminate\Support\Facades\Cache::remember($cacheKey, 60, function() use ($school, $countQuery, $membersQuery) {
-                $totalRaw = \App\Services\SchoolApiService::executeRawQuery($school, $countQuery);
-                $membersRaw = \App\Services\SchoolApiService::executeRawQuery($school, $membersQuery);
-                return [
-                    'total' => $totalRaw['data'][0]['total'] ?? 0,
-                    'members' => $membersRaw['data'] ?? []
-                ];
-            });
-
-            $totalCount = $cachedData['total'];
-            $membersData = collect($cachedData['members'])->map(fn($m) => (object)$m);
 
             if ($request->has('print_view')) {
                 return inertia('Admin/Permissions/PrintCards', [

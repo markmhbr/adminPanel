@@ -43,7 +43,7 @@ export default function Index({ products, storeProfile }) {
                             className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-slate-400 text-sm font-semibold tracking-widest mb-10"
                         >
                             <span className="w-2 h-2 rounded-full bg-indigo-600 shadow-[0_0_10px_rgba(79,70,229,0.8)]"></span>
-                            {storeProfile?.store_name ?? 'Simak Buy'} • Solusi Premium
+                            {storeProfile?.store_name ?? 'Simak Buy'}
                         </motion.div>
 
                         <motion.h1 
@@ -51,7 +51,7 @@ export default function Index({ products, storeProfile }) {
                             transition={{ delay: 0.2, duration: 0.8 }}
                             className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[1.05] tracking-tight mb-10"
                         >
-                            {storeProfile?.landing_title ?? 'Arsitektur Digital Masa Depan'}
+                            {storeProfile?.landing_title ?? 'Profesional, Modern, dan Terpercaya'}
                         </motion.h1>
 
                         <motion.p 
@@ -59,7 +59,7 @@ export default function Index({ products, storeProfile }) {
                             transition={{ delay: 0.3, duration: 0.8 }}
                             className="text-lg md:text-xl text-slate-400 font-bold leading-relaxed mb-14 max-w-3xl mx-auto"
                         >
-                            {storeProfile?.landing_subtitle ?? 'Platform penyedia solusi website profesional terbaik untuk akselerasi bisnis Anda.'}
+                            {storeProfile?.landing_subtitle ?? 'Transformasikan digital presence Anda dengan solusi website yang cepat, handal, dan didukung penuh oleh komunitas ahli.'}
                         </motion.p>
 
                         <motion.div 
@@ -291,6 +291,68 @@ export default function Index({ products, storeProfile }) {
                             </motion.div>
                         ))}
                     </motion.div>
+                </div>
+            </section>
+
+            {/* Contact Section */}
+            <section id="kontak" className="py-40 bg-[#050505] relative overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+                <div className="max-w-7xl mx-auto px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-20 items-center">
+                        <motion.div {...fadeIn}>
+                            <div className="text-blue-500 font-bold text-sm uppercase tracking-widest mb-6">Hubungi Kami</div>
+                            <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-8">Siap Memulai <br />Proyek Anda?</h2>
+                            <p className="text-xl text-slate-400 font-medium leading-relaxed mb-12">Tim ahli kami siap membantu mewujudkan visi digital Anda menjadi kenyataan yang menguntungkan.</p>
+                            
+                            <div className="space-y-8">
+                                <div className="flex items-start gap-6 group">
+                                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-blue-500 transition-all group-hover:bg-blue-600 group-hover:text-white group-hover:scale-110">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Email</div>
+                                        <div className="text-lg font-bold text-white tracking-tight">{storeProfile?.email ?? 'halo@simakbuy.com'}</div>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-6 group">
+                                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-blue-500 transition-all group-hover:bg-blue-600 group-hover:text-white group-hover:scale-110">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Lokasi</div>
+                                        <div className="text-lg font-bold text-white tracking-tight">{storeProfile?.address ?? 'Cianjur, Jawa Barat'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        <motion.div 
+                            initial={{ opacity: 0, x: 40 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="bg-white/5 border border-white/10 p-12 rounded-[3rem] relative"
+                        >
+                            <form className="space-y-6">
+                                <div className="grid sm:grid-cols-2 gap-6">
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nama Lengkap</label>
+                                        <input type="text" className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-bold text-white placeholder:text-slate-600" placeholder="John Doe" />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email</label>
+                                        <input type="email" className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition-all font-bold text-white placeholder:text-slate-600" placeholder="john@example.com" />
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Pesan</label>
+                                    <textarea rows="4" className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-[2rem] focus:ring-2 focus:ring-blue-600 outline-none transition-all font-bold text-white placeholder:text-slate-600" placeholder="Jelaskan kebutuhan proyek Anda..."></textarea>
+                                </div>
+                                <button type="button" className="w-full py-5 bg-blue-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-blue-600/20 hover:bg-blue-700 hover:translate-y-[-2px] transition-all duration-300">
+                                    Kirim Pesan Sekarang
+                                </button>
+                            </form>
+                        </motion.div>
+                    </div>
                 </div>
             </section>
 

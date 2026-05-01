@@ -2,16 +2,16 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
 
 export default function Edit({ auth, profile }) {
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         store_name: profile?.store_name || '',
-        contact_email: profile?.contact_email || '',
-        contact_phone: profile?.contact_phone || '',
+        email: profile?.email || '',
+        phone_number: profile?.phone_number || '',
         address: profile?.address || '',
     });
 
     const submit = (e) => {
         e.preventDefault();
-        put(route('admin.store-profile.update'));
+        post(route('admin.store-profile.update'));
     };
 
     return (
@@ -40,18 +40,18 @@ export default function Edit({ auth, profile }) {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Kontak</label>
                                 <input 
                                     type="email"
-                                    value={data.contact_email}
-                                    onChange={e => setData('contact_email', e.target.value)}
+                                    value={data.email}
+                                    onChange={e => setData('email', e.target.value)}
                                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 transition-all font-bold"
                                 />
-                                {errors.contact_email && <p className="text-[10px] text-red-500 font-bold uppercase ml-1">{errors.contact_email}</p>}
+                                {errors.email && <p className="text-[10px] text-red-500 font-bold uppercase ml-1">{errors.email}</p>}
                             </div>
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">No. WhatsApp</label>
                                 <input 
                                     type="text"
-                                    value={data.contact_phone}
-                                    onChange={e => setData('contact_phone', e.target.value)}
+                                    value={data.phone_number}
+                                    onChange={e => setData('phone_number', e.target.value)}
                                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 transition-all font-bold"
                                 />
                             </div>

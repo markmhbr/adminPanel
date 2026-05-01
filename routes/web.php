@@ -58,6 +58,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     // Customers Management
     Route::get('/customers', [\App\Http\Controllers\Admin\CustomerController::class, 'index'])->name('customers.index');
 
+    // Store Profile Management
+    Route::get('/store-profile', [\App\Http\Controllers\StoreProfileController::class, 'edit'])->name('store-profile.edit');
+    Route::post('/store-profile-update', [\App\Http\Controllers\StoreProfileController::class, 'update'])->name('store-profile.update');
+
     // Existing Admin Panel Routes
 
     Route::post('/roles', [RoleController::class, 'getRoles']);
