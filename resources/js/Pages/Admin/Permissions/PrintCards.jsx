@@ -19,7 +19,7 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
                 loadedCount++;
                 if (loadedCount >= totalImages) {
                     // Small additional delay to ensure layout is stable
-                    setTimeout(() => window.print(), 500);
+                    setTimeout(() => window.print(), 1000);
                 }
             };
 
@@ -34,12 +34,12 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
         };
 
         // Give React a moment to render the DOM before checking images
-        const timer = setTimeout(checkAllImagesLoaded, 2000);
+        const timer = setTimeout(checkAllImagesLoaded, 3000);
         
         // Final fallback to ensure the print dialog opens eventually
         const fallback = setTimeout(() => {
             window.print();
-        }, 10000);
+        }, 15000);
 
         return () => {
             clearTimeout(timer);
@@ -58,6 +58,8 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
         <>
             <Head title={`Cetak Kartu - ${selectedRombel?.nama_rombel || 'Massal'}`} />
             
+            <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
             <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4 flex flex-col items-center screen-only">
                 <div className="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border border-gray-100 dark:border-gray-700 mb-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6">
@@ -108,235 +110,216 @@ export default function PrintCards({ school, schoolBaseUrl, selectedRombel, memb
             <div className="print-area">
                 {chunkedMembers.map((pageMembers, pageIdx) => (
                     <div key={pageIdx} className="a4-page">
-                        {pageMembers.map((student) => (
-                            <div key={student.id} className="id-card">
-                                <div className="card-header">
-                                    <div className="school-logo">
-                                        <span className="logo-placeholder">S</span>
+                        {pageMembers.map((student) => {
+                            const isGtk = !!student.ptk_id || !student.nisn;
+                            const bgImage = isGtk 
+                                ? school.remote_details?.background_kartu 
+                                : school.remote_details?.background_kartu_siswa;
+                            
+                            return (
+                                <div key={student.id} 
+                                    className="id-card-container"
+                                    style={{
+                                        backgroundImage: bgImage 
+                                            ? `url('${schoolBaseUrl}?path=${bgImage}')` 
+                                            : undefined,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center'
+                                    }}
+                                >
+                                    {/* HEADER */}
+                                    <div className="header-section">
+                                        {school.remote_details?.logo ? (
+                                            <img src={`${schoolBaseUrl}?path=${school.remote_details.logo}`} className="header-logo" alt="Logo" />
+                                        ) : (
+                                            <div style={{ width: '30px', height: '30px', background: '#eee', borderRadius: '50%' }}></div>
+                                        )}
+                                        <div className="header-text">{isGtk ? 'KARTU IDENTITAS GTK' : 'KARTU PESERTA DIDIK'}</div>
                                     </div>
-                                    <div className="header-labels">
-                                        <span className="label-primary">KARTU IDENTITAS</span>
-                                        <span className="label-secondary">PESERTA DIDIK</span>
-                                    </div>
-                                </div>
-                                
-                                <div className="card-body">
-                                    <div className="photo-container">
-                                        {student.foto ? (
+
+                                    <div className="content-wrapper">
+                                        {/* PHOTO */}
+                                        <div className="photo-frame">
+                                            {student.foto ? (
+                                                <img 
+                                                    src={`${schoolBaseUrl}?path=${student.foto}`} 
+                                                    className="profile-img" 
+                                                    alt="Foto"
+                                                    loading="eager"
+                                                />
+                                            ) : (
+                                                <div className="profile-img-placeholder">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" style={{ fill: '#ccc' }}>
+                                                        <path d="M12 2C6.579 2 2 6.579 2 12s4.579 10 10 10 10-4.579 10-10S17.421 2 12 2zm0 5c1.727 0 3 1.272 3 3s-1.273 3-3 3c-1.726 0-3-1.272-3-3s1.274-3 3-3zm-5.106 9.772c.897-1.32 2.393-2.2 4.106-2.2h2c1.714 0 3.209.88 4.106 2.2C15.828 18.14 14.015 19 12 19s-3.828-.86-5.106-2.228z"></path>
+                                                    </svg>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* NAME */}
+                                        <div className="user-name">{student.display_name}</div>
+
+                                        {/* DETAIL (NISN or NIP) */}
+                                        <div className="id-text">{isGtk ? 'NIP' : 'NISN'}: {student.sub_detail || '-'}</div>
+
+                                        {/* QR CODE */}
+                                        <div className="qr-box">
                                             <img 
-                                                src={`${schoolBaseUrl}?path=${student.foto}`} 
-                                                alt={student.display_name}
-                                                className="photo"
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${student.qr_token || student.sub_detail || student.username || 'NA'}`} 
+                                                alt="QR code"
+                                                className="qr-img" 
                                                 loading="eager"
                                             />
-                                        ) : (
-                                            <div className="photo-placeholder">
-                                                <svg className="w-12 h-12 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                                </svg>
-                                            </div>
-                                        )}
-                                    </div>
-                                    
-                                    <div className="student-info">
-                                        <h2 className="name">{student.display_name}</h2>
-                                        <p className="nisn">NISN: {student.nisn || '-'}</p>
-                                    </div>
-                                    
-                                    <div className="qr-container">
-                                        <img 
-                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${student.nisn || student.username || 'NA'}`} 
-                                            alt="QR code"
-                                            className="qr-code" 
-                                            loading="eager"
-                                        />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="card-footer">
-                                    {selectedRombel?.nama_rombel}
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 ))}
             </div>
 
             <style>{`
+                /* --- RESET & BASIC --- */
+                * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                
                 @media screen {
-                    .print-area { display: none !important; }
+                    .print-area { 
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        background-color: #555;
+                        padding-top: 20px;
+                        padding-bottom: 20px;
+                    }
                 }
+
                 @media print {
                     .screen-only { display: none !important; }
-                    body { background: white !important; margin: 0 !important; padding: 0 !important; }
-                    .print-area { display: block !important; }
+                    body { background: white !important; padding: 0 !important; margin: 0 !important; }
+                    .print-area { display: block !important; padding: 0 !important; }
+                    @page { size: A4; margin: 0; }
+                }
+
+                /* --- A4 PAGE SETUP --- */
+                .a4-page {
+                    width: 200mm;
+                    height: 300mm; /* Force A4 height */
+                    background: white;
+                    margin: 0 auto 10mm auto;
+                    padding: 10mm;
+                    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr); /* 3 Columns */
+                    grid-template-rows: repeat(3, 1fr);    /* 3 Rows */
+                    gap: 4mm;
+                    align-content: start;
+                    justify-content: center;
+                    page-break-after: always;
+                    position: relative;
+                    font-family: 'Public Sans', sans-serif;
+                }
+
+                .a4-page:last-child {
+                    page-break-after: auto;
+                }
+
+                @media print {
                     .a4-page {
-                        width: 210mm;
+                        margin: 0;
+                        box-shadow: none;
                         height: 297mm;
-                        padding: 10mm;
-                        margin: 0;
-                        display: grid;
-                        grid-template-columns: repeat(3, 1fr);
-                        grid-template-rows: repeat(3, 1fr);
-                        gap: 2mm;
-                        page-break-after: always;
-                        background: white !important;
-                    }
-                    @page {
-                        size: A4;
-                        margin: 0;
+                        overflow: hidden;
                     }
                 }
 
-                .id-card {
+                /* --- CONTAINER KARTU (UKURAN ID-1) --- */
+                .id-card-container {
                     width: 58mm;
                     height: 91mm;
-                    background: white;
-                    border: 0.5px solid #eee;
+                    background-color: #fff;
                     border-radius: 8px;
-                    overflow: hidden;
-                    display: flex;
-                    flex-direction: column;
                     position: relative;
-                    background-image: radial-gradient(#4f46e5 0.5px, transparent 0.5px), radial-gradient(#4f46e5 0.5px, #fff 0.5px);
-                    background-size: 15px 15px;
-                    box-sizing: border-box;
-                    -webkit-print-color-adjust: exact;
-                }
-
-                .card-header {
-                    padding: 8px;
-                    background: rgba(255, 255, 255, 0.95) !important;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    border-bottom: 0.5px solid #eee;
-                    height: 48px;
-                }
-
-                .school-logo {
-                    width: 32px;
-                    height: 32px;
-                    background: #4f46e5;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-shrink: 0;
-                }
-
-                .logo-placeholder {
-                    color: white;
-                    font-weight: 900;
-                    font-size: 16px;
-                }
-
-                .header-labels {
-                    display: flex;
-                    flex-direction: column;
-                    line-height: 1.1;
-                }
-
-                .label-primary {
-                    font-size: 10px;
-                    font-weight: 800;
-                    color: #1e1b4b;
-                    letter-spacing: 0.05em;
-                }
-
-                .label-secondary {
-                    font-size: 8px;
-                    font-weight: 700;
-                    color: #4f46e5;
-                }
-
-                .card-body {
-                    flex-grow: 1;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 8px;
-                    z-index: 2;
-                }
-
-                .photo-container {
-                    width: 80px;
-                    height: 80px;
-                    border-radius: 50%;
-                    border: 4px solid white;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
                     overflow: hidden;
-                    margin-bottom: 10px;
-                    background: #f8fafc;
-                    flex-shrink: 0;
+                    border: 1px solid #eee;
+                    display: flex;
+                    flex-direction: column;
+                    /* Default Pattern */
+                    background-image: radial-gradient(#696cff 0.5px, transparent 0.5px), radial-gradient(#696cff 0.5px, #fff 0.5px);
+                    background-size: 15px 15px;
                 }
 
-                .photo {
+                /* --- HEADER --- */
+                .header-section {
+                    width: 100%; padding: 5px 8px; display: flex; align-items: center;
+                    gap: 6px; background: rgba(255,255,255,0.95) !important;
+                    border-bottom: 0.5px solid #eee; z-index: 5; height: 45px; flex-shrink: 0;
+                }
+                .header-logo { width: 35px; height: 35px; object-fit: contain; padding: 4px;}
+                .header-text {
+                    flex: 1; font-size: 12px; font-weight: 900; color: #002b5c;
+                    text-transform: uppercase; line-height: 1; text-align: left;
+                    padding: 4px;
+                }
+
+                /* --- CONTENT WRAPPER --- */
+                .content-wrapper {
+                    flex-grow: 1; display: flex; flex-direction: column;
+                    align-items: center; justify-content: center; padding: 5px;
+                    z-index: 2; margin-top: -2px;
+                }
+
+                /* PHOTO */
+                .photo-frame {
+                    width: 90px;
+                    height: 90px;
+                    border-radius: 50%;
+                    border: 4px solid #fff;
+                    margin-bottom: 6px;
+                    box-shadow: 0 4px 7px rgba(0,0,0,0.2);
+                    background: #fff;
+                    overflow: hidden;
+                    flex-shrink: 0;
+                }
+                .profile-img {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
+                    object-position: 50% 20%;
                 }
-
-                .photo-placeholder {
+                .profile-img-placeholder {
                     width: 100%;
                     height: 100%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: #f1f5f9;
+                    background: #e0e0e0;
                 }
 
-                .student-info {
-                    text-align: center;
-                    margin-bottom: 8px;
-                    width: 100%;
+                /* NAME */
+                .user-name {
+                    font-size: 12px; font-weight: 800; color: #ffffff;
+                    text-transform: uppercase; margin-bottom: 2px; line-height: 1.1;
+                    text-shadow: 0 1px 3px rgba(0,0,0,0.9); text-align: center;
+                    max-width: 100%; padding: 0 2px;
+                    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
                 }
 
-                .name {
-                    font-size: 11px;
-                    font-weight: 900;
-                    color: #fff;
-                    text-transform: uppercase;
-                    margin-bottom: 2px;
-                    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-                    line-height: 1.2;
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                    padding: 0 4px;
+                /* NISN */
+                .id-text {
+                    font-size: 10px; color: #ffffff; font-weight: 600;
+                    text-shadow: 0 1px 3px rgba(0,0,0,0.9); opacity: 0.9;
+                    margin-bottom: 5px; text-align: center;
                 }
 
-                .nisn {
-                    font-size: 8px;
-                    font-weight: 800;
-                    color: rgba(255, 255, 255, 0.9);
-                    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                /* QR CODE */
+                .qr-box {
+                    padding: 3px; background: white; border-radius: 4px;
+                    box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: block; line-height: 0;
                 }
-
-                .qr-container {
-                    background: white;
-                    padding: 4px;
-                    border-radius: 6px;
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                }
-
-                .qr-code {
-                    width: 60px;
-                    height: 60px;
-                    display: block;
-                }
-
-                .card-footer {
-                    font-size: 8px;
-                    font-weight: 800;
-                    padding: 4px;
-                    background: rgba(255, 255, 255, 0.9) !important;
-                    text-align: center;
-                    text-transform: uppercase;
-                    color: #1e1b4b;
-                    letter-spacing: 0.1em;
-                    border-top: 0.5px solid #eee;
+                .qr-img {
+                    width: 75px;
+                    height: 75px;
                 }
             `}</style>
         </>

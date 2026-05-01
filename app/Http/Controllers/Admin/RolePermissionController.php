@@ -78,12 +78,19 @@ class RolePermissionController extends Controller
                 $activeRole = $roles->first();
             }
 
-            // Use raw query for permissions to ensure we get ALL of them (more than 100)
+            // Fetch permissions and school details from remote
             try {
+                // Fetch School Details for Background/Logo
+                $schoolDetailsRaw = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT * FROM sekolahs LIMIT 1");
+                $schoolDetails = collect($schoolDetailsRaw['data'] ?? [])->first();
+                if ($schoolDetails) {
+                    $school->remote_details = (object)$schoolDetails;
+                }
+
                 $permissionsRaw = \App\Services\SchoolApiService::executeRawQuery($school, "SELECT * FROM permissions ORDER BY name ASC");
                 $permissions = collect($permissionsRaw['data'] ?? []);
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::warning("Failed to fetch permissions for school {$school->id}: " . $e->getMessage());
+                \Illuminate\Support\Facades\Log::warning("Failed to fetch remote data for school {$school->id}: " . $e->getMessage());
                 $permissions = collect([]);
             }
 
@@ -119,6 +126,7 @@ class RolePermissionController extends Controller
             });
 
             $activeTab = $request->query('tab', 'permissions');
+            $gtkType = $request->query('gtk_type', 'guru');
             $search = $request->query('search');
             $selectedRombelId = $request->query('rombel_id');
             
@@ -173,27 +181,38 @@ class RolePermissionController extends Controller
                 $searchCondition = "AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')";
             }
 
-            // Decide which student data to fetch
-            if ($activeTab === 'students' || $activeTab === 'id-card') {
-                // Filtering for id-card tab
+            // Decide which student/member data to fetch
+            if (in_array($activeTab, ['students', 'id-card', 'gtks'])) {
+                $tableName = ($activeTab === 'gtks') ? 'gtks' : 'siswas';
+                
+                // Filtering for id-card and students tab
                 $additionalCondition = "";
-                if ($activeTab === 'id-card' && $selectedRombelId) {
+                if (in_array($activeTab, ['id-card', 'students']) && $selectedRombelId) {
                     $additionalCondition = " AND rombongan_belajar_id = '{$selectedRombelId}'";
                 }
 
-                // Fetch students with optional class filter and A-Z sorting
-                $countQuery = "SELECT COUNT(*) as total FROM siswas WHERE status = 'Aktif' " . ($search ? "AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')" : "") . $additionalCondition;
+                if ($activeTab === 'gtks') {
+                    if ($gtkType === 'guru') {
+                        $additionalCondition .= " AND (jenis_ptk_id_str = 'Guru')";
+                    } else {
+                        $additionalCondition .= " AND (jenis_ptk_id_str != 'Guru' OR jenis_ptk_id_str IS NULL)";
+                    }
+                }
+
+                // Fetch members with optional filter and A-Z sorting
+                $countQuery = "SELECT COUNT(*) as total FROM {$tableName} WHERE (1=1) " . ($search ? "AND (nama LIKE '%$search%' OR nip LIKE '%$search%' OR ptk_id LIKE '%$search%' OR nisn LIKE '%$search%')" : "") . $additionalCondition;
 
                 $membersQuery = "SELECT 
                                     id, 
                                     nama as display_name, 
                                     foto,
-                                    nisn,
-                                    nama_rombel,
-                                    peserta_didik_id as username
-                                FROM siswas 
-                                WHERE status = 'Aktif' 
-                                " . ($search ? "AND (nama LIKE '%$search%' OR nisn LIKE '%$search%' OR peserta_didik_id LIKE '%$search%')" : "") . "
+                                    " . ($activeTab === 'gtks' ? "nip" : "nisn") . " as sub_detail,
+                                    " . ($activeTab === 'gtks' ? "jenis_ptk_id_str" : "nama_rombel") . " as description,
+                                    " . ($activeTab === 'gtks' ? "ptk_id" : "peserta_didik_id") . " as username,
+                                    " . ($activeTab === 'gtks' ? "NULL" : "qr_token") . " as qr_token
+                                FROM {$tableName} 
+                                WHERE (1=1) 
+                                " . ($search ? "AND (nama LIKE '%$search%' OR nip LIKE '%$search%' OR ptk_id LIKE '%$search%' OR nisn LIKE '%$search%')" : "") . "
                                 " . $additionalCondition . "
                                 ORDER BY nama ASC
                                 LIMIT {$perPage} OFFSET {$offset}";
@@ -235,6 +254,7 @@ class RolePermissionController extends Controller
                 'groupedPermissions' => $groupedPermissions,
                 'activeRolePermissions' => $activeRolePermissions,
                 'activeTab' => $activeTab,
+                'gtkType' => $gtkType,
                 'selectedRombelId' => $selectedRombelId,
                 'members' => [
                     'data' => $membersData,

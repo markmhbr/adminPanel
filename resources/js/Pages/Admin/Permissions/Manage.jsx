@@ -4,7 +4,7 @@ import axios from "axios";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { PremiumAlert } from "@/Utils/alert";
 
-export default function Manage({ school, schoolBaseUrl, roles, rombels, selectedRombelId, activeRole, groupedPermissions, activeRolePermissions, members, activeTab: serverTab }) {
+export default function Manage({ school, schoolBaseUrl, roles, rombels, selectedRombelId, activeRole, groupedPermissions, activeRolePermissions, members, activeTab: serverTab, gtkType: serverGtkType }) {
     const [selectedPermissions, setSelectedPermissions] = useState(activeRolePermissions);
     const [restrictedPermissions, setRestrictedPermissions] = useState([]);
     const [searchRole, setSearchRole] = useState("");
@@ -149,9 +149,9 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
         });
     };
 
-    const switchTab = (tab) => {
+    const switchTab = (tab, extra = {}) => {
         setProcessing(true);
-        const params = { tab: tab, search: searchStudent };
+        const params = { tab: tab, search: searchStudent, ...extra };
         if (tab === 'id-card' && selectedRombelId) {
             params.rombel_id = selectedRombelId;
         }
@@ -326,14 +326,14 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                                 </div>
                             </button>
                             <button
-                                onClick={() => switchTab("id-card")}
-                                className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${serverTab === 'id-card' ? 'bg-white text-indigo-600 shadow-lg shadow-indigo-100 border border-indigo-50' : 'text-gray-400 hover:text-gray-600'}`}
+                                onClick={() => switchTab("gtks")}
+                                className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${serverTab === 'gtks' ? 'bg-white text-indigo-600 shadow-lg shadow-indigo-100 border border-indigo-50' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 <div className="flex items-center gap-2">
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
-                                    Kartu Siswa
+                                    Data Gtk
                                 </div>
                             </button>
                         </div>
@@ -343,6 +343,12 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                              <div className="text-right">
                                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global School Directory</p>
                                  <p className="text-xs font-bold text-gray-900">{members.total} Active Students Found</p>
+                             </div>
+                        )}
+                        {serverTab === 'gtks' && (
+                             <div className="text-right">
+                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global Staff Directory</p>
+                                 <p className="text-xs font-bold text-gray-900">{members.total} Active Staff Found</p>
                              </div>
                         )}
                     </div>
@@ -612,42 +618,120 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                                 </div>
                             </div>
                         </div>
-                    ) : serverTab === 'students' ? (
+                    ) : (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            {/* School-wide Student Card */}
+                            {/* Sub Tabs for GTK */}
+                            {serverTab === 'gtks' && (
+                                <div className="flex justify-center mb-8">
+                                    <div className="inline-flex p-1 bg-white rounded-2xl shadow-sm border border-gray-100">
+                                        <button
+                                            onClick={() => switchTab("gtks", { gtk_type: 'guru' })}
+                                            className={`px-10 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${serverGtkType === 'guru' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
+                                        >
+                                            Data Guru
+                                        </button>
+                                        <button
+                                            onClick={() => switchTab("gtks", { gtk_type: 'tendik' })}
+                                            className={`px-10 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${serverGtkType === 'tendik' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
+                                        >
+                                            Data Tendik
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="bg-white/80 backdrop-blur-xl border border-white shadow-2xl shadow-gray-200/50 rounded-[2.5rem] flex flex-col overflow-hidden">
                                 <div className="p-8 bg-gray-50/30 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="text-xl font-black text-gray-900 tracking-tight uppercase">Data Seluruh Siswa</h3>
+                                            <h3 className="text-xl font-black text-gray-900 tracking-tight uppercase">
+                                                {serverTab === 'gtks' ? (serverGtkType === 'guru' ? 'Data Master Guru' : 'Data Master Tendik') : 'Data Seluruh Siswa'}
+                                            </h3>
                                             <span className="bg-indigo-100 text-indigo-600 text-[9px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest">{members.total} Total</span>
                                         </div>
-                                        <p className="text-xs text-gray-400 font-medium">Daftar siswa yang terdaftar dalam unit sekolah ini.</p>
+                                        <p className="text-xs text-gray-400 font-medium">
+                                            {serverTab === 'gtks' ? 'Daftar tenaga kependidikan yang terdaftar di unit ini.' : 'Daftar siswa yang terdaftar dalam unit sekolah ini.'}
+                                        </p>
                                     </div>
                                     
-                                    <div className="relative w-full md:w-80">
-                                        <input
-                                            type="text"
-                                            placeholder="Cari nama, NISN, atau username..."
-                                            className="w-full pl-11 pr-4 h-12 rounded-2xl border-gray-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all duration-300 text-sm shadow-sm"
-                                            value={searchStudent}
-                                            onChange={(e) => setSearchStudent(e.target.value)}
-                                        />
-                                        <div className="absolute left-4 top-3.5 text-gray-300">
-                                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                            </svg>
-                                        </div>
-                                        {searchStudent && (
-                                            <button 
-                                                onClick={() => setSearchStudent("")}
-                                                className="absolute right-3 top-3 w-6 h-6 flex items-center justify-center text-gray-300 hover:text-gray-500 bg-gray-50 rounded-lg transition-colors"
-                                            >
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
+                                    <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+                                        {serverTab === 'students' && (
+                                            <>
+                                                <div className="relative w-full md:w-48">
+                                                    <select
+                                                        value={selectedRombelId || ""}
+                                                        onChange={(e) => switchTab("students", { rombel_id: e.target.value })}
+                                                        className="w-full pl-10 pr-4 h-12 rounded-2xl border-gray-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all duration-300 text-xs font-bold shadow-sm appearance-none cursor-pointer"
+                                                    >
+                                                        <option value="">Semua Kelas</option>
+                                                        {rombels.map(rombel => (
+                                                            <option key={rombel.id} value={rombel.id}>{rombel.nama_rombel}</option>
+                                                        ))}
+                                                    </select>
+                                                    <div className="absolute left-3.5 top-4 text-indigo-400 pointer-events-none">
+                                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="absolute right-4 top-4 text-gray-400 pointer-events-none">
+                                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+
+                                                {selectedRombelId && (
+                                                    <a
+                                                        href={`${window.location.pathname}?tab=id-card&rombel_id=${selectedRombelId}&print_all=1&print_view=1`}
+                                                        target="_blank"
+                                                        className="flex items-center gap-2 px-6 h-12 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 group flex-shrink-0"
+                                                    >
+                                                        <svg className="w-4 h-4 group-hover:animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                        </svg>
+                                                        <span className="hidden xl:inline">Cetak Kartu</span>
+                                                    </a>
+                                                )}
+                                            </>
                                         )}
+
+                                        {serverTab === 'gtks' && (
+                                            <a
+                                                href={`${window.location.pathname}?tab=gtks&gtk_type=${serverGtkType}&print_all=1&print_view=1`}
+                                                target="_blank"
+                                                className="flex items-center gap-2 px-6 h-12 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 group flex-shrink-0"
+                                            >
+                                                <svg className="w-4 h-4 group-hover:animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                </svg>
+                                                <span className="hidden xl:inline">Cetak Kartu {serverGtkType === 'guru' ? 'Guru' : 'Tendik'}</span>
+                                            </a>
+                                        )}
+
+                                        <div className="relative w-full md:w-80">
+                                            <input
+                                                type="text"
+                                                placeholder={`Cari nama, ${serverTab === 'gtks' ? 'NIP' : 'NISN'}, atau username...`}
+                                                className="w-full pl-11 pr-4 h-12 rounded-2xl border-gray-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all duration-300 text-sm shadow-sm"
+                                                value={searchStudent}
+                                                onChange={(e) => setSearchStudent(e.target.value)}
+                                            />
+                                            <div className="absolute left-4 top-3.5 text-gray-300">
+                                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </div>
+                                            {searchStudent && (
+                                                <button 
+                                                    onClick={() => setSearchStudent("")}
+                                                    className="absolute right-3 top-3 w-6 h-6 flex items-center justify-center text-gray-300 hover:text-gray-500 bg-gray-50 rounded-lg transition-colors"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -683,10 +767,10 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                                                     </div>
                                                     <h5 className="font-black text-slate-900 text-sm leading-tight mb-3 uppercase tracking-tight line-clamp-2 px-2">{student.display_name}</h5>
                                                     <div className="space-y-2 w-full">
-                                                        <p className="text-[9px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-xl inline-block border border-indigo-100/50">{student.nama_rombel || 'NO CLASS'}</p>
+                                                        <p className="text-[9px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-xl inline-block border border-indigo-100/50">{student.description || 'N/A'}</p>
                                                         <div className="flex flex-col gap-1">
                                                             <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest">{student.username}</p>
-                                                            <p className="text-[10px] font-black text-slate-400">NISN: {student.nisn || '-'}</p>
+                                                            <p className="text-[10px] font-black text-slate-400">{serverTab === 'gtks' ? 'NIP' : 'NISN'}: {student.sub_detail || '-'}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -700,13 +784,13 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                                     </svg>
                                                 </div>
-                                                <h5 className="text-xl font-black text-gray-900 tracking-tight">Siswa Tidak Ditemukan</h5>
+                                                <h5 className="text-xl font-black text-gray-900 tracking-tight">{serverTab === 'gtks' ? 'Staff Tidak Ditemukan' : 'Siswa Tidak Ditemukan'}</h5>
                                                 <p className="text-gray-400 font-medium italic mt-2">Coba kata kunci lain atau hapus pencarian.</p>
                                                 <button 
                                                     onClick={() => setSearchStudent("")}
                                                     className="mt-6 px-6 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100"
                                                 >
-                                                    Lihat Semua Siswa
+                                                    Lihat Semua {serverTab === 'gtks' ? 'Staff' : 'Siswa'}
                                                 </button>
                                             </div>
                                         )
@@ -730,7 +814,7 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                                     {members.last_page > 1 && (
                                         <div className="flex flex-col sm:flex-row justify-between items-center gap-6 pt-16 border-t border-gray-50 mt-12 px-2">
                                             <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                                Halaman <span className="text-indigo-600">{members.current_page}</span> dari {members.last_page} — Total {members.total} Siswa
+                                                Halaman <span className="text-indigo-600">{members.current_page}</span> dari {members.last_page} — Total {members.total} {serverTab === 'gtks' ? 'Staff' : 'Siswa'}
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <button
@@ -777,173 +861,6 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                                             </div>
                                         </div>
                                     )}
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <div className="flex flex-col lg:flex-row gap-8 items-stretch h-[calc(100vh-22rem)] min-h-[600px]">
-                                {/* Sidebar: Class List */}
-                                <div className="lg:w-80 flex-shrink-0 h-full">
-                                    <div className="bg-white/80 backdrop-blur-xl border border-white shadow-2xl shadow-gray-200/50 rounded-[2.5rem] flex flex-col h-full overflow-hidden">
-                                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-[2.5rem]">
-                                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Pilih Kelas</h3>
-                                            <span className="bg-indigo-50 text-indigo-600 text-[10px] px-2 py-0.5 rounded-lg font-black uppercase tracking-widest">
-                                                {rombels.length} Unit
-                                            </span>
-                                        </div>
-                                        
-                                        <div className="px-3 py-6 flex-grow overflow-y-auto scrollbar-thin space-y-1">
-                                            {rombels.map(rombel => (
-                                                <button
-                                                    key={rombel.id}
-                                                    onClick={() => selectRombel(rombel.id)}
-                                                    className={`w-full flex items-center p-3 rounded-2xl transition-all duration-300 group relative overflow-hidden ${
-                                                        selectedRombelId == rombel.id 
-                                                        ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100' 
-                                                        : 'hover:bg-indigo-50 text-gray-700'
-                                                    }`}
-                                                >
-                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center mr-4 flex-shrink-0 transition-colors duration-300 ${
-                                                        selectedRombelId == rombel.id ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-400 group-hover:bg-white group-hover:text-indigo-600 shadow-sm border border-gray-50'
-                                                    }`}>
-                                                        <span className="font-black text-xs uppercase">{rombel.tingkat}</span>
-                                                    </div>
-                                                    <div className="flex-grow text-left">
-                                                        <p className="font-black text-sm truncate uppercase tracking-tight">{rombel.nama_rombel}</p>
-                                                        <p className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${selectedRombelId == rombel.id ? 'text-indigo-100' : 'text-gray-400'}`}>
-                                                            Tingkat {rombel.tingkat}
-                                                        </p>
-                                                    </div>
-                                                    {selectedRombelId == rombel.id && (
-                                                        <svg className="h-4 w-4 ml-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                                                        </svg>
-                                                    )}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Main Content: Student Cards for Selected Class */}
-                                <div className="flex-grow min-w-0 h-full">
-                                    <div className="bg-white/80 backdrop-blur-xl border border-white shadow-2xl shadow-gray-200/50 rounded-[2.5rem] flex flex-col overflow-hidden h-full">
-                                        {selectedRombelId ? (
-                                            <>
-                                                <div className="p-8 lg:p-12 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                                    <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <h3 className="text-2xl font-black text-gray-900 tracking-tight uppercase">
-                                                                {rombels.find(r => r.id == selectedRombelId)?.nama_rombel || 'Detail Kelas'}
-                                                            </h3>
-                                                            <span className="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-lg font-black uppercase tracking-widest">Selected</span>
-                                                        </div>
-                                                        <p className="text-sm text-gray-400 font-medium">Klik tombol cetak untuk mengunduh PDF kartu siswa.</p>
-                                                    </div>
-
-                                                    <a
-                                                        href={`${window.location.pathname}?tab=id-card&rombel_id=${selectedRombelId}&print_all=1&print_view=1`}
-                                                        target="_blank"
-                                                        className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 border-2 border-indigo-50 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-gray-100 hover:bg-indigo-50 transition-all active:scale-95 group"
-                                                    >
-                                                        <svg className="w-4 h-4 group-hover:animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                                        </svg>
-                                                        Cetak Kartu Massal
-                                                    </a>
-                                                </div>
-
-                                                <div className="p-8 lg:p-12 flex-grow overflow-y-auto scrollbar-thin relative">
-                                                    {processing && (
-                                                        <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-[2.5rem]">
-                                                            <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
-                                                        </div>
-                                                    )}
-
-                                                    {members.data.length > 0 ? (
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                                            {members.data.map(student => (
-                                                                <div key={student.id} className="bg-white border border-gray-100 rounded-3xl p-5 flex items-center gap-5 group hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-50 transition-all duration-500 hover:-translate-y-0.5">
-                                                                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-50 border-2 border-white shadow-md flex-shrink-0">
-                                                                        {student.foto ? (
-                                                                            <img 
-                                                                                src={`${schoolBaseUrl}?path=${student.foto}`} 
-                                                                                alt={student.display_name}
-                                                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                                                            />
-                                                                        ) : (
-                                                                            <div className="w-full h-full translate-y-3 text-gray-200">
-                                                                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                    <div className="flex-grow min-w-0">
-                                                                        <p className="font-black text-gray-900 text-[13px] truncate uppercase tracking-tight leading-none mb-1">{student.display_name}</p>
-                                                                        <p className="text-[10px] font-bold text-gray-400 truncate tracking-tight">{student.nisn || student.username}</p>
-                                                                        <div className="flex gap-2 mt-2">
-                                                                            <div className="w-4 h-4 bg-indigo-50 rounded flex items-center justify-center">
-                                                                                <svg className="w-2.5 h-2.5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-                                                                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                                                                    <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                                                                                </svg>
-                                                                            </div>
-                                                                            <div className="w-4 h-4 bg-gray-50 rounded flex items-center justify-center">
-                                                                                <svg className="w-2.5 h-2.5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                                                                                    <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 001.038 1.744l6.106 3.476a1 1 0 10.951-1.758l-5.094-2.9V4z" />
-                                                                                </svg>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <div className="py-20 text-center">
-                                                            <p className="text-gray-400 font-medium text-sm italic">Tidak ada siswa dalam kelas ini.</p>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Pagination within class */}
-                                                    {members.last_page > 1 && (
-                                                        <div className="flex justify-center items-center gap-2 mt-12">
-                                                            <button
-                                                                onClick={() => goToPage(members.current_page - 1)}
-                                                                disabled={members.current_page === 1 || processing}
-                                                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-gray-100 text-gray-400 hover:text-indigo-600 disabled:opacity-30 transition-all font-black"
-                                                            >
-                                                                &larr;
-                                                            </button>
-                                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">
-                                                                {members.current_page} / {members.last_page}
-                                                            </span>
-                                                            <button
-                                                                onClick={() => goToPage(members.current_page + 1)}
-                                                                disabled={members.current_page === members.last_page || processing}
-                                                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-gray-100 text-gray-400 hover:text-indigo-600 disabled:opacity-30 transition-all font-black"
-                                                            >
-                                                                &rarr;
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="flex-grow flex items-center justify-center p-12 text-center animate-in fade-in duration-700">
-                                                <div className="max-w-xs mx-auto">
-                                                    <div className="w-20 h-20 bg-indigo-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 border border-indigo-100/50 shadow-xl shadow-indigo-100/50">
-                                                        <svg className="h-10 w-10 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 01-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                                        </svg>
-                                                    </div>
-                                                    <h4 className="text-xl font-black text-gray-900 mb-3 tracking-tight uppercase">Pilih Rombongan Belajar</h4>
-                                                    <p className="text-xs text-gray-400 font-medium leading-relaxed italic">
-                                                        Silakan pilih salah satu kelas di sebelah kiri untuk melihat daftar siswa dan mencetak kartu.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
                                 </div>
                             </div>
                         </div>
