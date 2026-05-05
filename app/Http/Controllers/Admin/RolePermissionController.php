@@ -212,17 +212,18 @@ class RolePermissionController extends Controller
                     }
                 }
 
+                $selectFields = "id, nama as display_name, foto, qr_token";
+                if ($activeTab === 'gtks') {
+                    $selectFields .= ", nip, nuptk, nik, jenis_ptk_id_str as description, ptk_id as username";
+                } else {
+                    $selectFields .= ", nisn as sub_detail, nama_rombel as description, peserta_didik_id as username";
+                }
+
                 // Fetch members with optional filter and A-Z sorting
                 $countQuery = "SELECT COUNT(*) as total FROM {$tableName} WHERE (1=1) {$searchCondition} {$additionalCondition}";
 
                 $membersQuery = "SELECT 
-                                    id, 
-                                    nama as display_name, 
-                                    foto,
-                                    " . ($activeTab === 'gtks' ? "nip" : "nisn") . " as sub_detail,
-                                    " . ($activeTab === 'gtks' ? "jenis_ptk_id_str" : "nama_rombel") . " as description,
-                                    " . ($activeTab === 'gtks' ? "ptk_id" : "peserta_didik_id") . " as username,
-                                    " . ($activeTab === 'gtks' ? "NULL" : "qr_token") . " as qr_token
+                                    {$selectFields}
                                 FROM {$tableName} 
                                 WHERE (1=1) 
                                 {$searchCondition}

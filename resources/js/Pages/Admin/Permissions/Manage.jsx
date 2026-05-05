@@ -770,7 +770,6 @@ export default function Manage({ school, schoolBaseUrl, roles, rombels, selected
                                                     <div className="space-y-2 w-full">
                                                         <p className="text-[9px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-xl inline-block border border-indigo-100/50">{student.description || 'N/A'}</p>
                                                         <div className="flex flex-col gap-1">
-                                                            <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest">{student.username}</p>
                                                             <p className="text-[10px] font-black text-slate-400">{serverTab === 'gtks' ? 'NIP' : 'NISN'}: {student.sub_detail || '-'}</p>
                                                         </div>
                                                     </div>

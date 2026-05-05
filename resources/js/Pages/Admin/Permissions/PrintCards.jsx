@@ -109,7 +109,7 @@ export default function PrintCards({ school, remoteSchool, schoolBaseUrl, select
 
             <div className="print-area">
                 {chunkedMembers.map((pageMembers, pageIdx) => (
-                    <div key={pageIdx} className="a4-page">
+                    <div key={pageIdx} className={`a4-page ${activeTab === 'gtks' ? 'gtk-grid' : ''}`}>
                         {pageMembers.map((member) => {
                             const isGtk = activeTab === 'gtks';
                             const bgImage = isGtk 
@@ -118,7 +118,7 @@ export default function PrintCards({ school, remoteSchool, schoolBaseUrl, select
                             
                             return (
                                 <div key={member.id} 
-                                    className="id-card-container"
+                                    className={`id-card-container ${isGtk ? 'gtk-card' : ''}`}
                                     style={{
                                         backgroundImage: bgImage 
                                             ? `url('${schoolBaseUrl}?path=${bgImage}')` 
@@ -132,9 +132,9 @@ export default function PrintCards({ school, remoteSchool, schoolBaseUrl, select
                                         {remoteSchool?.logo ? (
                                             <img src={`${schoolBaseUrl}?path=${remoteSchool.logo}`} className="header-logo" alt="Logo" />
                                         ) : (
-                                            <div style={{ width: '30px', height: '30px', background: '#eee', borderRadius: '50%' }}></div>
+                                            <div className="header-logo" style={{ background: '#eee', borderRadius: '50%' }}></div>
                                         )}
-                                        <div className="header-text">{isGtk ? 'KARTU IDENTITAS GTK' : 'KARTU PESERTA DIDIK'}</div>
+                                        {!isGtk && <div className="header-text">KARTU PESERTA DIDIK</div>}
                                     </div>
 
                                     <div className="content-wrapper">
@@ -159,8 +159,18 @@ export default function PrintCards({ school, remoteSchool, schoolBaseUrl, select
                                         {/* NAME */}
                                         <div className="user-name">{member.display_name}</div>
 
-                                        {/* DETAIL (NISN or NIP) */}
-                                        <div className="id-text">{isGtk ? 'NIP' : 'NISN'}: {member.sub_detail || '-'}</div>
+                                        {/* DETAIL (NIP/NUPTK/NIK for GTK, NISN for student) */}
+                                        <div className="id-text">
+                                            {isGtk ? (
+                                                <>
+                                                    {member.nip && member.nip !== '-' ? `NIP: ${member.nip}` : 
+                                                     member.nuptk && member.nuptk !== '-' ? `NUPTK: ${member.nuptk}` : 
+                                                     member.nik && member.nik !== '-' ? `NIK: ${member.nik}` : '-'}
+                                                </>
+                                            ) : (
+                                                `NISN: ${member.sub_detail || '-'}`
+                                            )}
+                                        </div>
 
                                         {/* QR CODE */}
                                         <div className="qr-box">
@@ -204,20 +214,27 @@ export default function PrintCards({ school, remoteSchool, schoolBaseUrl, select
                 /* --- A4 PAGE SETUP --- */
                 .a4-page {
                     width: 200mm;
-                    height: 300mm; /* Force A4 height */
+                    height: 300mm; 
                     background: white;
                     margin: 0 auto 10mm auto;
                     padding: 10mm;
                     box-shadow: 0 0 20px rgba(0,0,0,0.5);
                     display: grid;
-                    grid-template-columns: repeat(3, 1fr); /* 3 Columns */
-                    grid-template-rows: repeat(3, 1fr);    /* 3 Rows */
+                    grid-template-columns: repeat(3, 1fr); 
+                    grid-template-rows: repeat(3, 1fr);    
                     gap: 4mm;
                     align-content: start;
                     justify-content: center;
                     page-break-after: always;
                     position: relative;
                     font-family: 'Public Sans', sans-serif;
+                }
+
+                .a4-page.gtk-grid {
+                    width: 210mm;
+                    min-height: 300mm;
+                    gap: 8mm;
+                    grid-template-rows: auto;
                 }
 
                 .a4-page:last-child {
@@ -231,9 +248,14 @@ export default function PrintCards({ school, remoteSchool, schoolBaseUrl, select
                         height: 297mm;
                         overflow: hidden;
                     }
+                    .a4-page.gtk-grid {
+                        height: auto;
+                        min-height: auto;
+                        overflow: visible;
+                    }
                 }
 
-                /* --- CONTAINER KARTU (UKURAN ID-1) --- */
+                /* --- CONTAINER KARTU --- */
                 .id-card-container {
                     width: 58mm;
                     height: 91mm;
@@ -244,9 +266,14 @@ export default function PrintCards({ school, remoteSchool, schoolBaseUrl, select
                     border: 1px solid #eee;
                     display: flex;
                     flex-direction: column;
-                    /* Default Pattern */
                     background-image: radial-gradient(#696cff 0.5px, transparent 0.5px), radial-gradient(#696cff 0.5px, #fff 0.5px);
                     background-size: 15px 15px;
+                }
+
+                .id-card-container.gtk-card {
+                    width: 56mm;
+                    height: 88mm;
+                    border: 1px dashed #ccc;
                 }
 
                 /* --- HEADER --- */
@@ -255,7 +282,18 @@ export default function PrintCards({ school, remoteSchool, schoolBaseUrl, select
                     gap: 6px; background: rgba(255,255,255,0.95) !important;
                     border-bottom: 0.5px solid #eee; z-index: 5; height: 45px; flex-shrink: 0;
                 }
+                .gtk-card .header-section {
+                    background: transparent !important;
+                    border-bottom: none;
+                    height: auto;
+                }
                 .header-logo { width: 35px; height: 35px; object-fit: contain; padding: 4px;}
+                .gtk-card .header-logo {
+                    width: 40px;
+                    height: 40px;
+                    margin-top: 25px;
+                    margin-left: 25px;
+                }
                 .header-text {
                     flex: 1; font-size: 12px; font-weight: 900; color: #002b5c;
                     text-transform: uppercase; line-height: 1; text-align: left;
@@ -304,18 +342,29 @@ export default function PrintCards({ school, remoteSchool, schoolBaseUrl, select
                     max-width: 100%; padding: 0 2px;
                     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
                 }
+                .gtk-card .user-name {
+                    font-size: 13px;
+                    margin-bottom: 3px;
+                }
 
-                /* NISN */
+                /* ID TEXT */
                 .id-text {
                     font-size: 10px; color: #ffffff; font-weight: 600;
                     text-shadow: 0 1px 3px rgba(0,0,0,0.9); opacity: 0.9;
                     margin-bottom: 5px; text-align: center;
+                }
+                .gtk-card .id-text {
+                    margin-bottom: 6px;
                 }
 
                 /* QR CODE */
                 .qr-box {
                     padding: 3px; background: white; border-radius: 4px;
                     box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: block; line-height: 0;
+                }
+                .gtk-card .qr-box {
+                    padding: 4px;
+                    box-shadow: 0 5px 8px rgba(0,0,0,0.5);
                 }
                 .qr-img {
                     width: 75px;
